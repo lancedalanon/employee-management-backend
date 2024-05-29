@@ -25,4 +25,21 @@ class AuthController extends Controller
             return response()->json(['error' => 'Could not create token'], 500);
         }
     }
+
+    public function logout(Request $request)
+    {
+        try {
+            // Get the token from the request (replace 'Authorization' header name if needed)
+            $token = $request->header('Authorization');
+
+            // If token is present, attempt to invalidate it
+            if ($token) {
+                JWTAuth::invalidate($token);
+            }
+
+            return response()->json(['message' => 'Successfully logged out']);
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Could not log out'], 500);
+        }
+    }
 }
