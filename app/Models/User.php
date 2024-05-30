@@ -50,7 +50,7 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
-     * Get the identifier that will be stored in the subject claim of the JWT.
+     * Get the identifier that will be stored in the JWT subject claim.
      *
      * @return mixed
      */
@@ -60,12 +60,19 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
-     * Get the custom claims that should be added to the JWT.
+     * Return a key value array, containing any custom claims to be added to the JWT.
      *
      * @return array
      */
     public function getJWTCustomClaims()
     {
-        return []; // Add custom claims as needed (e.g., user roles)
+        return [
+            'role' => $this->getRoleNames(),
+            'user' => [
+                'id' => $this->id,
+                'username' => $this->username,
+                'email' => $this->email,
+            ],
+        ];
     }
 }
