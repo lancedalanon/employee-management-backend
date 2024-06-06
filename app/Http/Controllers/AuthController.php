@@ -32,14 +32,14 @@ class AuthController extends Controller
         try {
             // Get the token from the request
             $token = $request->header('Authorization');
-
+    
             // If token is present, attempt to invalidate it
             if ($token) {
                 JWTAuth::invalidate(JWTAuth::getToken());
             }
-
+    
             return response()->json(['message' => 'Successfully logged out']);
-        } catch (JWTException $e) {
+        } catch (\Exception $e) {
             return response()->json(['error' => 'Could not log out'], 500);
         }
     }
