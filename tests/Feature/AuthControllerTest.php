@@ -19,11 +19,13 @@ class AuthControllerTest extends TestCase
     public function test_login_success()
     {
         // Arrange
+        // Create a test user
         User::factory()->create([
             'username' => 'testuser',
             'password' => bcrypt('password123'),
         ]);
 
+        // Define login data
         $loginData = [
             'username' => 'testuser',
             'password' => 'password123',
@@ -45,11 +47,13 @@ class AuthControllerTest extends TestCase
     public function test_login_failure_invalid_credentials()
     {
         // Arrange
+        // Create a test user
         User::factory()->create([
             'username' => 'testuser',
             'password' => bcrypt('password123'),
         ]);
 
+        // Define login data with wrong password
         $loginData = [
             'username' => 'testuser',
             'password' => 'wrongpassword',
@@ -71,11 +75,13 @@ class AuthControllerTest extends TestCase
     public function test_logout_success()
     {
         // Arrange
+        // Create a test user
         $user = User::factory()->create([
             'username' => 'testuser',
             'password' => bcrypt('password123'),
         ]);
 
+        // Generate JWT token for the user
         $token = JWTAuth::fromUser($user);
 
         // Act
