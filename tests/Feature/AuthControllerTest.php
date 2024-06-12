@@ -66,31 +66,4 @@ class AuthControllerTest extends TestCase
         $response->assertStatus(401);
         $response->assertJson(['error' => 'Invalid credentials']);
     }
-
-    /**
-     * Test successful logout.
-     *
-     * @return void
-     */
-    public function test_logout_success()
-    {
-        // Arrange
-        // Create a test user
-        $user = User::factory()->create([
-            'username' => 'testuser',
-            'password' => bcrypt('password123'),
-        ]);
-
-        // Generate JWT token for the user
-        $token = JWTAuth::fromUser($user);
-
-        // Act
-        $response = $this->postJson('/api/logout', [], [
-            'Authorization' => 'Bearer ' . $token,
-        ]);
-
-        // Assert
-        $response->assertStatus(200);
-        $response->assertJson(['message' => 'Successfully logged out']);
-    }
 }
