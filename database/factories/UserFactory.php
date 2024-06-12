@@ -7,9 +7,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-/**
- * @extends Factory<User>
- */
 class UserFactory extends Factory
 {
     /**
@@ -28,12 +25,16 @@ class UserFactory extends Factory
     {
         return [
             'first_name' => $this->faker->firstName,
+            'middle_name' => $this->faker->firstName, // Corrected from $this->faker->middleName
             'last_name' => $this->faker->lastName,
+            'place_of_birth' => $this->faker->city,
+            'date_of_birth' => $this->faker->date(),
+            'gender' => $this->faker->randomElement(['male', 'female']),
             'username' => $this->faker->userName,
             'email' => $this->faker->unique()->safeEmail,
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'remember_token' => null,
         ];
     }
 

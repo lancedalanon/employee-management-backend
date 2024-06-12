@@ -27,10 +27,15 @@ class DatabaseSeeder extends Seeder
         // Create a sample admin user
         $admin = User::create([
             'first_name' => 'Sample',
+            'middle_name' => 'User',
             'last_name' => 'Admin',
+            'place_of_birth' => 'Santa Rosa, Laguna',
+            'date_of_birth' => '2002-05-18',
+            'gender' => 'male',
             'username' => 'admin',
-            'email' => 'admin@mail.com',
-            'password' => Hash::make('password123'),
+            'email' => 'admin@example.com',
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'),
         ]);
 
         // Assign the admin role to the admin user
