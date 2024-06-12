@@ -25,7 +25,7 @@ class UserFactory extends Factory
     {
         return [
             'first_name' => $this->faker->firstName,
-            'middle_name' => $this->faker->firstName, // Corrected from $this->faker->middleName
+            'middle_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,
             'place_of_birth' => $this->faker->city,
             'date_of_birth' => $this->faker->date(),

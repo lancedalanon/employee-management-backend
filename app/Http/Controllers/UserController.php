@@ -1,111 +1,47 @@
 <?php
 
-namespace Tests\Feature;
+namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
-class UserControllerTest extends TestCase
+class UserController extends Controller
 {
-    use RefreshDatabase, WithFaker;
-
     /**
-     * Test successful update of personal information.
+     * Update the specified user's personal information in the database.
      *
-     * @return void
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
      */
-    public function testUpdatePersonalInformationSuccess()
+    public function updatePersonalInformation(Request $request)
     {
-        // Arrange
-        $user = User::factory()->create();
-        $jwtCookie = cookie('jwt_user_id', $user->id, 60);
-
-        $requestData = [
-            'first_name' => $this->faker->firstName,
-            'middle_name' => $this->faker->firstName,
-            'last_name' => $this->faker->lastName,
-            'place_of_birth' => $this->faker->city,
-            'date_of_birth' => $this->faker->date,
-            'gender' => 'male',
-        ];
-
-        // Act
-        $response = $this->withCookie('jwt_user_id', $jwtCookie)->putJson('/api/user/update', $requestData);
-
-        // Assert
-        $response->assertStatus(200)
-            ->assertJson(['message' => 'Personal information updated successfully']);
-
-        $this->assertDatabaseHas('users', [
-            'id' => $user->id,
-            'first_name' => $requestData['first_name'],
-            'middle_name' => $requestData['middle_name'],
-            'last_name' => $requestData['last_name'],
-            'place_of_birth' => $requestData['place_of_birth'],
-            'date_of_birth' => $requestData['date_of_birth'],
-            'gender' => $requestData['gender'],
+        // Validate the incoming request data
+        $validatedData = $request->validate([
+            'first_name' => ['required', 'string', 'min:1', 'max:255'],
+            'middle_name' => ['nullable', 'string', 'min:1', 'max:255'],
+            'last_name' => ['required', 'string', 'min:1', 'max:255'],
+            'place_of_birth' => ['required', 'string', 'min:1', 'max:255'],
+            'date_of_birth' => ['required', 'date'],
+            'gender' => ['required', 'string', 'in:male,female'],
         ]);
-    }
 
-    /**
-     * Test validation error response when updating personal information.
-     *
-     * @return void
-     */
-    public function testUpdatePersonalInformationValidationError()
-    {
-        // Arrange
-        $user = User::factory()->create();
-        $jwtCookie = cookie('jwt_user_id', $user->id, 60);
+        try {
+            // Decode the token to extract the user ID
+            $payload = JWTAuth::manager()->decode(JWTAuth::getToken(true));
+            $userId = $payload['sub']; // Assuming user ID is stored as 'sub' in the payload
 
-        $requestData = [
-            'first_name' => '',
-            'middle_name' => '',
-            'last_name' => '',
-            'place_of_birth' => '',
-            'date_of_birth' => '',
-            'gender' => '',
-        ];
+            // Find the user by ID
+            $user = User::findOrFail($userId);
 
-        // Act
-        $response = $this->withCookie('jwt_user_id', $jwtCookie)->putJson('/api/user/update', $requestData);
+            // Update the user's information based on the provided data
+            $user->update($validatedData);
 
-        // Assert
-        $response->assertStatus(422)
-            ->assertJsonStructure(['message', 'errors' => ['first_name', 'last_name', 'place_of_birth', 'date_of_birth', 'gender']]);
-    }
-
-    /**
-     * Test error response when an exception occurs.
-     *
-     * @return void
-     */
-    public function testUpdatePersonalInformationException()
-    {
-        // Arrange
-        $this->mock(User::class, function ($mock) {
-            $mock->shouldReceive('findOrFail')->andThrow(new \Exception('Test exception'));
-        });
-
-        $user = User::factory()->create();
-        $jwtCookie = cookie('jwt_user_id', $user->id, 60);
-
-        $requestData = [
-            'first_name' => $this->faker->firstName,
-            'middle_name' => $this->faker->firstName,
-            'last_name' => $this->faker->lastName,
-            'place_of_birth' => $this->faker->city,
-            'date_of_birth' => $this->faker->date,
-            'gender' => 'male',
-        ];
-
-        // Act
-        $response = $this->withCookie('jwt_user_id', $jwtCookie)->putJson('/api/user/update', $requestData);
-
-        // Assert
-        $response->assertStatus(500)
-            ->assertJson(['message' => 'Failed to update personal information', 'error' => 'Test exception']);
+            // Return a success response
+            return response()->json(['message' => 'User information updated successfully'], 200);
+        } catch (\Exception $e) {
+            // Return an error response if something goes wrong
+            return response()->json(['message' => 'Failed to update user information', 'error' => $e->getMessage()], 500);
+        }
     }
 }
