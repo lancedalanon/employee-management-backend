@@ -2,42 +2,41 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Tymon\JWTAuth\Facades\JWTAuth;
-use Tymon\JWTAuth\Exceptions\JWTException;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
     /**
-     * Attempt to authenticate the user and generate a JWT token.
+     * Attempt to authenticate the user and generate a Sanctum token.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function login(Request $request)
     {
-        // Get credentials from the request
-        $credentials = $request->only('username', 'password');
+        // Validate the request data
+        $request->validate([
+            'username' => 'required|string',
+            'password' => 'required|string',
+        ]);
 
-        try {
-            // Attempt to authenticate the user
-            if (!Auth::attempt($credentials)) {
-                // Return error response if authentication fails
-                return response()->json(['error' => 'Invalid credentials'], 401);
-            }
-
-            // Get the authenticated user
+        // Attempt to authenticate the user with the provided username and password
+        if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
+            // Authentication passed, generate token
             $user = Auth::user();
+            $token = $user->createToken('auth_token')->plainTextToken;
+            $cookie = cookie('jwt', $token, 60 * 24); // 1 day
 
-            // Generate JWT token for the user
-            $token = JWTAuth::fromUser($user);
-
-            // Return JWT token in response
-            return response()->json(['token' => $token]);
-        } catch (JWTException $e) {
-            // Return error response if token creation fails
-            return response()->json(['error' => 'Could not create token'], 500);
+            // Return cookie  as a JSON response
+            return response()->json(['message' => 'Success'])->withCookie($cookie);
         }
+
+        // Authentication failed
+        throw ValidationException::withMessages([
+            'username' => ['The provided credentials are incorrect.'],
+        ]);
     }
 }
