@@ -23,20 +23,33 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Attempt to authenticate the user with the provided username and password
+        // Attempt to authenticate the user using the provided credentials
         if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
-            // Authentication passed, generate token
+            // Retrieve the authenticated user
             $user = Auth::user();
+
+            // Generate a Sanctum token for the authenticated user
             $token = $user->createToken('auth_token')->plainTextToken;
-            $cookie = cookie('jwt', $token, 60 * 24); // 1 day
 
-            // Return cookie  as a JSON response
-            return response()->json(['message' => 'Success'])->withCookie($cookie);
+            // Prepare the success response data
+            $success = [
+                'token' => $token,
+                'username' => $user->username,
+            ];
+
+            // Return a success response
+            return response()->json([
+                'success' => true,
+                'data' => $success,
+                'message' => 'User login successfully.',
+            ]);
+        } else {
+            // Return an error response for unauthorized access
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorised.',
+                'errors' => ['error' => 'Unauthorised']
+            ], 401);
         }
-
-        // Authentication failed
-        throw ValidationException::withMessages([
-            'username' => ['The provided credentials are incorrect.'],
-        ]);
     }
 }

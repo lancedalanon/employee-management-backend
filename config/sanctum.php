@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Laravel\Sanctum\Sanctum;
 
 return [
@@ -33,7 +34,7 @@ return [
     |
     */
 
-    'guard' => ['web'],
+    'guard' => ['api'],
 
     /*
     |--------------------------------------------------------------------------
