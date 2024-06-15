@@ -2,12 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
+    /**
+     * Get the authenticated user's information.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function showAuthenticatedUser()
+    {
+        // Get the authenticated user's information
+        $user = Auth::user();
+
+        // Return the user's information as a JSON response
+        return response()->json($user);
+    }
+
     /**
      * Update the specified user's personal information in the database.
      *
@@ -16,8 +31,6 @@ class UserController extends Controller
      */
     public function updatePersonalInformation(Request $request)
     {
-        Log::info('Incoming request data:', $request->all());
-
         // Validate the incoming request data
         $request->validate([
             'first_name' => 'required|string|max:255',
