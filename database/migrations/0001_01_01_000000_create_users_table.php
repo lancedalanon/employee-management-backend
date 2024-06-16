@@ -21,6 +21,10 @@ return new class extends Migration
             $table->string('gender');
             $table->string('username');
             $table->string('email')->unique();
+            $table->string('recovery_email')->unique()->nullable();
+            $table->string('phone_number')->unique();
+            $table->string('emergency_contact_name')->nullable();
+            $table->string('emergency_contact_number')->unique()->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

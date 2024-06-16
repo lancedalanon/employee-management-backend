@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
             'gender' => 'male',
             'username' => 'admin',
             'email' => 'admin@example.com',
+            'phone_number' => '0921-212-2227',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
         ]);

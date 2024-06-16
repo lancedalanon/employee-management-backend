@@ -32,6 +32,7 @@ class UserFactory extends Factory
             'gender' => $this->faker->randomElement(['male', 'female']),
             'username' => $this->faker->userName,
             'email' => $this->faker->unique()->safeEmail,
+            'phone_number' => $this->faker->regexify('09[0-9]{2}-[0-9]{3}-[0-9]{4}'),
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
             'remember_token' => null,
