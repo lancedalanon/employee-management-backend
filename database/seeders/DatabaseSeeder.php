@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
             'last_name' => 'Admin',
             'place_of_birth' => 'Santa Rosa, Laguna',
             'date_of_birth' => '2002-05-18',
-            'gender' => 'male',
+            'gender' => 'Male',
             'username' => 'admin',
             'email' => 'admin@example.com',
             'recovery_email' => 'admin1@example.com',

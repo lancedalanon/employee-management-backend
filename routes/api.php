@@ -1,12 +1,16 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
 
+// Public routes
 Route::post('login', [AuthController::class, 'login']);
 
+// Protected routes (authenticated with Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('users/me', [UserController::class, 'showAuthenticatedUser']);
-    Route::put('users/personal-information', [UserController::class, 'updatePersonalInformation']);
+    Route::prefix('users')->group(function () {
+        Route::get('/', [UserController::class, 'showAuthenticatedUser'])->name('users.show');
+        Route::put('/', [UserController::class, 'updatePersonalInformation'])->name('users.update');
+    });
 });

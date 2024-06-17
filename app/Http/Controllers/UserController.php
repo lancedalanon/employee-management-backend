@@ -31,24 +31,48 @@ class UserController extends Controller
      */
     public function updatePersonalInformation(Request $request)
     {
-        // Validate the incoming request data
-        $request->validate([
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'place_of_birth' => 'required|string|max:255',
-            'date_of_birth' => 'required|date',
-            'gender' => 'required|in:male,female',
-        ]);
-
-        // Update the authenticated user's information
+        // Get the authenticated user
         $user = Auth::user();
-        $user->first_name = $request->first_name;
-        $user->middle_name = $request->middle_name;
-        $user->last_name = $request->last_name;
-        $user->place_of_birth = $request->place_of_birth;
-        $user->date_of_birth = $request->date_of_birth;
-        $user->gender = $request->gender;
+
+        // Update user information based on request inputs
+        if ($request->has('first_name')) {
+            $user->first_name = $request->input('first_name');
+        }
+        if ($request->has('middle_name')) {
+            $user->middle_name = $request->input('middle_name');
+        }
+        if ($request->has('last_name')) {
+            $user->last_name = $request->input('last_name');
+        }
+        if ($request->has('place_of_birth')) {
+            $user->place_of_birth = $request->input('place_of_birth');
+        }
+        if ($request->has('date_of_birth')) {
+            $user->date_of_birth = $request->input('date_of_birth');
+        }
+        if ($request->has('gender')) {
+            $user->gender = $request->input('gender');
+        }
+        if ($request->has('email')) {
+            $user->email = $request->input('email');
+        }
+        if ($request->has('username')) {
+            $user->username = $request->input('username');
+        }
+        if ($request->has('recovery_email')) {
+            $user->recovery_email = $request->input('recovery_email');
+        }
+        if ($request->has('phone_number')) {
+            $user->phone_number = $request->input('phone_number');
+        }
+        if ($request->has('emergency_contact_name')) {
+            $user->emergency_contact_name = $request->input('emergency_contact_name');
+        }
+        if ($request->has('emergency_contact_phone_number')) {
+            $user->emergency_contact_phone_number = $request->input('emergency_contact_phone_number');
+        }
+
+        // Save the user model
         $user->save();
 
         // Return a success response
