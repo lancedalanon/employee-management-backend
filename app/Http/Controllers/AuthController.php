@@ -47,7 +47,7 @@ class AuthController extends Controller
             // Return an error response for unauthorized access with HTTP status code 401
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized',
+                'message' => 'Invalid credentials',
                 'errors' => ['error' => 'Invalid credentials']
             ], 401);
         }
