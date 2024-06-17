@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -14,13 +13,14 @@ class AuthController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function login(Request $request)
     {
         // Validate the request data
         $request->validate([
-            'username' => 'required|string',
-            'password' => 'required|string',
+            'username' => 'required|string|max:255',
+            'password' => 'required|string|max:255',
         ]);
 
         // Attempt to authenticate the user using the provided credentials
@@ -37,19 +37,34 @@ class AuthController extends Controller
                 'username' => $user->username,
             ];
 
-            // Return a success response
+            // Return a success response with HTTP status code 200
             return response()->json([
                 'success' => true,
                 'data' => $success,
-                'message' => 'User login successfully.',
-            ]);
+                'message' => 'User logged in successfully.',
+            ], 200);
         } else {
-            // Return an error response for unauthorized access
+            // Return an error response for unauthorized access with HTTP status code 401
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorised.',
-                'errors' => ['error' => 'Unauthorised']
+                'message' => 'Unauthorized',
+                'errors' => ['error' => 'Invalid credentials']
             ], 401);
         }
+    }
+
+    /**
+     * Revoke the current user's token, effectively logging them out.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function logout(Request $request)
+    {
+        // Revoke the current user's token
+        $request->user()->currentAccessToken()->delete();
+
+        // Return a success response with HTTP status code 200
+        return response()->json(['message' => 'User logged out successfully.'], 200);
     }
 }

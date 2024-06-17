@@ -13,4 +13,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [UserController::class, 'showAuthenticatedUser'])->name('users.show');
         Route::put('/', [UserController::class, 'updatePersonalInformation'])->name('users.update');
     });
+
+    Route::post('logout', [AuthController::class, 'logout']);
 });

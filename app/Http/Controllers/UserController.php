@@ -31,51 +31,61 @@ class UserController extends Controller
      */
     public function updatePersonalInformation(Request $request)
     {
-        // Get the authenticated user
-        $user = Auth::user();
+        try {
+            // Validate the incoming request data
+            $request->validate([
+                'first_name' => 'nullable|string|max:255',
+                'middle_name' => 'nullable|string|max:255',
+                'last_name' => 'nullable|string|max:255',
+                'place_of_birth' => 'nullable|string|max:255',
+                'date_of_birth' => 'nullable|date',
+                'gender' => 'nullable|in:Male,Female',
+                'email' => 'nullable|string|max:255|email|unique:users,email,' . Auth::id(),
+                'username' => 'nullable|string|max:255|unique:users,username,' . Auth::id(),
+                'recovery_email' => 'nullable|string|max:255|email|unique:users,recovery_email,' . Auth::id(),
+                'phone_number' => 'nullable|string|max:13',
+                'emergency_contact_name' => 'nullable|string|max:255',
+                'emergency_contact_phone_number' => 'nullable|string|max:13',
+            ]);
 
-        // Update user information based on request inputs
-        if ($request->has('first_name')) {
+            // Get the authenticated user
+            $user = Auth::user();
             $user->first_name = $request->input('first_name');
-        }
-        if ($request->has('middle_name')) {
-            $user->middle_name = $request->input('middle_name');
-        }
-        if ($request->has('last_name')) {
             $user->last_name = $request->input('last_name');
-        }
-        if ($request->has('place_of_birth')) {
             $user->place_of_birth = $request->input('place_of_birth');
-        }
-        if ($request->has('date_of_birth')) {
             $user->date_of_birth = $request->input('date_of_birth');
-        }
-        if ($request->has('gender')) {
             $user->gender = $request->input('gender');
-        }
-        if ($request->has('email')) {
-            $user->email = $request->input('email');
-        }
-        if ($request->has('username')) {
             $user->username = $request->input('username');
-        }
-        if ($request->has('recovery_email')) {
-            $user->recovery_email = $request->input('recovery_email');
-        }
-        if ($request->has('phone_number')) {
-            $user->phone_number = $request->input('phone_number');
-        }
-        if ($request->has('emergency_contact_name')) {
-            $user->emergency_contact_name = $request->input('emergency_contact_name');
-        }
-        if ($request->has('emergency_contact_phone_number')) {
-            $user->emergency_contact_phone_number = $request->input('emergency_contact_phone_number');
-        }
+            $user->email = $request->input('email');
 
-        // Save the user model
-        $user->save();
+            // Update user information based on request inputs
+            if ($request->has('middle_name')) {
+                $user->middle_name = $request->input('middle_name');
+            }
+            if ($request->has('recovery_email')) {
+                $user->recovery_email = $request->input('recovery_email');
+            }
+            if ($request->has('phone_number')) {
+                $user->phone_number = $request->input('phone_number');
+            }
+            if ($request->has('emergency_contact_name')) {
+                $user->emergency_contact_name = $request->input('emergency_contact_name');
+            }
+            if ($request->has('emergency_contact_phone_number')) {
+                $user->emergency_contact_phone_number = $request->input('emergency_contact_phone_number');
+            }
 
-        // Return a success response
-        return response()->json(['message' => 'Personal information updated successfully']);
+            // Save the user model
+            $user->save();
+
+            // Return a success response
+            return response()->json(['message' => 'Personal information updated successfully']);
+        } catch (\Exception $e) {
+            // Log the error
+            Log::error('Error updating user information: ' . $e->getMessage());
+
+            // Return an error response
+            return response()->json(['error' => 'Failed to update personal information', 'details' => $e->getMessage()], 500);
+        }
     }
 }
