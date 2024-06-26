@@ -11,8 +11,7 @@ class Dtr extends Model
 
     protected $fillable = [
         'user_id',
-        'time_in',
-        'time_out',
+        'action_type'
     ];
 
     public function user()
