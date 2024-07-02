@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('dtrs', function (Blueprint $table) {
+        Schema::create('dtr_breaks', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->dateTime('time_in');
-            $table->dateTime('time_out')->nullable();
+            $table->unsignedBigInteger('dtr_id');
+            $table->foreign('dtr_id')->references('id')->on('dtrs')->onDelete('cascade');
+            $table->dateTime('break_time');
+            $table->dateTime('resume_time')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('dtrs');
+        Schema::dropIfExists('dtr_breaks');
     }
 };

@@ -17,9 +17,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('dtr')->group(function () {
         Route::post('/time-in', [DtrController::class, 'timeIn'])->name('dtr.timeIn');
-        Route::post('/resume', [DtrController::class, 'resume'])->name('dtr.resume');
-        Route::post('/break', [DtrController::class, 'break'])->name('dtr.break');
-        Route::post('/time-out', [DtrController::class, 'timeOut'])->name('dtr.timeOut');
+        Route::post('/break/{dtr}', [DtrController::class, 'break'])->name('dtr.break');
+        Route::post('/resume/{dtr}', [DtrController::class, 'resume'])->name('dtr.resume');
+        Route::post('/time-out/{dtr}', [DtrController::class, 'timeOut'])->name('dtr.timeOut');
     });
 
     Route::post('logout', [AuthController::class, 'logout']);

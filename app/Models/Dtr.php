@@ -11,11 +11,27 @@ class Dtr extends Model
 
     protected $fillable = [
         'user_id',
-        'action_type'
+        'time_in',
+        'time_out',
+        'breaks'
+    ];
+
+    protected $casts = [
+        'breaks' => 'array'
+    ];
+
+    protected $dates = [
+        'time_in',
+        'time_out'
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function breaks()
+    {
+        return $this->hasMany(DtrBreak::class);
     }
 }
