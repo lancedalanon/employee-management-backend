@@ -11,6 +11,23 @@ use Carbon\Carbon;
 class DtrController extends Controller
 {
     /**
+     * Gets the paginated DTR entries for the authenticated user.
+     *
+     * @return \Illuminate\Http\JsonResponse Returns a JSON response with paginated DTR entries.
+     */
+    public function getDtr()
+    {
+        $userId = Auth::id();
+
+        // Paginate the DTR entries for the authenticated user, showing 5 entries per page
+        $dtrs = Dtr::where('user_id', $userId)
+            ->orderBy('time_in', 'desc')
+            ->paginate(5); // Pagination with 5 entries per page
+
+        return response()->json($dtrs);
+    }
+
+    /**
      * Records the time in for the authenticated user.
      *
      * @return \Illuminate\Http\JsonResponse Returns a JSON response with a success message or an error message.
