@@ -11,6 +11,41 @@ class AuthControllerTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
+    protected $user;
+    protected $password;
+
+    /**
+     * Set up the test environment.
+     *
+     * This method is called before each test method runs.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Define a common password
+        $this->password = 'password123';
+
+        // Create a user with known credentials
+        $this->user = User::factory()->create([
+            'username' => 'testuser',
+            'password' => bcrypt($this->password),
+        ]);
+    }
+
+    /**
+     * Tear down the test environment.
+     *
+     * This method is called after each test method runs.
+     */
+    protected function tearDown(): void
+    {
+        // Clear user data if needed (database is refreshed by RefreshDatabase)
+        $this->user = null;
+
+        parent::tearDown();
+    }
+
     /**
      * Test user login with valid credentials.
      *
@@ -18,17 +53,10 @@ class AuthControllerTest extends TestCase
      */
     public function test_login_with_valid_credentials()
     {
-        // Create a user with known credentials
-        $password = 'password123';
-        User::factory()->create([
-            'username' => 'testuser',
-            'password' => bcrypt($password),
-        ]);
-
         // Make a POST request to the login endpoint with valid credentials
         $response = $this->postJson('/api/login', [
-            'username' => 'testuser',
-            'password' => $password,
+            'username' => $this->user->username,
+            'password' => $this->password,
         ]);
 
         // Assert that the response is successful and contains the expected data
@@ -57,16 +85,9 @@ class AuthControllerTest extends TestCase
      */
     public function test_login_with_invalid_credentials()
     {
-        // Create a user with known credentials
-        $password = 'password123';
-        User::factory()->create([
-            'username' => 'testuser',
-            'password' => bcrypt($password),
-        ]);
-
         // Make a POST request to the login endpoint with invalid credentials
         $response = $this->postJson('/api/login', [
-            'username' => 'testuser',
+            'username' => $this->user->username,
             'password' => 'wrongpassword',
         ]);
 
@@ -86,9 +107,8 @@ class AuthControllerTest extends TestCase
      */
     public function test_logout()
     {
-        // Create a user and generate a token for the user
-        $user = User::factory()->create();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // Generate a token for the user
+        $token = $this->user->createToken('auth_token')->plainTextToken;
 
         // Make a POST request to the logout endpoint with the token
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
