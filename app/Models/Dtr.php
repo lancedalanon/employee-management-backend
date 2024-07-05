@@ -13,11 +13,6 @@ class Dtr extends Model
         'user_id',
         'time_in',
         'time_out',
-        'breaks'
-    ];
-
-    protected $casts = [
-        'breaks' => 'array'
     ];
 
     protected $dates = [

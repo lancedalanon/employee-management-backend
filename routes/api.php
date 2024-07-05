@@ -17,6 +17,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('dtr')->group(function () {
         Route::get('/', [DtrController::class, 'getDtr'])->name('dtr.getDtr');
+        Route::get('/{dtr}', [DtrController::class, 'getDtrById'])->name('dtr.getDtrById');
         Route::post('/time-in', [DtrController::class, 'timeIn'])->name('dtr.timeIn');
         Route::post('/break/{dtr}', [DtrController::class, 'break'])->name('dtr.break');
         Route::post('/resume/{dtr}', [DtrController::class, 'resume'])->name('dtr.resume');
