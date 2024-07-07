@@ -45,7 +45,7 @@ class UserController extends Controller
                 'recovery_email' => 'nullable|string|max:255|email|unique:users,recovery_email,' . Auth::id(),
                 'phone_number' => 'nullable|string|max:13',
                 'emergency_contact_name' => 'nullable|string|max:255',
-                'emergency_contact_phone_number' => 'nullable|string|max:13',
+                'emergency_contact_number' => 'nullable|string|max:13',
             ]);
 
             // Get the authenticated user
@@ -71,19 +71,16 @@ class UserController extends Controller
             if ($request->has('emergency_contact_name')) {
                 $user->emergency_contact_name = $request->input('emergency_contact_name');
             }
-            if ($request->has('emergency_contact_phone_number')) {
-                $user->emergency_contact_phone_number = $request->input('emergency_contact_phone_number');
+            if ($request->has('emergency_contact_number')) {
+                $user->emergency_contact_number = $request->input('emergency_contact_number');
             }
 
             // Save the user model
             $user->save();
 
-            // Return a success response
-            return response()->json(['message' => 'Personal information updated successfully']);
+            // Return a success response with the updated user data
+            return response()->json(['message' => 'Personal information updated successfully', 'user' => $user]);
         } catch (\Exception $e) {
-            // Log the error
-            Log::error('Error updating user information: ' . $e->getMessage());
-
             // Return an error response
             return response()->json(['error' => 'Failed to update personal information', 'details' => $e->getMessage()], 500);
         }

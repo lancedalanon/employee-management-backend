@@ -35,6 +35,9 @@ class UserFactory extends Factory
             'phone_number' => $this->faker->regexify('09[0-9]{2}-[0-9]{3}-[0-9]{4}'),
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
+            'recovery_email' => $this->faker->unique()->safeEmail,
+            'emergency_contact_name' => $this->faker->firstName,
+            'emergency_contact_number' => $this->faker->regexify('09[0-9]{2}-[0-9]{3}-[0-9]{4}'),
             'remember_token' => null,
         ];
     }
