@@ -4,11 +4,9 @@ namespace Database\Factories;
 
 use App\Models\Dtr;
 use App\Models\DtrBreak;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\DtrBreak>
- */
 class DtrBreakFactory extends Factory
 {
     /**
@@ -26,11 +24,35 @@ class DtrBreakFactory extends Factory
     public function definition(): array
     {
         return [
-            'dtr_id' => function () {
-                return Dtr::factory()->create()->id;
-            },
-            'break_time' => $this->faker->dateTimeBetween('-1 week', 'now'),
-            'resume_time' => $this->faker->dateTimeBetween('now', '+1 hour'), // Resume within 1 hour
+            'dtr_id' => Dtr::factory(),
+            'break_time' => Carbon::now(),
+            'resume_time' => null,
         ];
+    }
+
+    /**
+     * Set the break_time value.
+     *
+     * @param Carbon $breakTime
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function withBreakTime(Carbon $breakTime)
+    {
+        return $this->state([
+            'break_time' => $breakTime,
+        ]);
+    }
+
+    /**
+     * Set the resume_time value.
+     *
+     * @param Carbon $resumeTime
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function withResumeTime(Carbon $resumeTime)
+    {
+        return $this->state([
+            'resume_time' => $resumeTime,
+        ]);
     }
 }

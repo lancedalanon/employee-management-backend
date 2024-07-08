@@ -96,14 +96,13 @@ class DtrController extends Controller
     /**
      * Records the time in for the authenticated user.
      *
-     * @return \Illuminate\Http\JsonResponse Returns a JSON response with a success message or an error message.
+     * @return \Illuminate\Http\JsonResponse Returns a JSON response with a success message and the newly created DTR entry, or an error message.
      */
     public function timeIn()
     {
         try {
             // Get the authenticated user's ID
             $userId = Auth::id();
-            $currentDate = Carbon::now()->toDateString();
 
             // Check if there are any previous DTR records with null time_out for the authenticated user
             $existingDtr = Dtr::where('user_id', $userId)
@@ -117,27 +116,20 @@ class DtrController extends Controller
                 ], 400);
             }
 
-            // Check if there is already a time_in entry for the current date
-            $existingTimeInToday = Dtr::where('user_id', $userId)
-                ->whereDate('time_in', $currentDate)
-                ->exists();
-
-            if ($existingTimeInToday) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'You have already timed in today.'
-                ], 400);
-            }
-
             // Create a new DTR entry for the authenticated user
             $dtr = new Dtr();
             $dtr->user_id = $userId;
             $dtr->time_in = Carbon::now();
             $dtr->save();
 
+            // Fetch the newly created DTR entry from the database
+            $newlyCreatedDtr = Dtr::with('breaks')->find($dtr->id);
+
+            // Return the success response with the newly created DTR entry data
             return response()->json([
                 'success' => true,
-                'message' => 'Time in recorded successfully.'
+                'message' => 'Time in recorded successfully.',
+                'dtr' => $newlyCreatedDtr,
             ], 200);
         } catch (\Exception $e) {
             // Handle any errors that occur during the process
@@ -162,35 +154,20 @@ class DtrController extends Controller
             // Find the DTR record
             $dtr = Dtr::findOrFail($dtrId);
 
-            // Convert the time_in to a Carbon instance
-            $timeInDate = Carbon::parse($dtr->time_in)->toDateString();
-
-            // Check if the date of time_in is the same as the current date
-            if ($timeInDate !== Carbon::now()->toDateString()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'You can only start a break on the same date as your time in.'
-                ], 400);
-            }
-
-            // Check if there is an unfilled resume_time for the same DTR record
-            $unfilledResume = $dtr->breaks()->whereNull('resume_time')->exists();
-            if ($unfilledResume) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'You have an open break that needs to be resumed before starting a new one.'
-                ], 400);
-            }
-
             // Record the break time
             $dtrBreak = new DtrBreak();
             $dtrBreak->dtr_id = $dtr->id;
             $dtrBreak->break_time = Carbon::now();
             $dtrBreak->save();
 
+            // Retrieve the latest DtrBreak entry
+            $latestDtrBreak = DtrBreak::where('dtr_id', $dtr->id)->latest()->first();
+
+            // Return success response with added data
             return response()->json([
                 'success' => true,
-                'message' => 'Break started successfully.'
+                'message' => 'Break started successfully.',
+                'data' => $latestDtrBreak,
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             // Handle DTR record not found
@@ -222,14 +199,12 @@ class DtrController extends Controller
             // Find the DTR record
             $dtr = Dtr::findOrFail($dtrId);
 
-            // Convert the time_in to a Carbon instance
-            $timeInDate = Carbon::parse($dtr->time_in)->toDateString();
-
-            // Check if the date of time_in is the same as the current date
-            if ($timeInDate !== Carbon::now()->toDateString()) {
+            // Check if the existing time_in has a time_out
+            $timeInHasTimeOut = $dtr->whereNotNull('time_out')->exists();
+            if ($timeInHasTimeOut) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'You can only resume a break on the same date as your time in.'
+                    'message' => 'Failed to resume. Time in has already been timed out.'
                 ], 400);
             }
 
@@ -285,14 +260,12 @@ class DtrController extends Controller
             // Find the DTR record
             $dtr = Dtr::findOrFail($dtrId);
 
-            // Convert the time_in to a Carbon instance
-            $timeInDate = Carbon::parse($dtr->time_in)->toDateString();
-
-            // Check if the date of time_in is the same as the current date
-            if ($timeInDate !== Carbon::now()->toDateString()) {
+            // Check if the existing time_in has a time_out
+            $timeInHasTimeOut = $dtr->whereNotNull('time_out')->exists();
+            if ($timeInHasTimeOut) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'You can only time out on the same date as your time in.'
+                    'message' => 'Failed to start break. Time in has already been timed out.'
                 ], 400);
             }
 

@@ -4,11 +4,9 @@ namespace Database\Factories;
 
 use App\Models\Dtr;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Dtr>
- */
 class DtrFactory extends Factory
 {
     /**
@@ -26,10 +24,35 @@ class DtrFactory extends Factory
     public function definition()
     {
         return [
-            'user_id' => function () {
-                return User::factory()->create()->id;
-            },
-            'time_in' => $this->faker->dateTimeBetween('-1 week', 'now'),
+            'user_id' => User::factory(),
+            'time_in' => Carbon::now(),
+            'time_out' => null,
         ];
+    }
+
+    /**
+     * Set the time_in value.
+     *
+     * @param Carbon $timeIn
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function withTimeIn(Carbon $timeIn)
+    {
+        return $this->state([
+            'time_in' => $timeIn,
+        ]);
+    }
+
+    /**
+     * Set the time_out value.
+     *
+     * @param Carbon $timeOut
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function withTimeOut(Carbon $timeOut)
+    {
+        return $this->state([
+            'time_out' => $timeOut,
+        ]);
     }
 }
