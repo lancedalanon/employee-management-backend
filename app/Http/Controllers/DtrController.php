@@ -151,8 +151,24 @@ class DtrController extends Controller
     public function break($dtrId)
     {
         try {
+            // Get the authenticated user's ID
+            $userId = Auth::id();
+
             // Find the DTR record
-            $dtr = Dtr::findOrFail($dtrId);
+            $dtr = Dtr::with(['breaks'])
+                ->where('id', $dtrId)
+                ->where('user_id', $userId)
+                ->where('time_out', null)
+                ->firstOrFail();
+
+            // Check if there is any open break (break_time set but resume_time is null)
+            $hasOpenBreak = $dtr->breaks->whereNull('resume_time')->isNotEmpty();
+            if ($hasOpenBreak) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to start break. You have an open break session.'
+                ], 400);
+            }
 
             // Record the break time
             $dtrBreak = new DtrBreak();
@@ -196,39 +212,35 @@ class DtrController extends Controller
     public function resume($dtrId)
     {
         try {
+            // Get the authenticated user's ID
+            $userId = Auth::id();
+
             // Find the DTR record
-            $dtr = Dtr::findOrFail($dtrId);
+            $dtr = Dtr::with(['breaks'])
+                ->where('id', $dtrId)
+                ->where('user_id', $userId)
+                ->where('time_out', null)
+                ->firstOrFail();
 
-            // Check if the existing time_in has a time_out
-            $timeInHasTimeOut = $dtr->whereNotNull('time_out')->exists();
-            if ($timeInHasTimeOut) {
+            // Retrieve the latest DtrBreak entry with no resume_time
+            $dtrBreak = $dtr->breaks()->whereNull('resume_time')->where('id', $dtrId)->latest()->first();
+
+            // Check if the break entry is found
+            if (!$dtrBreak) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to resume. Time in has already been timed out.'
+                    'message' => 'Failed to resume break. No open break session found.'
                 ], 400);
             }
 
-            // Find the last break record (assuming you're resuming the latest break)
-            $latestBreak = $dtr->breaks()
-                ->whereDate('break_time', Carbon::now()->toDateString())
-                ->latest()
-                ->first();
-
-            // Check if there is a break to resume and that it is not already resumed
-            if (is_null($latestBreak) || !is_null($latestBreak->resume_time)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No break to resume or the break is already resumed.'
-                ], 400);
-            }
-
-            // Update the resume time for the latest break
-            $latestBreak->resume_time = Carbon::now();
-            $latestBreak->save();
+            // Update the resume time
+            $dtrBreak->resume_time = Carbon::now();
+            $dtrBreak->save();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Break resumed successfully.'
+                'message' => 'Break resumed successfully.',
+                'data' => $dtrBreak,
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             // Handle DTR record not found

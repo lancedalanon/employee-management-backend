@@ -168,7 +168,17 @@ class DtrControllerTest extends TestCase
      */
     public function testStartBreak()
     {
-        $response = $this->postJson('/api/dtr/break/' . $this->dtr->id);
+        // Add new user
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        // Specific timestamps for Dtr and DtrBreak
+        $timeIn = Carbon::now();
+        $dtr = Dtr::factory()->withTimeIn($timeIn)->create([
+            'user_id' => $user->id,
+        ]);
+
+        $response = $this->postJson('/api/dtr/break/' . $dtr->id);
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -191,7 +201,36 @@ class DtrControllerTest extends TestCase
 
         // Check if the break was recorded in the database
         $this->assertDatabaseHas('dtr_breaks', [
-            'dtr_id' => $this->dtr->id,
+            'dtr_id' => $dtr->id,
+        ]);
+    }
+
+    /**
+     * Test the break method when there is an open break session.
+     *
+     * @return void
+     */
+    public function testStartBreakWithOpenBreakSession()
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $timeIn = Carbon::now()->subHour();
+        $dtr = Dtr::factory()->withTimeIn($timeIn)->create([
+            'user_id' => $user->id,
+        ]);
+
+        $break = Carbon::now()->subMinutes(30);
+        DtrBreak::factory()->withBreakTime($break)->create([
+            'dtr_id' => $dtr->id,
+        ]);
+
+        $response = $this->postJson('/api/dtr/break/' . $dtr->id);
+
+        $response->assertStatus(400);
+        $response->assertJson([
+            'success' => false,
+            'message' => 'Failed to start break. You have an open break session.',
         ]);
     }
 
@@ -209,6 +248,94 @@ class DtrControllerTest extends TestCase
         $response->assertJson([
             'success' => false,
             'message' => 'DTR record not found.',
+        ]);
+    }
+
+    /**
+     * Test the resume method for resuming a break.
+     *
+     * @return void
+     */
+    public function testResumeBreak()
+    {
+        // Add a new user
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        // Specific timestamps for Dtr and DtrBreak
+        $timeIn = Carbon::now();
+        $dtr = Dtr::factory()->withTimeIn($timeIn)->create([
+            'user_id' => $user->id,
+        ]);
+
+        // Create a DtrBreak entry for the user
+        DtrBreak::factory()->create([
+            'dtr_id' => $dtr->id,
+        ]);
+
+        $response = $this->postJson('/api/dtr/resume/' . $dtr->id);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'message' => 'Break resumed successfully.',
+        ]);
+
+        // Verify the response contains the updated DtrBreak entry
+        $response->assertJsonStructure([
+            'success',
+            'message',
+            'data' => [
+                'id',
+                'dtr_id',
+                'break_time',
+                'resume_time',
+                'created_at',
+                'updated_at',
+            ],
+        ]);
+    }
+
+    /**
+     * Test the resume method when DTR record is not found.
+     *
+     * @return void
+     */
+    public function testResumeBreakDtrNotFound()
+    {
+        $invalidDtrId = 999; // Assumed non-existent DTR ID
+        $response = $this->postJson('/api/dtr/resume/' . $invalidDtrId);
+
+        $response->assertStatus(404);
+        $response->assertJson([
+            'success' => false,
+            'message' => 'DTR record not found.',
+        ]);
+    }
+
+    /**
+     * Test the resume method when no open break session is found.
+     *
+     * @return void
+     */
+    public function testResumeBreakNoOpenSession()
+    {
+        // Add a new user
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        // Specific timestamps for Dtr
+        $timeIn = Carbon::now();
+        $dtr = Dtr::factory()->withTimeIn($timeIn)->create([
+            'user_id' => $user->id,
+        ]);
+
+        $response = $this->postJson('/api/dtr/resume/' . $dtr->id);
+
+        $response->assertStatus(400);
+        $response->assertJson([
+            'success' => false,
+            'message' => 'Failed to resume break. No open break session found.',
         ]);
     }
 }
