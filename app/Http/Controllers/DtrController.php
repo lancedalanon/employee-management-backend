@@ -223,7 +223,7 @@ class DtrController extends Controller
                 ->firstOrFail();
 
             // Retrieve the latest DtrBreak entry with no resume_time
-            $dtrBreak = $dtr->breaks()->whereNull('resume_time')->where('id', $dtrId)->latest()->first();
+            $dtrBreak = $dtr->breaks()->whereNull('resume_time')->latest()->first();
 
             // Check if the break entry is found
             if (!$dtrBreak) {

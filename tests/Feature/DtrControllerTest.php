@@ -162,6 +162,46 @@ class DtrControllerTest extends TestCase
     }
 
     /**
+     * Test successful time in.
+     */
+    public function testTimeIn()
+    {
+        $response = $this->postJson('/api/dtr/time-in');
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'message' => 'Time in recorded successfully.'
+            ]);
+
+        $this->assertDatabaseHas('dtrs', [
+            'user_id' => $this->user->id,
+            'time_out' => null
+        ]);
+    }
+
+    /**
+     * Test open time record needs to be closed before timing in again.
+     */
+    public function testTimeInOpenTimeRecordExists()
+    {
+        // Create an existing DTR record without a time_out
+        Dtr::factory()->create([
+            'user_id' => $this->user->id,
+            'time_in' => Carbon::now()->subHours(2),
+            'time_out' => null
+        ]);
+
+        $response = $this->postJson('/api/dtr/time-in');
+
+        $response->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'message' => 'You have an open time record that needs to be closed before timing in again.'
+            ]);
+    }
+
+    /**
      * Test the break method for starting a break.
      *
      * @return void
@@ -263,13 +303,14 @@ class DtrControllerTest extends TestCase
         Sanctum::actingAs($user);
 
         // Specific timestamps for Dtr and DtrBreak
-        $timeIn = Carbon::now();
+        $timeIn = Carbon::now()->subMinutes(30);
         $dtr = Dtr::factory()->withTimeIn($timeIn)->create([
             'user_id' => $user->id,
         ]);
 
         // Create a DtrBreak entry for the user
-        DtrBreak::factory()->create([
+        $breakTime = Carbon::now();
+        DtrBreak::factory()->withBreakTime($breakTime)->create([
             'dtr_id' => $dtr->id,
         ]);
 
