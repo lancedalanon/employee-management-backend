@@ -123,13 +123,13 @@ class DtrController extends Controller
             $dtr->save();
 
             // Fetch the newly created DTR entry from the database
-            $newlyCreatedDtr = Dtr::with('breaks')->find($dtr->id);
+            $latestTimeIn = Dtr::where('id', $dtr->id)->where('user_id', $userId)->latest()->first();
 
             // Return the success response with the newly created DTR entry data
             return response()->json([
                 'success' => true,
                 'message' => 'Time in recorded successfully.',
-                'dtr' => $newlyCreatedDtr,
+                'data' => $latestTimeIn,
             ], 200);
         } catch (\Exception $e) {
             // Handle any errors that occur during the process

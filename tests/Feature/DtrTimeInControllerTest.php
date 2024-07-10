@@ -41,9 +41,17 @@ class DtrTimeInControllerTest extends TestCase
         $response = $this->postJson('/api/dtr/time-in');
 
         $response->assertStatus(200)
-            ->assertJson([
-                'success' => true,
-                'message' => 'Time in recorded successfully.'
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    'id',
+                    'user_id',
+                    'time_in',
+                    'time_out',
+                    'created_at',
+                    'updated_at',
+                ],
             ]);
 
         $this->assertDatabaseHas('dtrs', [
