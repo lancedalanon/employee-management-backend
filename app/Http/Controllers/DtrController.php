@@ -269,15 +269,19 @@ class DtrController extends Controller
     public function timeOut($dtrId)
     {
         try {
+            // Get the authenticated user's ID
+            $userId = Auth::id();
+
             // Find the DTR record
-            $dtr = Dtr::findOrFail($dtrId);
+            $dtr = Dtr::where('user_id', $userId)
+                ->where('id', $dtrId)
+                ->firstOrFail();
 
             // Check if the existing time_in has a time_out
-            $timeInHasTimeOut = $dtr->whereNotNull('time_out')->exists();
-            if ($timeInHasTimeOut) {
+            if ($dtr->time_out) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to start break. Time in has already been timed out.'
+                    'message' => 'Failed to time-out. Record has already been timed out.'
                 ], 400);
             }
 
