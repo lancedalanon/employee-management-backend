@@ -17,14 +17,29 @@ class DatabaseSeeder extends Seeder
         // Create roles
         $adminRole = Role::create(['name' => 'admin']);
         $studentRole = Role::create(['name' => 'student']);
+        $fullTimeRole = Role::create(['name' => 'full-time']);
+        $partTimeRole = Role::create(['name' => 'part-time']);
+        $dayShiftRole = Role::create(['name' => 'day-shift']);
+        $afternoonShiftRole = Role::create(['name' => 'afternoon-shift']);
+        $eveningShiftRole = Role::create(['name' => 'evening-shift']);
+        $earlyShiftRole = Role::create(['name' => 'early-shift']);
+        $lateShiftRole = Role::create(['name' => 'late-shift']);
 
-        // Create 10 student users
+        // Create 10 student users and shuffle their roles
         $students = User::factory()->count(10)->create();
         foreach ($students as $student) {
+            $shiftRoles = [$dayShiftRole, $afternoonShiftRole, $eveningShiftRole, $earlyShiftRole, $lateShiftRole];
+            shuffle($shiftRoles);
+            $student->assignRole($shiftRoles[0]);
+
+            $jobTypeRoles = [$fullTimeRole, $partTimeRole];
+            shuffle($jobTypeRoles);
+            $student->assignRole($jobTypeRoles[0]);
+
             $student->assignRole($studentRole);
         }
 
-        // Create a sample admin user
+        // Create a sample admin user and assign the roles
         $admin = User::create([
             'first_name' => 'Sample',
             'middle_name' => 'User',
@@ -42,7 +57,8 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
         ]);
 
-        // Assign the admin role to the admin user
+        $admin->assignRole($dayShiftRole);
+        $admin->assignRole($fullTimeRole);
         $admin->assignRole($adminRole);
     }
 }
