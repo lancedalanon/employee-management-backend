@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Dtr;
 use App\Models\DtrBreak;
+use App\Models\EndOfTheDayReportImage;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
@@ -262,12 +263,19 @@ class DtrController extends Controller
     /**
      * Records the time out for the authenticated user.
      *
+     * @param \Illuminate\Http\Request $request The incoming HTTP request.
      * @param int $dtrId The ID of the DTR record to update.
      * @return \Illuminate\Http\JsonResponse Returns a JSON response with a success message or an error message.
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If the DTR record is not found.
      */
-    public function timeOut($dtrId)
+    public function timeOut(Request $request, $dtrId)
     {
+        // Validate the request data
+        $request->validate([
+            'end_of_the_day_report' => 'required|string|max:500',
+            'end_of_the_day_images' => 'required|array|max:4',
+            'end_of_the_day_images.*' => 'required|image|mimes:jpeg,png,jpg,webp,svg|max:2048'
+        ]);
+
         try {
             // Get the authenticated user's ID
             $userId = Auth::id();
@@ -320,9 +328,32 @@ class DtrController extends Controller
                 ], 400);
             }
 
-            // Update the time_out field of the DTR record
+            // Update the time_out field and end_of_the_day_report field of the DTR record
             $dtr->time_out = Carbon::now();
+            $dtr->end_of_the_day_report = $request->end_of_the_day_report;
             $dtr->save();
+
+            // Handle image uploads
+            if ($request->hasFile('end_of_the_day_images')) {
+                $images = $request->file('end_of_the_day_images');
+                $uploadedImages = [];
+
+                foreach ($images as $image) {
+                    $path = $image->store('end_of_the_day_images', 'public');
+                    $uploadedImages[] = new EndOfTheDayReportImage([
+                        'end_of_the_day_image' => $path
+                    ]);
+                }
+
+                if (count($uploadedImages) > 4) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'You can only upload up to 4 images.'
+                    ], 400);
+                }
+
+                $dtr->endOfTheDayReportImages()->saveMany($uploadedImages);
+            }
 
             return response()->json([
                 'success' => true,
