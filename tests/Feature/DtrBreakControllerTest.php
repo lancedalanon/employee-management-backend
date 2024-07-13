@@ -38,7 +38,7 @@ class DtrBreakControllerTest extends TestCase
      *
      * @return void
      */
-    public function testStartBreak()
+    public function test_start_break()
     {
         // Add new user
         $user = User::factory()->create();
@@ -82,7 +82,7 @@ class DtrBreakControllerTest extends TestCase
      *
      * @return void
      */
-    public function testStartBreakWithOpenBreakSession()
+    public function test_start_break_with_open_break_session()
     {
         $user = User::factory()->create();
         Sanctum::actingAs($user);
@@ -111,7 +111,7 @@ class DtrBreakControllerTest extends TestCase
      *
      * @return void
      */
-    public function testStartBreakDtrNotFound()
+    public function test_start_break_dtr_not_found()
     {
         $invalidDtrId = 999; // Assumed non-existent DTR ID
         $response = $this->postJson('/api/dtr/break/' . $invalidDtrId);

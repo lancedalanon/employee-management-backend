@@ -36,7 +36,7 @@ class DtrTimeInControllerTest extends TestCase
     /**
      * Test successful time in.
      */
-    public function testTimeIn()
+    public function test_time_in()
     {
         $response = $this->postJson('/api/dtr/time-in');
 
@@ -63,7 +63,7 @@ class DtrTimeInControllerTest extends TestCase
     /**
      * Test open time record needs to be closed before timing in again.
      */
-    public function testTimeInOpenTimeRecordExists()
+    public function test_time_in_open_time_record_exists()
     {
         // Create an existing DTR record without a time_out
         Dtr::factory()->create([

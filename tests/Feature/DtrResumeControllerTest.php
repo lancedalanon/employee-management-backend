@@ -38,7 +38,7 @@ class DtrResumeControllerTest extends TestCase
      *
      * @return void
      */
-    public function testResumeBreak()
+    public function test_resume_break()
     {
         // Add a new user
         $user = User::factory()->create();
@@ -84,7 +84,7 @@ class DtrResumeControllerTest extends TestCase
      *
      * @return void
      */
-    public function testResumeBreakDtrNotFound()
+    public function test_resume_break_dtr_not_found()
     {
         $invalidDtrId = 999; // Assumed non-existent DTR ID
         $response = $this->postJson('/api/dtr/resume/' . $invalidDtrId);
@@ -101,7 +101,7 @@ class DtrResumeControllerTest extends TestCase
      *
      * @return void
      */
-    public function testResumeBreakNoOpenSession()
+    public function test_resume_break_no_open_session()
     {
         // Add a new user
         $user = User::factory()->create();

@@ -66,7 +66,7 @@ class DtrTimeOutControllerTest extends TestCase
     /**
      * Test successful time out.
      */
-    public function testTimeOut()
+    public function test_time_out()
     {
         $user = $this->createUserWithRoles();
         Sanctum::actingAs($user);
@@ -104,7 +104,7 @@ class DtrTimeOutControllerTest extends TestCase
     /**
      * Test DTR record not found.
      */
-    public function testTimeOutDtrRecordNotFound()
+    public function test_time_out_dtr_record_not_found()
     {
         // Add a new user
         $user = $this->createUserWithRoles();
@@ -127,7 +127,7 @@ class DtrTimeOutControllerTest extends TestCase
     /**
      * Test time-out already recorded.
      */
-    public function testTimeOutAlreadyRecorded()
+    public function test_time_out_already_recorded()
     {
         // Add a new user
         $user = $this->createUserWithRoles();
@@ -157,7 +157,7 @@ class DtrTimeOutControllerTest extends TestCase
     /**
      * Test open break needs to be resumed before timing out.
      */
-    public function testOpenBreakNeedsToBeResumedBeforeTimingOut()
+    public function test_open_break_needs_to_be_resumed_before_timing_out()
     {
         // Add a new user
         $user = $this->createUserWithRoles();
@@ -190,7 +190,7 @@ class DtrTimeOutControllerTest extends TestCase
     /**
      * Test total work hours less than 8 hours.
      */
-    public function testTimeOutWithInsufficientTotalWorkHours()
+    public function test_time_out_with_insufficient_total_work_hours()
     {
         // Add a new user
         $user = $this->createUserWithRoles();

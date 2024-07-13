@@ -36,7 +36,7 @@ class DtrGetDtrControllerTest extends TestCase
     /**
      * Test retrieving paginated DTR entries for an authenticated user.
      */
-    public function testGetDtr(): void
+    public function test_get_dtr(): void
     {
         // Simulate GET request to the getDtr endpoint
         $response = $this->getJson('/api/dtr');
@@ -86,7 +86,7 @@ class DtrGetDtrControllerTest extends TestCase
     /**
      * Test retrieving a DTR entry by ID for an authenticated user.
      */
-    public function testGetDtrById(): void
+    public function test_get_dtr_by_id(): void
     {
         // Simulate GET request to the getDtrById endpoint
         $response = $this->getJson("/api/dtr/{$this->dtr->id}");
@@ -122,7 +122,7 @@ class DtrGetDtrControllerTest extends TestCase
     /**
      * Test retrieving a non-existent DTR entry by ID.
      */
-    public function testGetNonExistentDtrById(): void
+    public function test_get_non_existent_dtr_by_id(): void
     {
         // Simulate GET request to the getDtrById endpoint with a non-existent DTR ID
         $response = $this->getJson('/api/dtr/9999'); // Assuming 9999 is a non-existent DTR ID
