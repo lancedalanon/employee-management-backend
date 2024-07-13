@@ -24,8 +24,8 @@ class UserRoleServiceTest extends TestCase
     public function test_get_user_employment_role()
     {
         // Create roles
-        $fullTimeRole = Role::create(['name' => 'full-time']);
-        $partTimeRole = Role::create(['name' => 'part-time']);
+        Role::create(['name' => 'full-time']);
+        Role::create(['name' => 'part-time']);
 
         // Create a user and assign a role
         $user = User::factory()->create();
@@ -46,8 +46,8 @@ class UserRoleServiceTest extends TestCase
     public function test_get_user_shift_role()
     {
         // Create roles
-        $dayShiftRole = Role::create(['name' => 'day-shift']);
-        $eveningShiftRole = Role::create(['name' => 'evening-shift']);
+        Role::create(['name' => 'day-shift']);
+        Role::create(['name' => 'evening-shift']);
 
         // Create a user and assign a role
         $user = User::factory()->create();
