@@ -8,20 +8,21 @@ use App\Models\DtrBreak;
 use App\Models\EndOfTheDayReportImage;
 use Illuminate\Support\Facades\Auth;
 use App\Services\User\UserRoleService;
+use App\Services\User\WorkHoursService;
 use Carbon\Carbon;
 
 class DtrController extends Controller
 {
-    protected $userRoleService;
+    protected $workHoursService;
 
     /**
      * DtrController constructor.
      *
-     * @param UserRoleService $userRoleService
+     * @param WorkHoursService $workHoursService
      */
-    public function __construct(UserRoleService $userRoleService)
+    public function __construct(WorkHoursService $workHoursService)
     {
-        $this->userRoleService = $userRoleService;
+        $this->workHoursService = $workHoursService;
     }
 
     /**
@@ -115,8 +116,9 @@ class DtrController extends Controller
     public function timeIn()
     {
         try {
-            // Get the authenticated user's ID
+            // Get the authenticated user's ID and object
             $userId = Auth::id();
+            $user = Auth::user();
 
             // Check if there are any previous DTR records with null time_out for the authenticated user
             $existingDtr = Dtr::where('user_id', $userId)
@@ -130,10 +132,19 @@ class DtrController extends Controller
                 ], 400);
             }
 
+            // Evaluate time in based on user's shift
+            $timeIn = $this->workHoursService->evaluateTimeIn($user, now());
+
             // Create a new DTR entry for the authenticated user
             $dtr = new Dtr();
             $dtr->user_id = $userId;
-            $dtr->time_in = Carbon::now();
+            $dtr->time_in = $timeIn;
+            $dtr->save();
+
+            // Create a new DTR entry for the authenticated user
+            $dtr = new Dtr();
+            $dtr->user_id = $userId;
+            $dtr->time_in = $timeIn;
             $dtr->save();
 
             // Fetch the newly created DTR entry from the database
@@ -334,6 +345,8 @@ class DtrController extends Controller
             // Convert total work duration to hours
             $totalWorkHours = $totalWorkDuration / 3600;
 
+            // Extract full/part-time role and shift role
+
             // Check if total work hours is at least 8 hours
             if ($totalWorkHours < 8) {
                 return response()->json([
@@ -341,10 +354,6 @@ class DtrController extends Controller
                     'message' => 'You need to work at least 8 hours before timing out.'
                 ], 400);
             }
-
-            // Extract full/part-time role and shift role
-            $employmentRole = $this->userRoleService->getUserEmploymentRole($user);
-            $shiftRole = $this->userRoleService->getUserShiftRole($user);
 
             // Update the time_out field and end_of_the_day_report field of the DTR record
             $dtr->time_out = Carbon::now();
