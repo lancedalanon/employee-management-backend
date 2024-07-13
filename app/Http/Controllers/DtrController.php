@@ -7,10 +7,23 @@ use App\Models\Dtr;
 use App\Models\DtrBreak;
 use App\Models\EndOfTheDayReportImage;
 use Illuminate\Support\Facades\Auth;
+use App\Services\User\UserRoleService;
 use Carbon\Carbon;
 
 class DtrController extends Controller
 {
+    protected $userRoleService;
+
+    /**
+     * DtrController constructor.
+     *
+     * @param UserRoleService $userRoleService
+     */
+    public function __construct(UserRoleService $userRoleService)
+    {
+        $this->userRoleService = $userRoleService;
+    }
+
     /**
      * Gets the paginated DTR entries for the authenticated user.
      *
@@ -277,8 +290,9 @@ class DtrController extends Controller
         ]);
 
         try {
-            // Get the authenticated user's ID
+            // Get the authenticated user's ID and object
             $userId = Auth::id();
+            $user = Auth::user();
 
             // Find the DTR record
             $dtr = Dtr::where('user_id', $userId)
@@ -327,6 +341,10 @@ class DtrController extends Controller
                     'message' => 'You need to work at least 8 hours before timing out.'
                 ], 400);
             }
+
+            // Extract full/part-time role and shift role
+            $employmentRole = $this->userRoleService->getUserEmploymentRole($user);
+            $shiftRole = $this->userRoleService->getUserShiftRole($user);
 
             // Update the time_out field and end_of_the_day_report field of the DTR record
             $dtr->time_out = Carbon::now();

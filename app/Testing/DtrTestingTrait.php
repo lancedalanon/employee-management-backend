@@ -7,6 +7,7 @@ use App\Models\DtrBreak;
 use App\Models\User;
 use Carbon\Carbon;
 use Laravel\Sanctum\Sanctum;
+use Spatie\Permission\Models\Role;
 
 trait DtrTestingTrait
 {
@@ -18,6 +19,16 @@ trait DtrTestingTrait
     {
         // Create a user
         $this->user = User::factory()->create();
+
+        // Create roles
+        $studentRole = Role::create(['name' => 'student']);
+        $fullTimeRole = Role::create(['name' => 'full-time']);
+        $dayShiftRole = Role::create(['name' => 'day-shift']);
+
+        // Assign roles to the user
+        $this->user->assignRole($fullTimeRole);
+        $this->user->assignRole($dayShiftRole);
+        $this->user->assignRole($studentRole);
 
         // Specific timestamps for Dtr and DtrBreak
         $timeIn = Carbon::parse('2023-07-01 08:00:00');

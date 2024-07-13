@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Laravel\Sanctum\Sanctum;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class DtrTimeOutControllerTest extends TestCase
@@ -36,12 +37,38 @@ class DtrTimeOutControllerTest extends TestCase
     }
 
     /**
+     * A local helper that creates a new user and assigns roles to them.
+     *
+     * This function creates a new user using Laravel's User factory, 
+     * assigns the user to the 'student', 'full-time', and 'day-shift' roles,
+     * and then authenticates the user using Laravel Sanctum.
+     *
+     * @return \App\Models\User The newly created and authenticated user.
+     */
+    public function createUserWithRoles()
+    {
+        // Add a new user
+        $user = User::factory()->create();
+
+        // Create roles
+        Role::create(['name' => 'student']);
+        Role::create(['name' => 'full-time']);
+        Role::create(['name' => 'day-shift']);
+
+        // Assign roles to the user
+        $user->assignRole('student');
+        $user->assignRole('full-time');
+        $user->assignRole('day-shift');
+
+        return $user;
+    }
+
+    /**
      * Test successful time out.
      */
     public function testTimeOut()
     {
-        // Add a new user
-        $user = User::factory()->create();
+        $user = $this->createUserWithRoles();
         Sanctum::actingAs($user);
 
         // Specific timestamps for Dtr
@@ -80,7 +107,7 @@ class DtrTimeOutControllerTest extends TestCase
     public function testTimeOutDtrRecordNotFound()
     {
         // Add a new user
-        $user = User::factory()->create();
+        $user = $this->createUserWithRoles();
         Sanctum::actingAs($user);
 
         $response = $this->postJson('/api/dtr/time-out/99999', [
@@ -103,7 +130,7 @@ class DtrTimeOutControllerTest extends TestCase
     public function testTimeOutAlreadyRecorded()
     {
         // Add a new user
-        $user = User::factory()->create();
+        $user = $this->createUserWithRoles();
         Sanctum::actingAs($user);
 
         // Specific timestamps for Dtr
@@ -133,7 +160,7 @@ class DtrTimeOutControllerTest extends TestCase
     public function testOpenBreakNeedsToBeResumedBeforeTimingOut()
     {
         // Add a new user
-        $user = User::factory()->create();
+        $user = $this->createUserWithRoles();
         Sanctum::actingAs($user);
 
         // Specific timestamps for Dtr
@@ -166,7 +193,7 @@ class DtrTimeOutControllerTest extends TestCase
     public function testTimeOutTotalWorkHoursLessThanEight()
     {
         // Add a new user
-        $user = User::factory()->create();
+        $user = $this->createUserWithRoles();
         Sanctum::actingAs($user);
 
         // Specific timestamps for Dtr
@@ -195,7 +222,7 @@ class DtrTimeOutControllerTest extends TestCase
     public function testValidationErrorForMissingReport()
     {
         // Add a new user
-        $user = User::factory()->create();
+        $user = $this->createUserWithRoles();
         Sanctum::actingAs($user);
 
         // Specific timestamps for Dtr
@@ -223,7 +250,7 @@ class DtrTimeOutControllerTest extends TestCase
     public function testValidationErrorForMissingImages()
     {
         // Add a new user
-        $user = User::factory()->create();
+        $user = $this->createUserWithRoles();
         Sanctum::actingAs($user);
 
         // Specific timestamps for Dtr
@@ -246,7 +273,7 @@ class DtrTimeOutControllerTest extends TestCase
     public function testValidationErrorForTooManyImages()
     {
         // Add a new user
-        $user = User::factory()->create();
+        $user = $this->createUserWithRoles();
         Sanctum::actingAs($user);
 
         // Specific timestamps for Dtr
