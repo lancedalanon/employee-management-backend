@@ -13,6 +13,7 @@ class Dtr extends Model
         'user_id',
         'time_in',
         'time_out',
+        'end_of_the_day_report',
     ];
 
     protected $dates = [
@@ -28,5 +29,10 @@ class Dtr extends Model
     public function breaks()
     {
         return $this->hasMany(DtrBreak::class);
+    }
+
+    public function endOfTheDayReportImages()
+    {
+        return $this->hasMany(EndOfTheDayReportImage::class);
     }
 }

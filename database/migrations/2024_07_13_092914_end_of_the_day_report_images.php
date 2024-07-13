@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('dtrs', function (Blueprint $table) {
+        Schema::create('end_of_the_day_report_images', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->dateTime('time_in');
-            $table->dateTime('time_out')->nullable();
-            $table->text('end_of_the_day_report')->nullable();
+            $table->unsignedBigInteger('dtr_id');
+            $table->foreign('dtr_id')->references('id')->on('dtrs')->onDelete('cascade');
+            $table->binary('end_of_the_day_image');
             $table->timestamps();
         });
     }
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('dtrs');
+        Schema::dropIfExists('end_of_the_day_report_images');
     }
 };
