@@ -141,12 +141,6 @@ class DtrController extends Controller
             $dtr->time_in = $timeIn;
             $dtr->save();
 
-            // Create a new DTR entry for the authenticated user
-            $dtr = new Dtr();
-            $dtr->user_id = $userId;
-            $dtr->time_in = $timeIn;
-            $dtr->save();
-
             // Fetch the newly created DTR entry from the database
             $latestTimeIn = Dtr::where('id', $dtr->id)->where('user_id', $userId)->latest()->first();
 
@@ -327,36 +321,20 @@ class DtrController extends Controller
                 ], 400);
             }
 
-            // Calculate the total working hours including break-resume sessions
-            $timeIn = Carbon::parse($dtr->time_in);
-            $currentTime = Carbon::now();
-            $totalWorkDuration = $timeIn->diffInSeconds($currentTime);
-
-            // Subtract the duration of all breaks
-            $breaks = $dtr->breaks()->get();
-            foreach ($breaks as $break) {
-                if ($break->resume_time) {
-                    $breakStart = Carbon::parse($break->break_time);
-                    $breakEnd = Carbon::parse($break->resume_time);
-                    $totalWorkDuration -= $breakStart->diffInSeconds($breakEnd);
-                }
-            }
-
-            // Convert total work duration to hours
-            $totalWorkHours = $totalWorkDuration / 3600;
-
             // Extract full/part-time role and shift role
+            $timeOut = $this->workHoursService->evaluateTimeOut($user, now());
+            $timeIn = Carbon::parse($dtr->time_in);
 
-            // Check if total work hours is at least 8 hours
-            if ($totalWorkHours < 8) {
+            // Evaluate if the hour difference of time in and time out are appropriate for the role
+            if (!$this->workHoursService->findTimeInTimeOutDifference($user, $dtr, $timeIn, $timeOut)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'You need to work at least 8 hours before timing out.'
+                    'message' => 'Insufficient worked hours. You need to work at least 8 hours before timing out for full-time or 4 hours for part-time.'
                 ], 400);
             }
 
             // Update the time_out field and end_of_the_day_report field of the DTR record
-            $dtr->time_out = Carbon::now();
+            $dtr->time_out = $timeOut;
             $dtr->end_of_the_day_report = $request->end_of_the_day_report;
             $dtr->save();
 

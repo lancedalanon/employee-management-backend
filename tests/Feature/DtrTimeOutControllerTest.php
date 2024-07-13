@@ -190,7 +190,7 @@ class DtrTimeOutControllerTest extends TestCase
     /**
      * Test total work hours less than 8 hours.
      */
-    public function testTimeOutTotalWorkHoursLessThanEight()
+    public function testTimeOutWithInsufficientTotalWorkHours()
     {
         // Add a new user
         $user = $this->createUserWithRoles();
@@ -212,7 +212,7 @@ class DtrTimeOutControllerTest extends TestCase
         $response->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'You need to work at least 8 hours before timing out.'
+                'message' => 'Insufficient worked hours. You need to work at least 8 hours before timing out for full-time or 4 hours for part-time.'
             ]);
     }
 

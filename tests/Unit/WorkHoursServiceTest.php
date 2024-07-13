@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Models\Dtr;
 use Tests\TestCase;
 use App\Models\User;
 use App\Services\User\WorkHoursService;
@@ -22,7 +23,7 @@ class WorkHoursServiceTest extends TestCase
 
         // Define the mock behavior for getUserShiftRole method
         $userRoleService->shouldReceive('getUserShiftRole')
-            ->withArgs([Mockery::type(User::class)])
+            ->with(Mockery::type(User::class))
             ->andReturnUsing(function ($user) {
                 // Simulate different shift roles based on user attributes or IDs
                 switch ($user->id) {
@@ -38,6 +39,21 @@ class WorkHoursServiceTest extends TestCase
                         return 'evening-shift';
                     default:
                         return 'unknown-shift';
+                }
+            });
+
+        // Define the mock behavior for getUserEmploymentRole method
+        $userRoleService->shouldReceive('getUserEmploymentRole')
+            ->with(Mockery::type(User::class))
+            ->andReturnUsing(function ($user) {
+                // Simulate different employment roles based on user attributes or IDs
+                switch ($user->id) {
+                    case 1:
+                        return 'full-time';
+                    case 2:
+                        return 'part-time';
+                    default:
+                        return 'unknown-role';
                 }
             });
 
@@ -127,6 +143,37 @@ class WorkHoursServiceTest extends TestCase
 
         // Act
         $this->workHoursService->evaluateTimeIn($user, $timeIn);
+    }
+
+
+    public function test_it_returns_true_for_full_time_with_enough_hours()
+    {
+        // Arrange
+        $user = new User(); // Create a new user (can be adjusted based on your user model)
+        $dtr = new Dtr(); // Create a new DTR instance
+        $timeIn = Carbon::createFromFormat('Y-m-d H:i:s', '2024-07-14 08:00:00'); // Example time in
+        $timeOut = Carbon::createFromFormat('Y-m-d H:i:s', '2024-07-14 17:00:00'); // Example time out
+
+        // Act
+        $result = $this->workHoursService->findTimeInTimeOutDifference($user, $dtr, $timeIn, $timeOut);
+
+        // Assert
+        $this->assertTrue($result);
+    }
+
+    public function test_it_returns_true_for_part_time_with_enough_hours()
+    {
+        // Arrange
+        $user = new User(); // Create a new user (can be adjusted based on your user model)
+        $dtr = new Dtr(); // Create a new DTR instance
+        $timeIn = Carbon::createFromFormat('Y-m-d H:i:s', '2024-07-14 08:00:00'); // Example time in
+        $timeOut = Carbon::createFromFormat('Y-m-d H:i:s', '2024-07-14 12:00:00'); // Example time out
+
+        // Act
+        $result = $this->workHoursService->findTimeInTimeOutDifference($user, $dtr, $timeIn, $timeOut);
+
+        // Assert
+        $this->assertTrue($result);
     }
 
     protected function tearDown(): void
