@@ -23,6 +23,14 @@ class UserController extends Controller
         return response()->json($user);
     }
 
+    public function forgotPassword()
+    {
+    }
+
+    public function resetPassword($token)
+    {
+    }
+
     /**
      * Update the specified user's personal information in the database.
      *

@@ -3,8 +3,11 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Password;
 use Tests\TestCase;
 
 class AuthControllerTest extends TestCase
@@ -119,5 +122,77 @@ class AuthControllerTest extends TestCase
             ->assertJson([
                 'message' => 'User logged out successfully.',
             ]);
+    }
+
+    /**
+     * Test requesting a password reset link.
+     *
+     * @return void
+     */
+    public function test_request_password_reset_link()
+    {
+        // Fake notifications
+        Notification::fake();
+
+        // Send a password reset request
+        $response = $this->postJson('/api/password/email', [
+            'email' => $this->user->email,
+        ]);
+
+        // Assert response status
+        $response->assertStatus(200);
+        $response->assertJson(['message' => trans(Password::RESET_LINK_SENT)]);
+
+        // Assert that a notification was sent
+        Notification::assertSentTo([$this->user], ResetPassword::class);
+    }
+
+    /**
+     * Test resetting the password with a valid token.
+     *
+     * @return void
+     */
+    public function test_reset_password_with_valid_token()
+    {
+        // Fake notifications
+        Notification::fake();
+
+        // Generate a password reset token
+        $token = Password::createToken($this->user);
+
+        // Send a password reset request
+        $response = $this->postJson('/api/password/reset', [
+            'email' => $this->user->email,
+            'token' => $token,
+            'password' => 'newpassword123',
+            'password_confirmation' => 'newpassword123',
+        ]);
+
+        // Assert response status
+        $response->assertStatus(200);
+        $response->assertJson(['message' => trans(Password::PASSWORD_RESET)]);
+
+        // Assert that the password was updated
+        $this->assertTrue(password_verify('newpassword123', $this->user->fresh()->password));
+    }
+
+    /**
+     * Test resetting the password with an invalid token.
+     *
+     * @return void
+     */
+    public function test_reset_password_with_invalid_token()
+    {
+        // Send a password reset request with an invalid token
+        $response = $this->postJson('/api/password/reset', [
+            'email' => $this->user->email,
+            'token' => 'invalid-token',
+            'password' => 'newpassword123',
+            'password_confirmation' => 'newpassword123',
+        ]);
+
+        // Assert response status
+        $response->assertStatus(422); // Unprocessable Entity
+        $response->assertJsonValidationErrors(['email']);
     }
 }

@@ -5,10 +5,10 @@ use App\Http\Controllers\DtrController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-// Public routes
 Route::post('login', [AuthController::class, 'login']);
+Route::post('password/email', [AuthController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::post('password/reset', [AuthController::class, 'reset'])->name('password.reset');
 
-// Protected routes (authenticated with Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('users')->group(function () {
         Route::get('/', [UserController::class, 'showAuthenticatedUser'])->name('users.show');
