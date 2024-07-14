@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -83,6 +83,50 @@ class UserController extends Controller
         } catch (\Exception $e) {
             // Return an error response
             return response()->json(['error' => 'Failed to update personal information', 'details' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Change the password for the authenticated user.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function changePassword(Request $request)
+    {
+        // Validate the request data
+        $request->validate([
+            'old_password' => 'required|string|max:255',
+            'new_password' => 'required|string|min:8|max:255|confirmed',
+        ]);
+
+        try {
+            // Get the current authenticated user
+            $user = Auth::user();
+
+            // Check if the old password matches the current password
+            if (!Hash::check($request->input('old_password'), $user->password)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'The old password does not match our records.'
+                ], 422);
+            }
+
+            // Hash the new password and update it in the database
+            $user->password = Hash::make($request->input('new_password'));
+            $user->save();
+
+            // Return a success response
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Password changed successfully.'
+            ], 200);
+        } catch (Exception $e) {
+            // Return an error response in case of an exception
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while changing the password. Please try again.'
+            ], 500);
         }
     }
 }

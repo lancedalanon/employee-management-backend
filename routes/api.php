@@ -13,6 +13,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('users')->group(function () {
         Route::get('/', [UserController::class, 'showAuthenticatedUser'])->name('users.show');
         Route::put('/', [UserController::class, 'updatePersonalInformation'])->name('users.update');
+        Route::patch('/change-password', [UserController::class, 'changePassword'])->name('users.changePassword');
     });
 
     Route::prefix('dtr')->group(function () {

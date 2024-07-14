@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -24,7 +25,9 @@ class UserControllerTest extends TestCase
         parent::setUp();
 
         // Create and authenticate a user
-        $this->user = User::factory()->create();
+        $this->user = User::factory()->create([
+            'password' => Hash::make('oldpassword'),
+        ]);
         Sanctum::actingAs($this->user);
     }
 
@@ -107,5 +110,52 @@ class UserControllerTest extends TestCase
 
         // Assert the database has been updated
         $this->assertDatabaseHas('users', array_merge(['id' => $this->user->id], $updateData));
+    }
+
+    /**
+     * Test successfully changing the password.
+     *
+     * @return void
+     */
+    public function test_change_password()
+    {
+        // Act as the created user
+        $response = $this->patchJson('/api/users/change-password', [
+            'old_password' => 'oldpassword',
+            'new_password' => 'newpassword',
+            'new_password_confirmation' => 'newpassword',
+        ]);
+
+        // Assert the response is successful
+        $response->assertStatus(200);
+        $response->assertJson([
+            'status' => 'success',
+            'message' => 'Password changed successfully.'
+        ]);
+
+        // Assert the password was changed in the database
+        $this->assertTrue(Hash::check('newpassword', $this->user->fresh()->password));
+    }
+
+    /**
+     * Test changing the password with an incorrect old password.
+     *
+     * @return void
+     */
+    public function test_change_password_with_incorrect_old_password()
+    {
+        // Act as the created user
+        $response = $this->patchJson('/api/users/change-password', [
+            'old_password' => 'wrongpassword',
+            'new_password' => 'newpassword',
+            'new_password_confirmation' => 'newpassword',
+        ]);
+
+        // Assert the response has validation errors
+        $response->assertStatus(422);
+        $response->assertJson([
+            'status' => 'error',
+            'message' => 'The old password does not match our records.'
+        ]);
     }
 }
