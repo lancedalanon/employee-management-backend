@@ -71,7 +71,6 @@ class AuthController extends Controller
         return response()->json(['message' => 'User logged out successfully.'], 200);
     }
 
-
     /**
      * Send a reset link to the given user.
      *
