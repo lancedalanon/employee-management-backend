@@ -69,7 +69,7 @@ class DtrResumeControllerTest extends TestCase
             'success',
             'message',
             'data' => [
-                'id',
+                'dtr_break_id',
                 'dtr_id',
                 'break_time',
                 'resume_time',

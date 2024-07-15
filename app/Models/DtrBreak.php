@@ -9,6 +9,8 @@ class DtrBreak extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'dtr_break_id';
+
     protected $fillable = [
         'dtr_id',
         'break_time',

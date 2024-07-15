@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('end_of_the_day_report_images', function (Blueprint $table) {
-            $table->id();
+            $table->id('end_of_the_day_report_image_id');
             $table->unsignedBigInteger('dtr_id');
             $table->foreign('dtr_id')->references('dtr_id')->on('dtrs')->onDelete('cascade');
             $table->binary('end_of_the_day_image');

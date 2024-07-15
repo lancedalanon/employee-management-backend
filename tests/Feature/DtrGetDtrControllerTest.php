@@ -58,7 +58,7 @@ class DtrGetDtrControllerTest extends TestCase
                             'updated_at',
                             'breaks' => [
                                 [
-                                    'id',
+                                    'dtr_break_id',
                                     'dtr_id',
                                     'break_time',
                                     'resume_time',
@@ -107,7 +107,7 @@ class DtrGetDtrControllerTest extends TestCase
                 'updated_at',
                 'breaks' => [
                     [
-                        'id',
+                        'dtr_break_id',
                         'dtr_id',
                         'break_time',
                         'resume_time',

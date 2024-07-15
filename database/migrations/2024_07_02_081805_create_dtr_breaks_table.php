@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('dtr_breaks', function (Blueprint $table) {
-            $table->id();
+            $table->id('dtr_break_id');
             $table->unsignedBigInteger('dtr_id');
             $table->foreign('dtr_id')->references('dtr_id')->on('dtrs')->onDelete('cascade');
             $table->dateTime('break_time');
