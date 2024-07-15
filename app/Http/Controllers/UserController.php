@@ -82,9 +82,6 @@ class UserController extends Controller
             // Return a success response with the updated user data
             return response()->json(['message' => 'Personal information updated successfully', 'user' => $user]);
         } catch (\Exception $e) {
-            // Log the error for debugging
-            Log::error('Failed to update personal information', ['error' => $e->getMessage()]);
-
             // Return an error response
             return response()->json(['error' => 'Failed to update personal information', 'details' => $e->getMessage()], 500);
         }
