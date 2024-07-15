@@ -50,7 +50,7 @@ class DtrGetDtrControllerTest extends TestCase
                     'current_page',
                     'data' => [
                         [
-                            'id',
+                            'dtr_id',
                             'user_id',
                             'time_in',
                             'time_out',
@@ -89,7 +89,7 @@ class DtrGetDtrControllerTest extends TestCase
     public function test_get_dtr_by_id(): void
     {
         // Simulate GET request to the getDtrById endpoint
-        $response = $this->getJson("/api/dtr/{$this->dtr->id}");
+        $response = $this->getJson("/api/dtr/{$this->dtr->dtr_id}");
 
         // Assert response status is 200
         $response->assertStatus(200);
@@ -99,7 +99,7 @@ class DtrGetDtrControllerTest extends TestCase
             'success',
             'message',
             'data' => [
-                'id',
+                'dtr_id',
                 'user_id',
                 'time_in',
                 'time_out',

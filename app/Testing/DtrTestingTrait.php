@@ -46,7 +46,7 @@ trait DtrTestingTrait
             ->withBreakTime($breakTime)
             ->withResumeTime($resumeTime)
             ->create([
-                'dtr_id' => $this->dtr->id,
+                'dtr_id' => $this->dtr->dtr_id,
             ]);
 
         // Authenticate the user

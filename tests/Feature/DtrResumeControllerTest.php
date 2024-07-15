@@ -53,10 +53,10 @@ class DtrResumeControllerTest extends TestCase
         // Create a DtrBreak entry for the user
         $breakTime = Carbon::now();
         DtrBreak::factory()->withBreakTime($breakTime)->create([
-            'dtr_id' => $dtr->id,
+            'dtr_id' => $dtr->dtr_id,
         ]);
 
-        $response = $this->postJson('/api/dtr/resume/' . $dtr->id);
+        $response = $this->postJson('/api/dtr/resume/' . $dtr->dtr_id);
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -113,7 +113,7 @@ class DtrResumeControllerTest extends TestCase
             'user_id' => $user->user_id,
         ]);
 
-        $response = $this->postJson('/api/dtr/resume/' . $dtr->id);
+        $response = $this->postJson('/api/dtr/resume/' . $dtr->dtr_id);
 
         $response->assertStatus(400);
         $response->assertJson([

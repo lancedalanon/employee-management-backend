@@ -9,6 +9,8 @@ class Dtr extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'dtr_id';
+
     protected $fillable = [
         'user_id',
         'time_in',
@@ -28,11 +30,11 @@ class Dtr extends Model
 
     public function breaks()
     {
-        return $this->hasMany(DtrBreak::class);
+        return $this->hasMany(DtrBreak::class, 'dtr_id', 'dtr_id');
     }
 
     public function endOfTheDayReportImages()
     {
-        return $this->hasMany(EndOfTheDayReportImage::class);
+        return $this->hasMany(EndOfTheDayReportImage::class, 'dtr_id', 'dtr_id');
     }
 }

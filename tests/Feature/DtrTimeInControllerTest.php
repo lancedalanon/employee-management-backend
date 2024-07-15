@@ -45,7 +45,7 @@ class DtrTimeInControllerTest extends TestCase
                 'success',
                 'message',
                 'data' => [
-                    'id',
+                    'dtr_id',
                     'user_id',
                     'time_in',
                     'time_out',

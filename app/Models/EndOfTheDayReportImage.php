@@ -16,6 +16,6 @@ class EndOfTheDayReportImage extends Model
 
     public function dtr()
     {
-        return $this->belongsTo(Dtr::class);
+        return $this->belongsTo(Dtr::class, 'dtr_id', 'dtr_id');
     }
 }

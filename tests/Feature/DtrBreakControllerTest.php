@@ -50,7 +50,7 @@ class DtrBreakControllerTest extends TestCase
             'user_id' => $user->user_id,
         ]);
 
-        $response = $this->postJson('/api/dtr/break/' . $dtr->id);
+        $response = $this->postJson('/api/dtr/break/' . $dtr->dtr_id);
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -73,7 +73,7 @@ class DtrBreakControllerTest extends TestCase
 
         // Check if the break was recorded in the database
         $this->assertDatabaseHas('dtr_breaks', [
-            'dtr_id' => $dtr->id,
+            'dtr_id' => $dtr->dtr_id,
         ]);
     }
 
@@ -94,10 +94,10 @@ class DtrBreakControllerTest extends TestCase
 
         $break = Carbon::now()->subMinutes(30);
         DtrBreak::factory()->withBreakTime($break)->create([
-            'dtr_id' => $dtr->id,
+            'dtr_id' => $dtr->dtr_id,
         ]);
 
-        $response = $this->postJson('/api/dtr/break/' . $dtr->id);
+        $response = $this->postJson('/api/dtr/break/' . $dtr->dtr_id);
 
         $response->assertStatus(400);
         $response->assertJson([

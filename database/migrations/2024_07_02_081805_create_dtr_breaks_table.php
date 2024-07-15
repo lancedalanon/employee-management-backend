@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('dtr_breaks', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('dtr_id');
-            $table->foreign('dtr_id')->references('id')->on('dtrs')->onDelete('cascade');
+            $table->foreign('dtr_id')->references('dtr_id')->on('dtrs')->onDelete('cascade');
             $table->dateTime('break_time');
             $table->dateTime('resume_time')->nullable();
             $table->timestamps();

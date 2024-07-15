@@ -79,7 +79,7 @@ class DtrController extends Controller
 
             // Retrieve the DTR entry for the authenticated user by DTR ID
             $dtr = Dtr::with(['breaks'])
-                ->where('id', $dtrId)
+                ->where('dtr_id', $dtrId)
                 ->where('user_id', $userId)
                 ->orderBy('time_in', 'desc')
                 ->first();
@@ -142,7 +142,7 @@ class DtrController extends Controller
             $dtr->save();
 
             // Fetch the newly created DTR entry from the database
-            $latestTimeIn = Dtr::where('id', $dtr->id)->where('user_id', $userId)->latest()->first();
+            $latestTimeIn = Dtr::where('dtr_id', $dtr->dtr_id)->where('user_id', $userId)->latest()->first();
 
             // Return the success response with the newly created DTR entry data
             return response()->json([
@@ -175,7 +175,7 @@ class DtrController extends Controller
 
             // Find the DTR record
             $dtr = Dtr::with(['breaks'])
-                ->where('id', $dtrId)
+                ->where('dtr_id', $dtrId)
                 ->where('user_id', $userId)
                 ->where('time_out', null)
                 ->firstOrFail();
@@ -191,12 +191,12 @@ class DtrController extends Controller
 
             // Record the break time
             $dtrBreak = new DtrBreak();
-            $dtrBreak->dtr_id = $dtr->id;
+            $dtrBreak->dtr_id = $dtr->dtr_id;
             $dtrBreak->break_time = Carbon::now();
             $dtrBreak->save();
 
             // Retrieve the latest DtrBreak entry
-            $latestDtrBreak = DtrBreak::where('dtr_id', $dtr->id)->latest()->first();
+            $latestDtrBreak = DtrBreak::where('dtr_id', $dtr->dtr_id)->latest()->first();
 
             // Return success response with added data
             return response()->json([
@@ -236,7 +236,7 @@ class DtrController extends Controller
 
             // Find the DTR record
             $dtr = Dtr::with(['breaks'])
-                ->where('id', $dtrId)
+                ->where('dtr_id', $dtrId)
                 ->where('user_id', $userId)
                 ->where('time_out', null)
                 ->firstOrFail();
@@ -301,7 +301,7 @@ class DtrController extends Controller
 
             // Find the DTR record
             $dtr = Dtr::where('user_id', $userId)
-                ->where('id', $dtrId)
+                ->where('dtr_id', $dtrId)
                 ->firstOrFail();
 
             // Check if the existing time_in has a time_out

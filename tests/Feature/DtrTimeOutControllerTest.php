@@ -82,7 +82,7 @@ class DtrTimeOutControllerTest extends TestCase
             UploadedFile::fake()->image('report2.jpg')
         ];
 
-        $response = $this->postJson('/api/dtr/time-out/' . $dtr->id, [
+        $response = $this->postJson('/api/dtr/time-out/' . $dtr->dtr_id, [
             'end_of_the_day_report' => 'This is the end of the day report.',
             'end_of_the_day_images' => $images,
         ]);
@@ -94,11 +94,11 @@ class DtrTimeOutControllerTest extends TestCase
             ]);
 
         $this->assertDatabaseHas('dtrs', [
-            'id' => $dtr->id,
+            'dtr_id' => $dtr->dtr_id,
             'end_of_the_day_report' => 'This is the end of the day report.'
         ]);
 
-        $this->assertCount(2, EndOfTheDayReportImage::where('dtr_id', $dtr->id)->get());
+        $this->assertCount(2, EndOfTheDayReportImage::where('dtr_id', $dtr->dtr_id)->get());
     }
 
     /**
@@ -140,7 +140,7 @@ class DtrTimeOutControllerTest extends TestCase
             'user_id' => $user->user_id,
         ]);
 
-        $response = $this->postJson('/api/dtr/time-out/' . $dtr->id, [
+        $response = $this->postJson('/api/dtr/time-out/' . $dtr->dtr_id, [
             'end_of_the_day_report' => 'This is the end of the day report.',
             'end_of_the_day_images' => [
                 UploadedFile::fake()->image('report1.jpg')
@@ -170,10 +170,10 @@ class DtrTimeOutControllerTest extends TestCase
         ]);
 
         DtrBreak::factory()->withBreakTime(Carbon::now()->subHours(1))->create([
-            'dtr_id' => $dtr->id,
+            'dtr_id' => $dtr->dtr_id,
         ]);
 
-        $response = $this->postJson('/api/dtr/time-out/' . $dtr->id, [
+        $response = $this->postJson('/api/dtr/time-out/' . $dtr->dtr_id, [
             'end_of_the_day_report' => 'This is the end of the day report.',
             'end_of_the_day_images' => [
                 UploadedFile::fake()->image('report1.jpg')
@@ -202,7 +202,7 @@ class DtrTimeOutControllerTest extends TestCase
             'user_id' => $user->user_id,
         ]);
 
-        $response = $this->postJson('/api/dtr/time-out/' . $dtr->id, [
+        $response = $this->postJson('/api/dtr/time-out/' . $dtr->dtr_id, [
             'end_of_the_day_report' => 'This is the end of the day report.',
             'end_of_the_day_images' => [
                 UploadedFile::fake()->image('report1.jpg')
@@ -236,7 +236,7 @@ class DtrTimeOutControllerTest extends TestCase
             UploadedFile::fake()->image('report2.jpg')
         ];
 
-        $response = $this->postJson('/api/dtr/time-out/' . $dtr->id, [
+        $response = $this->postJson('/api/dtr/time-out/' . $dtr->dtr_id, [
             'end_of_the_day_images' => $images,
         ]);
 
@@ -259,7 +259,7 @@ class DtrTimeOutControllerTest extends TestCase
             'user_id' => $user->user_id,
         ]);
 
-        $response = $this->postJson('/api/dtr/time-out/' . $dtr->id, [
+        $response = $this->postJson('/api/dtr/time-out/' . $dtr->dtr_id, [
             'end_of_the_day_report' => 'This is the end of the day report.',
         ]);
 
@@ -290,7 +290,7 @@ class DtrTimeOutControllerTest extends TestCase
             UploadedFile::fake()->image('report5.jpg')
         ];
 
-        $response = $this->postJson('/api/dtr/time-out/' . $dtr->id, [
+        $response = $this->postJson('/api/dtr/time-out/' . $dtr->dtr_id, [
             'end_of_the_day_report' => 'This is the end of the day report.',
             'end_of_the_day_images' => $images,
         ]);
