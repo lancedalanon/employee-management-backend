@@ -15,6 +15,13 @@ class User extends Authenticatable implements JWTSubject
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     /**
+     * The primary key associated with the table.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'user_id';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -87,6 +94,6 @@ class User extends Authenticatable implements JWTSubject
 
     public function dtr()
     {
-        return $this->hasMany(Dtr::class);
+        return $this->hasMany(Dtr::class, 'user_id', 'user_id');
     }
 }

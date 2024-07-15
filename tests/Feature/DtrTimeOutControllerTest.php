@@ -74,7 +74,7 @@ class DtrTimeOutControllerTest extends TestCase
         // Specific timestamps for Dtr
         $timeIn = Carbon::now()->subHours(8);
         $dtr = Dtr::factory()->withTimeIn($timeIn)->create([
-            'user_id' => $user->id,
+            'user_id' => $user->user_id,
         ]);
 
         $images = [
@@ -137,7 +137,7 @@ class DtrTimeOutControllerTest extends TestCase
         $timeIn = Carbon::now()->subHours(8);
         $timeOut = Carbon::now();
         $dtr = Dtr::factory()->withTimeIn($timeIn)->withTimeOut($timeOut)->create([
-            'user_id' => $user->id,
+            'user_id' => $user->user_id,
         ]);
 
         $response = $this->postJson('/api/dtr/time-out/' . $dtr->id, [
@@ -166,7 +166,7 @@ class DtrTimeOutControllerTest extends TestCase
         // Specific timestamps for Dtr
         $timeIn = Carbon::now()->subHours(8);
         $dtr = Dtr::factory()->withTimeIn($timeIn)->create([
-            'user_id' => $user->id,
+            'user_id' => $user->user_id,
         ]);
 
         DtrBreak::factory()->withBreakTime(Carbon::now()->subHours(1))->create([
@@ -199,7 +199,7 @@ class DtrTimeOutControllerTest extends TestCase
         // Specific timestamps for Dtr
         $timeIn = Carbon::now()->subHours(7);
         $dtr = Dtr::factory()->withTimeIn($timeIn)->create([
-            'user_id' => $user->id,
+            'user_id' => $user->user_id,
         ]);
 
         $response = $this->postJson('/api/dtr/time-out/' . $dtr->id, [
@@ -228,7 +228,7 @@ class DtrTimeOutControllerTest extends TestCase
         // Specific timestamps for Dtr
         $timeIn = Carbon::now()->subHours(8);
         $dtr = Dtr::factory()->withTimeIn($timeIn)->create([
-            'user_id' => $user->id,
+            'user_id' => $user->user_id,
         ]);
 
         $images = [
@@ -256,7 +256,7 @@ class DtrTimeOutControllerTest extends TestCase
         // Specific timestamps for Dtr
         $timeIn = Carbon::now()->subHours(8);
         $dtr = Dtr::factory()->withTimeIn($timeIn)->create([
-            'user_id' => $user->id,
+            'user_id' => $user->user_id,
         ]);
 
         $response = $this->postJson('/api/dtr/time-out/' . $dtr->id, [
@@ -279,7 +279,7 @@ class DtrTimeOutControllerTest extends TestCase
         // Specific timestamps for Dtr
         $timeIn = Carbon::now()->subHours(8);
         $dtr = Dtr::factory()->withTimeIn($timeIn)->create([
-            'user_id' => $user->id,
+            'user_id' => $user->user_id,
         ]);
 
         $images = [

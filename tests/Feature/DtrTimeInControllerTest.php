@@ -55,7 +55,7 @@ class DtrTimeInControllerTest extends TestCase
             ]);
 
         $this->assertDatabaseHas('dtrs', [
-            'user_id' => $this->user->id,
+            'user_id' => $this->user->user_id,
             'time_out' => null
         ]);
     }
@@ -67,7 +67,7 @@ class DtrTimeInControllerTest extends TestCase
     {
         // Create an existing DTR record without a time_out
         Dtr::factory()->create([
-            'user_id' => $this->user->id,
+            'user_id' => $this->user->user_id,
             'time_in' => Carbon::now()->subHours(2),
             'time_out' => null
         ]);

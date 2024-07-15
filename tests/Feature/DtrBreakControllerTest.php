@@ -47,7 +47,7 @@ class DtrBreakControllerTest extends TestCase
         // Specific timestamps for Dtr and DtrBreak
         $timeIn = Carbon::now();
         $dtr = Dtr::factory()->withTimeIn($timeIn)->create([
-            'user_id' => $user->id,
+            'user_id' => $user->user_id,
         ]);
 
         $response = $this->postJson('/api/dtr/break/' . $dtr->id);
@@ -89,7 +89,7 @@ class DtrBreakControllerTest extends TestCase
 
         $timeIn = Carbon::now()->subHour();
         $dtr = Dtr::factory()->withTimeIn($timeIn)->create([
-            'user_id' => $user->id,
+            'user_id' => $user->user_id,
         ]);
 
         $break = Carbon::now()->subMinutes(30);

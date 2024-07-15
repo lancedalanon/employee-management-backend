@@ -38,7 +38,7 @@ trait DtrTestingTrait
 
         // Create a Dtr with a specific time_in
         $this->dtr = Dtr::factory()->withTimeIn($timeIn)->withTimeOut($timeOut)->create([
-            'user_id' => $this->user->id,
+            'user_id' => $this->user->user_id,
         ]);
 
         // Create a DtrBreak with specific break_time and resume_time

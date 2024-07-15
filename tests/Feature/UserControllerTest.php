@@ -71,7 +71,7 @@ class UserControllerTest extends TestCase
             'phone_number' => $this->user->phone_number,
             'emergency_contact_name' => $this->user->emergency_contact_name,
             'emergency_contact_number' => $this->user->emergency_contact_number,
-            'id' => $this->user->id,
+            'user_id' => $this->user->user_id,
         ]);
     }
 
@@ -105,11 +105,11 @@ class UserControllerTest extends TestCase
         $response->assertStatus(200)
             ->assertJson([
                 'message' => 'Personal information updated successfully',
-                'user' => array_merge($updateData, ['id' => $this->user->id])
+                'user' => array_merge($updateData, ['user_id' => $this->user->user_id])
             ]);
 
         // Assert the database has been updated
-        $this->assertDatabaseHas('users', array_merge(['id' => $this->user->id], $updateData));
+        $this->assertDatabaseHas('users', array_merge(['user_id' => $this->user->user_id], $updateData));
     }
 
     /**

@@ -47,7 +47,7 @@ class DtrResumeControllerTest extends TestCase
         // Specific timestamps for Dtr and DtrBreak
         $timeIn = Carbon::now()->subMinutes(30);
         $dtr = Dtr::factory()->withTimeIn($timeIn)->create([
-            'user_id' => $user->id,
+            'user_id' => $user->user_id,
         ]);
 
         // Create a DtrBreak entry for the user
@@ -110,7 +110,7 @@ class DtrResumeControllerTest extends TestCase
         // Specific timestamps for Dtr
         $timeIn = Carbon::now();
         $dtr = Dtr::factory()->withTimeIn($timeIn)->create([
-            'user_id' => $user->id,
+            'user_id' => $user->user_id,
         ]);
 
         $response = $this->postJson('/api/dtr/resume/' . $dtr->id);

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('dtrs', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
             $table->dateTime('time_in');
             $table->dateTime('time_out')->nullable();
             $table->text('end_of_the_day_report')->nullable();

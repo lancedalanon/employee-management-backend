@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -21,14 +22,6 @@ class UserController extends Controller
 
         // Return the user's information as a JSON response
         return response()->json($user);
-    }
-
-    public function forgotPassword()
-    {
-    }
-
-    public function resetPassword($token)
-    {
     }
 
     /**
@@ -48,9 +41,9 @@ class UserController extends Controller
                 'place_of_birth' => 'nullable|string|max:255',
                 'date_of_birth' => 'nullable|date',
                 'gender' => 'nullable|in:Male,Female',
-                'email' => 'nullable|string|max:255|email|unique:users,email,' . Auth::id(),
-                'username' => 'nullable|string|max:255|unique:users,username,' . Auth::id(),
-                'recovery_email' => 'nullable|string|max:255|email|unique:users,recovery_email,' . Auth::id(),
+                'email' => 'nullable|string|max:255|email|unique:users,email,' . Auth::id() . ',user_id',
+                'username' => 'nullable|string|max:255|unique:users,username,' . Auth::id() . ',user_id',
+                'recovery_email' => 'nullable|string|max:255|email|unique:users,recovery_email,' . Auth::id() . ',user_id',
                 'phone_number' => 'nullable|string|max:13',
                 'emergency_contact_name' => 'nullable|string|max:255',
                 'emergency_contact_number' => 'nullable|string|max:13',
@@ -89,6 +82,9 @@ class UserController extends Controller
             // Return a success response with the updated user data
             return response()->json(['message' => 'Personal information updated successfully', 'user' => $user]);
         } catch (\Exception $e) {
+            // Log the error for debugging
+            Log::error('Failed to update personal information', ['error' => $e->getMessage()]);
+
             // Return an error response
             return response()->json(['error' => 'Failed to update personal information', 'details' => $e->getMessage()], 500);
         }
