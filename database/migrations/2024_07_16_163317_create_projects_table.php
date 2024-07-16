@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('projects', function (Blueprint $table) {
             $table->id('project_id');
             $table->string('project_name');
+            $table->string('project_description')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

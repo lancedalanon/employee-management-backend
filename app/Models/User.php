@@ -21,6 +21,8 @@ class User extends Authenticatable implements JWTSubject
      */
     protected $primaryKey = 'user_id';
 
+    public $timestamps = true;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -102,6 +104,6 @@ class User extends Authenticatable implements JWTSubject
      */
     public function projects()
     {
-        return $this->belongsToMany(Project::class, 'project_user', 'user_id', 'project_id');
+        return $this->belongsToMany(Project::class, 'project_user', 'user_id', 'project_id')->withTimestamps();
     }
 }
