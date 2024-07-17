@@ -107,8 +107,21 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(Project::class, 'project_user', 'user_id', 'project_id')->withTimestamps();
     }
 
+    /**
+     * Get the user's full name attribute.
+     *
+     * @return string
+     */
     public function getFullNameAttribute()
     {
-        return "{$this->first_name} {$this->middle_name} {$this->last_name}";
+        $full_name = "{$this->first_name} ";
+
+        if ($this->middle_name) {
+            $full_name .= "{$this->middle_name} ";
+        }
+
+        $full_name .= "{$this->last_name} ";
+
+        return trim($full_name);
     }
 }

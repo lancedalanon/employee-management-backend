@@ -60,8 +60,6 @@ class ProjectController extends Controller
                 'total' => $projects->total(),
             ], 200);
         } catch (\Exception $e) {
-            Log::error('Error fetching projects: ' . $e->getMessage());
-
             // Return an error response
             return response()->json([
                 'message' => 'An error occurred while fetching projects.',
@@ -78,8 +76,15 @@ class ProjectController extends Controller
     public function getProjectsById($id)
     {
         try {
-            // Fetch the project by ID
-            $project = Project::with(['users'])->findOrFail($id);
+            // Fetch the project by ID with users and their full names
+            $project = Project::with(['users' => function ($query) {
+                $query->select('project_id', 'first_name', 'middle_name', 'last_name', 'username');
+            }])->findOrFail($id);
+
+            // Transform the users array to include full names only
+            $project->users->each(function ($user) {
+                $user->full_name = $user->full_name;
+            });
 
             // Return the Project entry as a JSON response
             return response()->json([
@@ -94,7 +99,7 @@ class ProjectController extends Controller
         } catch (\Exception $e) {
             // Handle any other errors that occur during the process
             return response()->json([
-                'message' => 'An error occurred while updating the project.',
+                'message' => 'An error occurred while fetching the project.',
             ], 500);
         }
     }

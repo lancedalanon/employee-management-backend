@@ -56,7 +56,14 @@ class GetProjectByIdTest extends TestCase
                 'project_description',
                 'created_at',
                 'updated_at',
-                'users',
+                'deleted_at',
+                'users' => [
+                    '*' => [
+                        'user_id',
+                        'full_name',
+                        'username',
+                    ],
+                ],
             ],
         ]);
     }
