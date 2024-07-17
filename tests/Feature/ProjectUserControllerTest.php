@@ -58,7 +58,7 @@ class ProjectUserControllerTest extends TestCase
 
         // Assert: Check that the users were actually attached to the project
         foreach ($userIds as $userId) {
-            $this->assertDatabaseHas('project_user', [
+            $this->assertDatabaseHas('project_users', [
                 'project_id' => $project->project_id,
                 'user_id' => $userId,
             ]);
@@ -130,7 +130,7 @@ class ProjectUserControllerTest extends TestCase
 
         // Verify users are attached to the project
         foreach ($userIds as $userId) {
-            $this->assertDatabaseHas('project_user', [
+            $this->assertDatabaseHas('project_users', [
                 'project_id' => $project->project_id,
                 'user_id' => $userId,
             ]);
@@ -149,7 +149,7 @@ class ProjectUserControllerTest extends TestCase
 
         // Assert: Check that the users were actually detached from the project
         foreach ($userIds as $userId) {
-            $this->assertDatabaseMissing('project_user', [
+            $this->assertDatabaseMissing('project_users', [
                 'project_id' => $project->project_id,
                 'user_id' => $userId,
             ]);
