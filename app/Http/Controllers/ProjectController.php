@@ -19,10 +19,31 @@ class ProjectController extends Controller
     public function getProjects()
     {
         try {
-            // Fetch all projects
-            $projects = Project::with('users')->get();
+            // Fetch paginated projects with only necessary user fields
+            $projects = Project::with(['users' => function ($query) {
+                $query->select('project_id', 'first_name', 'middle_name', 'last_name', 'username', 'project_id');
+            }])->paginate(10);
 
-            // Return the projects as a JSON response
+            // Map the projects to include only necessary user fields
+            $projects->getCollection()->transform(function ($project) {
+                return [
+                    'project_id' => $project->project_id,
+                    'project_name' => $project->name,
+                    'project_description' => $project->description,
+                    'created_at' => $project->created_at,
+                    'updated_at' => $project->updated_at,
+                    'deleted_at' => $project->deleted_at,
+                    'users' => $project->users->map(function ($user) {
+                        return [
+                            'user_id' => $user->id,
+                            'full_name' => $user->full_name,
+                            'username' => $user->username,
+                        ];
+                    })
+                ];
+            });
+
+            // Return the paginated projects as a JSON response
             return response()->json($projects, 200);
         } catch (Exception $e) {
             // Return an error response
@@ -71,13 +92,13 @@ class ProjectController extends Controller
      */
     public function createProject(Request $request)
     {
-        try {
-            // Validate the incoming request
-            $validatedData = $request->validate([
-                'project_name' => 'required|string|max:255',
-                'project_description' => 'nullable|string|max:255',
-            ]);
+        // Validate the incoming request
+        $validatedData = $request->validate([
+            'project_name' => 'required|string|max:255',
+            'project_description' => 'nullable|string|max:500',
+        ]);
 
+        try {
             // Create a new project
             $project = Project::create($validatedData);
 
@@ -109,13 +130,13 @@ class ProjectController extends Controller
      */
     public function updateProject(Request $request, $id)
     {
-        try {
-            // Validate the incoming request
-            $request->validate([
-                'project_name' => 'required|string|max:255',
-                'project_description' => 'nullable|string|max:255',
-            ]);
+        // Validate the incoming request
+        $request->validate([
+            'project_name' => 'required|string|max:255',
+            'project_description' => 'nullable|string|max:500',
+        ]);
 
+        try {
             // Fetch the project by ID
             $project = Project::findOrFail($id);
 

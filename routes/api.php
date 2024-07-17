@@ -29,10 +29,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/time-out/{dtr}', [DtrController::class, 'timeOut'])->name('timeOut');
     });
 
+    Route::prefix('projects')->name('projects.')->group(function () {
+        Route::get('/', [ProjectController::class, 'getProjects'])->name('getProjects');
+        Route::get('/{id}', [ProjectController::class, 'getProjectsById'])->name('getProjectsById');
+    });
+
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::prefix('projects')->name('projects.')->group(function () {
-            Route::get('/', [ProjectController::class, 'getProjects'])->name('getProjects');
-            Route::get('/{id}', [ProjectController::class, 'getProjectsById'])->name('getProjectsById');
             Route::post('/create', [ProjectController::class, 'createProject'])->name('createProject');
             Route::put('/{id}', [ProjectController::class, 'updateProject'])->name('updateProject');
             Route::delete('/{id}', [ProjectController::class, 'deleteProject'])->name('deleteProject');
