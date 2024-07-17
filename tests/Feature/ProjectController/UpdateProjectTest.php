@@ -6,103 +6,101 @@ use App\Models\Project;
 use App\Testing\ProjectTestingTrait;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class UpdateProjectTest extends TestCase
 {
-    use RefreshDatabase, ProjectTestingTrait;
+    use RefreshDatabase, WithFaker, ProjectTestingTrait;
 
     protected $project;
-    protected $data;
 
-    /**
-     * Setup method to create user, admin, and projects.
-     */
     protected function setUp(): void
     {
         parent::setUp();
         $this->setUpProject();
 
-        // Create a mock project
+        // Create a mock project for testing
         $this->project = Project::factory()->create();
-
-        $this->data = [
-            'project_name' => 'Updated Project Name',
-            'project_description' => 'Updated project description.',
-        ];
     }
 
-    /**
-     * Tear down the test environment.
-     */
     protected function tearDown(): void
     {
         $this->tearDownProject();
         parent::tearDown();
     }
 
-    /**
-     * Test updating a project with valid data.
-     *
-     * @return void
-     */
-    public function test_update_project_with_valid_data()
+    public function test_can_update_project_name()
     {
-        // Send a PUT request to update the project
-        $response = $this->putJson(route('admin.projects.updateProject', ['id' => $this->project->project_id]), $this->data);
+        $newProjectName = $this->faker->unique()->sentence;
 
-        // Assert that the response is successful (200 OK)
-        $response->assertStatus(200);
+        $response = $this->putJson(route('admin.projects.updateProject', ['id' => $this->project->project_id]), [
+            'project_name' => $newProjectName,
+            'project_description' => $this->project->project_description,
+        ]);
 
-        // Assert that the updated project data matches the request data
+        $response->assertSuccessful()
+            ->assertJson([
+                'project_name' => $newProjectName,
+            ]);
+
         $this->assertDatabaseHas('projects', [
             'project_id' => $this->project->project_id,
+            'project_name' => $newProjectName,
+        ]);
+    }
+
+    public function test_handles_validation_error_when_project_name_is_same()
+    {
+        $response = $this->putJson(route('admin.projects.updateProject', ['id' => $this->project->project_id]), [
+            'project_name' => $this->project->project_name,
+            'project_description' => $this->project->project_description,
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'message' => 'Project name cannot be the same as the current name.',
+            ]);
+    }
+
+    public function test_returns_404_error_when_project_not_found()
+    {
+        $nonExistingId = 999;
+
+        $response = $this->putJson(route('admin.projects.updateProject', ['id' => $nonExistingId]), [
             'project_name' => 'Updated Project Name',
             'project_description' => 'Updated project description.',
         ]);
+
+        $response->assertStatus(404)
+            ->assertJson([
+                'message' => 'Project not found.',
+            ]);
     }
 
-    /**
-     * Test updating a project with invalid data (validation error).
-     *
-     * @return void
-     */
-    public function test_update_project_with_invalid_data()
+    public function test_fails_to_update_project_name_when_exceeding_max_length()
     {
-        // Invalid project data (missing project_name)
-        $invalidData = [
-            'project_description' => 'Updated project description.',
-        ];
+        $newProjectName = $this->faker->text(600);
 
-        // Send a PUT request to update the project
-        $response = $this->putJson(route('admin.projects.updateProject', ['id' => $this->project->project_id]), $invalidData);
-
-        // Assert that the response status is 422 (Unprocessable Entity)
-        $response->assertStatus(422);
-
-        // Assert that the JSON response contains the validation error message
-        $response->assertJsonValidationErrors('project_name');
-    }
-
-    /**
-     * Test updating a non-existent project.
-     *
-     * @return void
-     */
-    public function test_update_non_existent_project()
-    {
-        // Non-existent project ID
-        $nonExistentId = 9999;
-
-        // Send a PUT request to update the project
-        $response = $this->putJson(route('admin.projects.updateProject', ['id' => $nonExistentId]), $this->data);
-
-        // Assert that the response status is 404 (Not Found)
-        $response->assertStatus(404);
-
-        // Assert that the JSON response contains the error message
-        $response->assertJson([
-            'message' => 'Project not found.',
+        $response = $this->putJson(route('admin.projects.updateProject', ['id' => $this->project->project_id]), [
+            'project_name' => $newProjectName,
+            'project_description' => $this->project->project_description,
         ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['project_name']);
+    }
+
+    public function test_fails_to_update_project_description_when_exceeding_max_length()
+    {
+        $newProjectDescription = $this->faker->text(600);
+
+        $response = $this->putJson(route('admin.projects.updateProject', ['id' => $this->project->project_id]), [
+            'project_name' => $this->project->project_name,
+            'project_description' => $newProjectDescription,
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['project_description']);
     }
 }

@@ -140,6 +140,13 @@ class ProjectController extends Controller
             // Fetch the project by ID
             $project = Project::findOrFail($id);
 
+            if (!($request->input('project_name') !== $project->project_name)) {
+                // Return a validation error response
+                return response()->json([
+                    'message' => 'Project name cannot be the same as the current name.'
+                ], 422);
+            }
+
             // Update the project's name
             $project->project_name = $request->input('project_name');
             $project->project_description = $request->input('project_description', '');
