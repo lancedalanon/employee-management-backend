@@ -52,11 +52,14 @@ class CreateProjectTest extends TestCase
 
         // Assert that the JSON response matches the created project structure
         $response->assertJsonStructure([
-            'project_id',
-            'project_name',
-            'project_description',
-            'created_at',
-            'updated_at',
+            'message',
+            'data' => [
+                'project_id',
+                'project_name',
+                'project_description',
+                'created_at',
+                'updated_at',
+            ],
         ]);
     }
 

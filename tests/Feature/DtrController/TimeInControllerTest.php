@@ -42,7 +42,6 @@ class TimeInControllerTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'success',
                 'message',
                 'data' => [
                     'dtr_id',
@@ -76,7 +75,6 @@ class TimeInControllerTest extends TestCase
 
         $response->assertStatus(400)
             ->assertJson([
-                'success' => false,
                 'message' => 'You have an open time record that needs to be closed before timing in again.'
             ]);
     }

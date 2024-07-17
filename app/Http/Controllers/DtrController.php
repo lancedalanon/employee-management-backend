@@ -51,16 +51,13 @@ class DtrController extends Controller
 
             // Return the paginated DTR entries as a JSON response
             return response()->json([
-                'success' => true,
                 'message' => 'DTR entries retrieved successfully.',
                 'data' => $dtrs
             ], 200);
         } catch (\Exception $e) {
             // Handle any errors that occur during the process
             return response()->json([
-                'success' => false,
                 'message' => 'An error occurred while retrieving the DTR entries.',
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -87,23 +84,19 @@ class DtrController extends Controller
             // Check if the DTR entry was found
             if (!$dtr) {
                 return response()->json([
-                    'success' => false,
                     'message' => 'DTR entry not found.'
                 ], 404);
             }
 
             // Return the DTR entry as a JSON response
             return response()->json([
-                'success' => true,
                 'message' => 'DTR entry retrieved successfully.',
                 'data' => $dtr
             ], 200);
         } catch (\Exception $e) {
             // Handle any errors that occur during the process
             return response()->json([
-                'success' => false,
                 'message' => 'An error occurred while retrieving the DTR entry.',
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -127,7 +120,6 @@ class DtrController extends Controller
 
             if ($existingDtr) {
                 return response()->json([
-                    'success' => false,
                     'message' => 'You have an open time record that needs to be closed before timing in again.'
                 ], 400);
             }
@@ -146,16 +138,13 @@ class DtrController extends Controller
 
             // Return the success response with the newly created DTR entry data
             return response()->json([
-                'success' => true,
                 'message' => 'Time in recorded successfully.',
                 'data' => $latestTimeIn,
             ], 200);
         } catch (\Exception $e) {
             // Handle any errors that occur during the process
             return response()->json([
-                'success' => false,
                 'message' => 'An error occurred while recording the time in.',
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -184,7 +173,6 @@ class DtrController extends Controller
             $hasOpenBreak = $dtr->breaks->whereNull('resume_time')->isNotEmpty();
             if ($hasOpenBreak) {
                 return response()->json([
-                    'success' => false,
                     'message' => 'Failed to start break. You have an open break session.'
                 ], 400);
             }
@@ -200,23 +188,18 @@ class DtrController extends Controller
 
             // Return success response with added data
             return response()->json([
-                'success' => true,
                 'message' => 'Break started successfully.',
                 'data' => $latestDtrBreak,
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             // Handle DTR record not found
             return response()->json([
-                'success' => false,
                 'message' => 'DTR record not found.',
-                'error' => $e->getMessage()
             ], 404);
         } catch (\Exception $e) {
             // Handle any other errors that occur during the process
             return response()->json([
-                'success' => false,
                 'message' => 'An error occurred while starting the break.',
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -247,7 +230,6 @@ class DtrController extends Controller
             // Check if the break entry is found
             if (!$dtrBreak) {
                 return response()->json([
-                    'success' => false,
                     'message' => 'Failed to resume break. No open break session found.'
                 ], 400);
             }
@@ -256,24 +238,23 @@ class DtrController extends Controller
             $dtrBreak->resume_time = Carbon::now();
             $dtrBreak->save();
 
+            // Retrieve the latest DtrBreak entry
+            $latestDtrResume = DtrBreak::where('dtr_id', $dtr->dtr_id)->latest()->first();
+
+            // Return success response with added data
             return response()->json([
-                'success' => true,
                 'message' => 'Break resumed successfully.',
-                'data' => $dtrBreak,
+                'data' => $latestDtrResume,
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             // Handle DTR record not found
             return response()->json([
-                'success' => false,
                 'message' => 'DTR record not found.',
-                'error' => $e->getMessage()
             ], 404);
         } catch (\Exception $e) {
             // Handle any other errors that occur during the process
             return response()->json([
-                'success' => false,
                 'message' => 'An error occurred while resuming the break.',
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -307,7 +288,6 @@ class DtrController extends Controller
             // Check if the existing time_in has a time_out
             if ($dtr->time_out) {
                 return response()->json([
-                    'success' => false,
                     'message' => 'Failed to time-out. Record has already been timed out.'
                 ], 400);
             }
@@ -316,7 +296,6 @@ class DtrController extends Controller
             $openBreak = $dtr->breaks()->whereNull('resume_time')->exists();
             if ($openBreak) {
                 return response()->json([
-                    'success' => false,
                     'message' => 'You have an open break that needs to be resumed before timing out.'
                 ], 400);
             }
@@ -328,7 +307,6 @@ class DtrController extends Controller
             // Evaluate if the hour difference of time in and time out are appropriate for the role
             if (!$this->workHoursService->findTimeInTimeOutDifference($user, $dtr, $timeIn, $timeOut)) {
                 return response()->json([
-                    'success' => false,
                     'message' => 'Insufficient worked hours. You need to work at least 8 hours before timing out for full-time or 4 hours for part-time.'
                 ], 400);
             }
@@ -352,7 +330,6 @@ class DtrController extends Controller
 
                 if (count($uploadedImages) > 4) {
                     return response()->json([
-                        'success' => false,
                         'message' => 'You can only upload up to 4 images.'
                     ], 400);
                 }
@@ -360,23 +337,23 @@ class DtrController extends Controller
                 $dtr->endOfTheDayReportImages()->saveMany($uploadedImages);
             }
 
+            // Fetch the newly created DTR entry from the database
+            $latestTimeOut = Dtr::where('dtr_id', $dtr->dtr_id)->where('user_id', $userId)->latest()->first();
+
+            // Return success response with added data
             return response()->json([
-                'success' => true,
-                'message' => 'Time out recorded successfully.'
+                'message' => 'Time out recorded successfully.',
+                'data' => $latestTimeOut,
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             // Handle DTR record not found
             return response()->json([
-                'success' => false,
                 'message' => 'DTR record not found.',
-                'error' => $e->getMessage()
             ], 404);
         } catch (\Exception $e) {
             // Handle any other errors that occur during the process
             return response()->json([
-                'success' => false,
                 'message' => 'An error occurred while recording the time out.',
-                'error' => $e->getMessage()
             ], 500);
         }
     }

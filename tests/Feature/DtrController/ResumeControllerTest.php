@@ -60,13 +60,11 @@ class ResumeControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson([
-            'success' => true,
             'message' => 'Break resumed successfully.',
         ]);
 
         // Verify the response contains the updated DtrBreak entry
         $response->assertJsonStructure([
-            'success',
             'message',
             'data' => [
                 'dtr_break_id',
@@ -91,7 +89,6 @@ class ResumeControllerTest extends TestCase
 
         $response->assertStatus(404);
         $response->assertJson([
-            'success' => false,
             'message' => 'DTR record not found.',
         ]);
     }
@@ -117,7 +114,6 @@ class ResumeControllerTest extends TestCase
 
         $response->assertStatus(400);
         $response->assertJson([
-            'success' => false,
             'message' => 'Failed to resume break. No open break session found.',
         ]);
     }

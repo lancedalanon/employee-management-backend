@@ -66,7 +66,6 @@ class AuthControllerTest extends TestCase
         // Assert that the response is successful and contains the expected data
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'success',
                 'data' => [
                     'token',
                     'username',
@@ -74,7 +73,6 @@ class AuthControllerTest extends TestCase
                 'message',
             ])
             ->assertJson([
-                'success' => true,
                 'data' => [
                     'username' => 'testuser',
                 ],
@@ -98,9 +96,7 @@ class AuthControllerTest extends TestCase
         // Assert that the response is unauthorized
         $response->assertStatus(401)
             ->assertJson([
-                'success' => false,
                 'message' => 'Invalid credentials',
-                'errors' => ['error' => 'Invalid credentials']
             ]);
     }
 

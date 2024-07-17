@@ -105,7 +105,7 @@ class UserControllerTest extends TestCase
         $response->assertStatus(200)
             ->assertJson([
                 'message' => 'Personal information updated successfully',
-                'user' => array_merge($updateData, ['user_id' => $this->user->user_id])
+                'data' => array_merge($updateData, ['user_id' => $this->user->user_id])
             ]);
 
         // Assert the database has been updated
@@ -129,7 +129,6 @@ class UserControllerTest extends TestCase
         // Assert the response is successful
         $response->assertStatus(200);
         $response->assertJson([
-            'status' => 'success',
             'message' => 'Password changed successfully.'
         ]);
 
@@ -154,7 +153,6 @@ class UserControllerTest extends TestCase
         // Assert the response has validation errors
         $response->assertStatus(422);
         $response->assertJson([
-            'status' => 'error',
             'message' => 'The old password does not match our records.'
         ]);
     }

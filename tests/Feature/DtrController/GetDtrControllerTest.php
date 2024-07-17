@@ -44,7 +44,6 @@ class GetDtrControllerTest extends TestCase
         // Assert response status and structure
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'success',
                 'message',
                 'data' => [
                     'current_page',
@@ -96,7 +95,6 @@ class GetDtrControllerTest extends TestCase
 
         // Assert JSON structure
         $response->assertJsonStructure([
-            'success',
             'message',
             'data' => [
                 'dtr_id',
@@ -130,7 +128,6 @@ class GetDtrControllerTest extends TestCase
         // Assert response status and structure for not found
         $response->assertStatus(404)
             ->assertJson([
-                'success' => false,
                 'message' => 'DTR entry not found.',
             ]);
     }

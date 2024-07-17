@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
 
 class ProjectController extends Controller
 {
@@ -19,19 +17,20 @@ class ProjectController extends Controller
     public function getProjects()
     {
         try {
-            // Fetch paginated projects with only necessary user fields
+            // Fetch paginated projects with only necessary fields
             $projects = Project::with(['users' => function ($query) {
-                $query->select('project_id', 'first_name', 'middle_name', 'last_name', 'username', 'project_id');
+                $query->select('project_id', 'first_name', 'middle_name', 'last_name', 'username');
             }])->paginate(10);
 
-            // Map the projects to include only necessary user fields
-            $projects->getCollection()->transform(function ($project) {
+
+            // Transform the projects to match the required JSON structure
+            $transformedProjects = $projects->getCollection()->map(function ($project) {
                 return [
                     'project_id' => $project->project_id,
-                    'project_name' => $project->name,
-                    'project_description' => $project->description,
-                    'created_at' => $project->created_at,
-                    'updated_at' => $project->updated_at,
+                    'project_name' => $project->project_name,
+                    'project_description' => $project->project_description,
+                    'created_at' => $project->created_at->toIso8601String(),
+                    'updated_at' => $project->updated_at->toIso8601String(),
                     'deleted_at' => $project->deleted_at,
                     'users' => $project->users->map(function ($user) {
                         return [
@@ -44,12 +43,28 @@ class ProjectController extends Controller
             });
 
             // Return the paginated projects as a JSON response
-            return response()->json($projects, 200);
-        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Project entries retrieved successfully.',
+                'current_page' => $projects->currentPage(),
+                'data' => $transformedProjects,
+                'first_page_url' => $projects->url(1),
+                'from' => $projects->firstItem(),
+                'last_page' => $projects->lastPage(),
+                'last_page_url' => $projects->url($projects->lastPage()),
+                'links' => $projects->links(),
+                'next_page_url' => $projects->nextPageUrl(),
+                'path' => $projects->path(),
+                'per_page' => $projects->perPage(),
+                'prev_page_url' => $projects->previousPageUrl(),
+                'to' => $projects->lastItem(),
+                'total' => $projects->total(),
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error fetching projects: ' . $e->getMessage());
+
             // Return an error response
             return response()->json([
                 'message' => 'An error occurred while fetching projects.',
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -66,20 +81,20 @@ class ProjectController extends Controller
             // Fetch the project by ID
             $project = Project::with(['users'])->findOrFail($id);
 
-            // Return the project as a JSON response
-            return response()->json($project, 200);
-        } catch (Exception $e) {
-            // Check if the exception is a ModelNotFoundException
-            if ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
-                return response()->json([
-                    'message' => 'Project not found.'
-                ], 404);
-            }
-
-            // Return a generic error response
+            // Return the Project entry as a JSON response
             return response()->json([
-                'message' => 'An error occurred while fetching the project.',
-                'error' => $e->getMessage()
+                'message' => 'Project entry retrieved successfully.',
+                'data' => $project
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            // Handle DTR record not found
+            return response()->json([
+                'message' => 'Project not found.',
+            ], 404);
+        } catch (\Exception $e) {
+            // Handle any other errors that occur during the process
+            return response()->json([
+                'message' => 'An error occurred while updating the project.',
             ], 500);
         }
     }
@@ -103,20 +118,18 @@ class ProjectController extends Controller
             $project = Project::create($validatedData);
 
             // Return the created project as a JSON response
-            return response()->json($project, 201);
-        } catch (Exception $e) {
-            // Return a validation error response
-            if ($e instanceof \Illuminate\Validation\ValidationException) {
-                return response()->json([
-                    'message' => 'Validation error.',
-                    'errors' => $e->errors(),
-                ], 422);
-            }
-
-            // Return a generic error response
+            return response()->json([
+                'message' => 'Project created successfully',
+                'data' => $project,
+            ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation error.',
+            ], 422);
+        } catch (\Exception $e) {
+            // Handle any other errors that occur during the process
             return response()->json([
                 'message' => 'An error occurred while creating the project.',
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -153,27 +166,19 @@ class ProjectController extends Controller
             $project->save();
 
             // Return the updated project as a JSON response
-            return response()->json($project, 200);
-        } catch (Exception $e) {
-            // Check if the exception is a ModelNotFoundException
-            if ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
-                return response()->json([
-                    'message' => 'Project not found.'
-                ], 404);
-            }
-
-            // Return a validation error response
-            if ($e instanceof \Illuminate\Validation\ValidationException) {
-                return response()->json([
-                    'message' => 'Validation error.',
-                    'errors' => $e->errors(),
-                ], 422);
-            }
-
-            // Return a generic error response
+            return response()->json([
+                'message' => 'Project updated successfully',
+                'data' => $project,
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            // Handle DTR record not found
+            return response()->json([
+                'message' => 'Project not found.',
+            ], 404);
+        } catch (\Exception $e) {
+            // Handle any other errors that occur during the process
             return response()->json([
                 'message' => 'An error occurred while updating the project.',
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -194,19 +199,18 @@ class ProjectController extends Controller
             $project->delete();
 
             // Return a success response
-            return response()->json(['message' => 'Project deleted successfully.'], 200);
-        } catch (Exception $e) {
-            // Check if the exception is a ModelNotFoundException
-            if ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
-                return response()->json([
-                    'message' => 'Project not found.'
-                ], 404);
-            }
-
-            // Return a generic error response
+            return response()->json([
+                'message' => 'Project deleted successfully.',
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            // Handle DTR record not found
+            return response()->json([
+                'message' => 'Project not found.',
+            ], 404);
+        } catch (\Exception $e) {
+            // Handle any other errors that occur during the process
             return response()->json([
                 'message' => 'An error occurred while deleting the project.',
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -237,19 +241,19 @@ class ProjectController extends Controller
             return response()->json([
                 'message' => 'Users added to project successfully.',
             ], 200);
-        } catch (Exception $e) {
-            // Return a validation error response
-            if ($e instanceof \Illuminate\Validation\ValidationException) {
-                return response()->json([
-                    'message' => 'Validation error.',
-                    'errors' => $e->errors(),
-                ], 422);
-            }
-
-            // Return a generic error response
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            // Handle DTR record not found
+            return response()->json([
+                'message' => 'Project not found.',
+            ], 404);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation error.',
+            ], 422);
+        } catch (\Exception $e) {
+            // Handle any other errors that occur during the process
             return response()->json([
                 'message' => 'An error occurred while adding users to project.',
-                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -280,19 +284,19 @@ class ProjectController extends Controller
             return response()->json([
                 'message' => 'Users removed from project successfully.',
             ], 200);
-        } catch (Exception $e) {
-            // Return a validation error response
-            if ($e instanceof \Illuminate\Validation\ValidationException) {
-                return response()->json([
-                    'message' => 'Validation error.',
-                    'errors' => $e->errors(),
-                ], 422);
-            }
-
-            // Return a generic error response
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            // Handle DTR record not found
             return response()->json([
-                'message' => 'An error occurred while removing users from project.',
-                'error' => $e->getMessage()
+                'message' => 'Project not found.',
+            ], 404);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation error.',
+            ], 422);
+        } catch (\Exception $e) {
+            // Handle any other errors that occur during the process
+            return response()->json([
+                'message' => 'An error occurred while removing users to project.',
             ], 500);
         }
     }

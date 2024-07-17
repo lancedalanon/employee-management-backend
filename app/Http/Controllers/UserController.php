@@ -6,7 +6,6 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -21,7 +20,10 @@ class UserController extends Controller
         $user = Auth::user();
 
         // Return the user's information as a JSON response
-        return response()->json($user);
+        return response()->json([
+            'message' => 'Personal information retrieved successfully',
+            'data' => $user
+        ], 200);
     }
 
     /**
@@ -80,10 +82,15 @@ class UserController extends Controller
             $user->save();
 
             // Return a success response with the updated user data
-            return response()->json(['message' => 'Personal information updated successfully', 'user' => $user]);
+            return response()->json([
+                'message' => 'Personal information updated successfully',
+                'data' => $user
+            ], 200);
         } catch (\Exception $e) {
             // Return an error response
-            return response()->json(['error' => 'Failed to update personal information', 'details' => $e->getMessage()], 500);
+            return response()->json([
+                'message' => 'Failed to update personal information',
+            ], 500);
         }
     }
 
@@ -108,7 +115,6 @@ class UserController extends Controller
             // Check if the old password matches the current password
             if (!Hash::check($request->input('old_password'), $user->password)) {
                 return response()->json([
-                    'status' => 'error',
                     'message' => 'The old password does not match our records.'
                 ], 422);
             }
@@ -119,13 +125,11 @@ class UserController extends Controller
 
             // Return a success response
             return response()->json([
-                'status' => 'success',
                 'message' => 'Password changed successfully.'
             ], 200);
         } catch (Exception $e) {
             // Return an error response in case of an exception
             return response()->json([
-                'status' => 'error',
                 'message' => 'An error occurred while changing the password. Please try again.'
             ], 500);
         }

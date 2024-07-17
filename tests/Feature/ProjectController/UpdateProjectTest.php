@@ -40,8 +40,16 @@ class UpdateProjectTest extends TestCase
         ]);
 
         $response->assertSuccessful()
-            ->assertJson([
-                'project_name' => $newProjectName,
+            ->assertJsonStructure([
+                'message',
+                'data' => [
+                    'project_id',
+                    'project_name',
+                    'project_description',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                ],
             ]);
 
         $this->assertDatabaseHas('projects', [

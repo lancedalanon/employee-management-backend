@@ -48,6 +48,7 @@ class GetProjectsTest extends TestCase
 
         // Assert that the JSON response has the correct structure
         $response->assertJsonStructure([
+            'message',
             'current_page',
             'data' => [
                 '*' => [

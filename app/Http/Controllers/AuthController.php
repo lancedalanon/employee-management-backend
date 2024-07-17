@@ -42,16 +42,13 @@ class AuthController extends Controller
 
             // Return a success response with HTTP status code 200
             return response()->json([
-                'success' => true,
-                'data' => $success,
                 'message' => 'User logged in successfully.',
+                'data' => $success,
             ], 200);
         } else {
             // Return an error response for unauthorized access with HTTP status code 401
             return response()->json([
-                'success' => false,
                 'message' => 'Invalid credentials',
-                'errors' => ['error' => 'Invalid credentials']
             ], 401);
         }
     }
@@ -68,7 +65,9 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         // Return a success response with HTTP status code 200
-        return response()->json(['message' => 'User logged out successfully.'], 200);
+        return response()->json([
+            'message' => 'User logged out successfully.',
+        ], 200);
     }
 
     /**
@@ -90,7 +89,9 @@ class AuthController extends Controller
 
         // Check if the password reset link was sent successfully
         if ($response === Password::RESET_LINK_SENT) {
-            return response()->json(['message' => 'Password reset link sent successfully.']);
+            return response()->json([
+                'message' => 'Password reset link sent successfully.'
+            ], 200);
         }
 
         // If password reset link was not sent successfully, throw validation exception

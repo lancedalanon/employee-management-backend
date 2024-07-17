@@ -54,13 +54,11 @@ class BreakControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson([
-            'success' => true,
             'message' => 'Break started successfully.',
         ]);
 
         // Verify the response contains the latest DtrBreak entry
         $response->assertJsonStructure([
-            'success',
             'message',
             'data' => [
                 'dtr_break_id',
@@ -101,7 +99,6 @@ class BreakControllerTest extends TestCase
 
         $response->assertStatus(400);
         $response->assertJson([
-            'success' => false,
             'message' => 'Failed to start break. You have an open break session.',
         ]);
     }
@@ -118,7 +115,6 @@ class BreakControllerTest extends TestCase
 
         $response->assertStatus(404);
         $response->assertJson([
-            'success' => false,
             'message' => 'DTR record not found.',
         ]);
     }

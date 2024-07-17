@@ -89,7 +89,6 @@ class TimeOutControllerTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
-                'success' => true,
                 'message' => 'Time out recorded successfully.'
             ]);
 
@@ -119,7 +118,6 @@ class TimeOutControllerTest extends TestCase
 
         $response->assertStatus(404)
             ->assertJson([
-                'success' => false,
                 'message' => 'DTR record not found.'
             ]);
     }
@@ -149,7 +147,6 @@ class TimeOutControllerTest extends TestCase
 
         $response->assertStatus(400)
             ->assertJson([
-                'success' => false,
                 'message' => 'Failed to time-out. Record has already been timed out.'
             ]);
     }
@@ -182,7 +179,6 @@ class TimeOutControllerTest extends TestCase
 
         $response->assertStatus(400)
             ->assertJson([
-                'success' => false,
                 'message' => 'You have an open break that needs to be resumed before timing out.'
             ]);
     }
@@ -211,7 +207,6 @@ class TimeOutControllerTest extends TestCase
 
         $response->assertStatus(400)
             ->assertJson([
-                'success' => false,
                 'message' => 'Insufficient worked hours. You need to work at least 8 hours before timing out for full-time or 4 hours for part-time.'
             ]);
     }

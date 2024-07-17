@@ -49,13 +49,15 @@ class GetProjectByIdTest extends TestCase
 
         // Assert that the JSON response matches the expected structure
         $response->assertJsonStructure([
-            'project_id',
-            'project_name',
-            'project_description',
-            'created_at',
-            'updated_at',
-            'deleted_at',
-            'users',
+            'message',
+            'data' => [
+                'project_id',
+                'project_name',
+                'project_description',
+                'created_at',
+                'updated_at',
+                'users',
+            ],
         ]);
     }
 
