@@ -80,7 +80,7 @@ class UpdateProjectTest extends TestCase
 
     public function test_fails_to_update_project_name_when_exceeding_max_length()
     {
-        $newProjectName = $this->faker->text(600);
+        $newProjectName = str_repeat('a', 300);
 
         $response = $this->putJson(route('admin.projects.updateProject', ['id' => $this->project->project_id]), [
             'project_name' => $newProjectName,
@@ -93,7 +93,7 @@ class UpdateProjectTest extends TestCase
 
     public function test_fails_to_update_project_description_when_exceeding_max_length()
     {
-        $newProjectDescription = $this->faker->text(600);
+        $newProjectDescription = str_repeat('a', 600);
 
         $response = $this->putJson(route('admin.projects.updateProject', ['id' => $this->project->project_id]), [
             'project_name' => $this->project->project_name,
