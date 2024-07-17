@@ -11,7 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
-class DtrGetDtrControllerTest extends TestCase
+class GetDtrControllerTest extends TestCase
 {
     use RefreshDatabase, DtrTestingTrait;
 

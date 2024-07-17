@@ -14,7 +14,7 @@ use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
-class DtrTimeOutControllerTest extends TestCase
+class TimeOutControllerTest extends TestCase
 {
     use RefreshDatabase, DtrTestingTrait;
 
