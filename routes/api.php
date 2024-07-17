@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DtrController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectUserController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\EnsureUserHasRole;
 use Illuminate\Support\Facades\Route;
@@ -39,8 +40,8 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/create', [ProjectController::class, 'createProject'])->name('createProject');
             Route::put('/{id}', [ProjectController::class, 'updateProject'])->name('updateProject');
             Route::delete('/{id}', [ProjectController::class, 'deleteProject'])->name('deleteProject');
-            Route::post('/{projectId}/add-users', [ProjectController::class, 'addUsersToProject'])->name('addUsersToProject');
-            Route::post('/{projectId}/remove-users', [ProjectController::class, 'removeUsersFromProject'])->name('removeUsersFromProject');
+            Route::post('/{projectId}/add-users', [ProjectUserController::class, 'addUsersToProject'])->name('addUsersToProject');
+            Route::post('/{projectId}/remove-users', [ProjectUserController::class, 'removeUsersFromProject'])->name('removeUsersFromProject');
         });
     });
 });

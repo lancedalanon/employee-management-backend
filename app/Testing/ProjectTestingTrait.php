@@ -10,6 +10,7 @@ use Spatie\Permission\Models\Role;
 trait ProjectTestingTrait
 {
     protected $admin;
+    protected $project;
 
     /**
      * Set up the test environment.
@@ -27,7 +28,7 @@ trait ProjectTestingTrait
         Sanctum::actingAs($this->admin);
 
         // Create projects with users
-        Project::factory()->count(3)->withUsers(5)->create();
+        $this->project = Project::factory()->count(3)->withUsers(5)->create();
     }
 
     /**
