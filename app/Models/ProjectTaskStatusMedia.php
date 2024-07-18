@@ -19,7 +19,7 @@ class ProjectTaskStatusMedia extends Model
     ];
 
     /**
-     * Get the task that owns the status.
+     * Get the status that owns the media.
      */
     public function status()
     {
