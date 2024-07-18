@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('project_task_statuses', function (Blueprint $table) {
             $table->id('project_task_status_id');
             $table->text('project_task_status');
+            $table->unsignedBigInteger('project_task_id');
+            $table->foreign('project_task_id')->references('project_task_id')->on('project_tasks')->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();
         });
