@@ -108,7 +108,7 @@ class ProjectTaskController extends Controller
         $validated = $request->validate([
             'project_task_name' => 'required|string|max:255',
             'project_task_description' => 'required|string',
-            'project_task_progress' => 'required|string',
+            'project_task_progress' => 'required|string|in:Not started,In progress,Reviewing,Completed',
             'project_task_priority_level' => 'required|string|in:Low,Medium,High',
         ]);
 
