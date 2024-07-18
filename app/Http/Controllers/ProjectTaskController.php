@@ -76,7 +76,7 @@ class ProjectTaskController extends Controller
                 ->where('project_task_id', $id)->first();
 
             // Handle case where task is not found
-            if ($task->isEmpty()) {
+            if (!$task) {
                 return response()->json([
                     'message' => 'Task not found.',
                 ], 404);
