@@ -8,6 +8,39 @@ use Illuminate\Http\Request;
 class ProjectUserController extends Controller
 {
     /**
+     * Retrieve users associated with the given project ID.
+     *
+     * @param int $projectId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getProjectUsers($projectId)
+    {
+        try {
+            // Retrieve the project and eager load its users
+            $project = Project::with('users')->findOrFail($projectId);
+
+            // Extract users from the project
+            $users = $project->users;
+
+            // Return a JSON response with the users
+            return response()->json([
+                'message' => 'Project users retrieved successfully.',
+                'data' => $users
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            // Handle DTR record not found
+            return response()->json([
+                'message' => 'Project not found.',
+            ], 404);
+        } catch (\Exception $e) {
+            // Handle exceptions (e.g., project not found)
+            return response()->json([
+                'message' => 'Failed to retrieve project users.',
+            ], 500);
+        }
+    }
+
+    /**
      * Add users to a project.
      *
      * @param int $projectId

@@ -33,6 +33,62 @@ class ProjectUserControllerTest extends TestCase
     }
 
     /**
+     * Test retrieving users of a project.
+     *
+     * @return void
+     */
+    public function test_get_project_users()
+    {
+        // Create a project with users
+        $project = Project::factory()->create();
+        $users = User::factory()->count(3)->create();
+
+        // Attach users to the project
+        $project->users()->attach($users->pluck('user_id')->toArray());
+
+        // Act: Send a GET request to retrieve users of the project
+        $response = $this->getJson(route('projects.getProjectUsers', ['projectId' => $project->project_id]));
+
+        // Assert: Check that the request was successful
+        $response->assertStatus(200)
+            ->assertJson([
+                'message' => 'Project users retrieved successfully.',
+                'data' => $users->toArray(),
+            ]);
+
+        // Additional assertion: Verify the response structure
+        $response->assertJsonStructure([
+            'message',
+            'data' => [
+                '*' => [
+                    'user_id',
+                    'username',
+                    'email',
+                    'created_at',
+                    'updated_at',
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * Test retrieving users of a non-existent project.
+     *
+     * @return void
+     */
+    public function test_get_non_existent_project_users()
+    {
+        // Act: Send a GET request to a non-existent project
+        $response = $this->getJson(route('projects.getProjectUsers', ['projectId' => 9999]));
+
+        // Assert: Check that the project not found response is returned
+        $response->assertStatus(404)
+            ->assertJson([
+                'message' => 'Project not found.',
+            ]);
+    }
+
+    /**
      * Test adding users to a project.
      *
      * @return void

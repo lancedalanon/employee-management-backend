@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DtrController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectTaskController;
 use App\Http\Controllers\ProjectUserController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\EnsureUserHasRole;
@@ -33,6 +34,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('projects')->name('projects.')->group(function () {
         Route::get('/', [ProjectController::class, 'getProjects'])->name('getProjects');
         Route::get('/{id}', [ProjectController::class, 'getProjectsById'])->name('getProjectsById');
+        Route::get('/{projectId}/users', [ProjectUserController::class, 'getProjectUsers'])->name('getProjectUsers');
+
+        Route::prefix('tasks')->name('tasks.')->group(function () {
+            Route::get('/{projectId}/tasks', [ProjectTaskController::class, 'getTasks'])->name('getTasks');
+            Route::get('/{projectId}/tasks/{id}', [ProjectTaskController::class, 'getTaskById'])->name('getTaskById');
+            Route::post('/{projectId}/tasks/create', [ProjectTaskController::class, 'createTask'])->name('createTask');
+            Route::put('/{projectId}/tasks/{id}', [ProjectTaskController::class, 'updateTask'])->name('updateTask');
+            Route::delete('/{projectId}/tasks/{id}', [ProjectTaskController::class, 'deleteTask'])->name('deleteTask');
+        });
     });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
