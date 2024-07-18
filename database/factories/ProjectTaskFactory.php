@@ -24,7 +24,7 @@ class ProjectTaskFactory extends Factory
         return [
             'project_task_name' => $this->faker->sentence,
             'project_task_description' => $this->faker->paragraph,
-            'project_task_progress' => $this->faker->randomElement(['Not started', 'In progress', 'Completed']),
+            'project_task_progress' => $this->faker->randomElement(['Not started', 'In progress', 'Reviewing', 'Completed']),
             'project_task_priority_level' => $this->faker->randomElement(['Low', 'Medium', 'High']),
             'project_id' => function () {
                 return \App\Models\Project::factory()->create()->project_id;
