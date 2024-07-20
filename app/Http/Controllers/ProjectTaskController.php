@@ -162,13 +162,13 @@ class ProjectTaskController extends Controller
         $validated = $request->validate([
             'project_task_name' => 'required|string|max:255',
             'project_task_description' => 'required|string',
-            'project_task_progress' => 'required|string',
+            'project_task_progress' => 'required|string|in:Not started,In progress,Reviewing,Completed',
             'project_task_priority_level' => 'required|string|in:Low,Medium,High',
         ]);
 
         try {
             // Check if the project exists
-            $project = Project::where('project_id', $projectId)->first();
+            $project = Project::find($projectId);
 
             // Handle case where project is not found
             if (!$project) {
@@ -183,7 +183,7 @@ class ProjectTaskController extends Controller
                 ->first();
 
             // Handle case where task is not found
-            if ($task->isEmpty()) {
+            if (!$task) {
                 return response()->json([
                     'message' => 'Task not found.',
                 ], 404);
