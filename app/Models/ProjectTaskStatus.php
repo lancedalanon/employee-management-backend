@@ -17,6 +17,7 @@ class ProjectTaskStatus extends Model
     protected $fillable = [
         'project_task_id',
         'project_task_status',
+        'project_task_status_media_file',
     ];
 
     /**
@@ -25,13 +26,5 @@ class ProjectTaskStatus extends Model
     public function task()
     {
         return $this->belongsTo(ProjectTask::class, 'project_task_id', 'project_task_id');
-    }
-
-    /**
-     * Get the media for the status.
-     */
-    public function media()
-    {
-        return $this->hasMany(ProjectTaskStatus::class, 'project_task_status_id', 'project_task_status_id');
     }
 }

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->text('project_task_status');
             $table->unsignedBigInteger('project_task_id');
             $table->foreign('project_task_id')->references('project_task_id')->on('project_tasks')->onDelete('cascade');
+            $table->binary('project_task_status_media_file')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

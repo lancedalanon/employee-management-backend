@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DtrController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectTaskController;
+use App\Http\Controllers\ProjectTaskStatusController;
 use App\Http\Controllers\ProjectUserController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -35,12 +36,20 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}', [ProjectController::class, 'getProjectsById'])->name('getProjectsById');
         Route::get('/{projectId}/users', [ProjectUserController::class, 'getProjectUsers'])->name('getProjectUsers');
 
-        Route::prefix('tasks')->name('tasks.')->group(function () {
-            Route::get('/{projectId}/tasks', [ProjectTaskController::class, 'getTasks'])->name('getTasks');
-            Route::get('/{projectId}/tasks/{id}', [ProjectTaskController::class, 'getTaskById'])->name('getTaskById');
-            Route::post('/{projectId}/tasks/create', [ProjectTaskController::class, 'createTask'])->name('createTask');
-            Route::put('/{projectId}/tasks/{id}', [ProjectTaskController::class, 'updateTask'])->name('updateTask');
-            Route::delete('/{projectId}/tasks/{id}', [ProjectTaskController::class, 'deleteTask'])->name('deleteTask');
+        Route::prefix('{projectId}/tasks')->name('tasks.')->group(function () {
+            Route::get('/', [ProjectTaskController::class, 'getTasks'])->name('getTasks');
+            Route::get('/{id}', [ProjectTaskController::class, 'getTaskById'])->name('getTaskById');
+            Route::post('/create', [ProjectTaskController::class, 'createTask'])->name('createTask');
+            Route::put('/{id}', [ProjectTaskController::class, 'updateTask'])->name('updateTask');
+            Route::delete('/{id}', [ProjectTaskController::class, 'deleteTask'])->name('deleteTask');
+
+            Route::prefix('{taskId}/statuses')->name('statuses.')->group(function () {
+                Route::get('/', [ProjectTaskStatusController::class, 'getStatuses'])->name('getStatuses');
+                Route::get('/{id}', [ProjectTaskStatusController::class, 'getStatusById'])->name('getStatusById');
+                Route::post('/create', [ProjectTaskStatusController::class, 'createStatus'])->name('createStatus');
+                Route::put('/{id}', [ProjectTaskStatusController::class, 'updateStatus'])->name('updateStatus');
+                Route::delete('/{id}', [ProjectTaskStatusController::class, 'deleteStatus'])->name('deleteStatus');
+            });
         });
     });
 
