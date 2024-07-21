@@ -222,7 +222,7 @@ class ProjectTaskController extends Controller
     {
         try {
             // Check if the project exists
-            $project = Project::where('project_id', $projectId)->first();
+            $project = Project::find($projectId);
 
             // Handle case where project is not found
             if (!$project) {
@@ -237,7 +237,7 @@ class ProjectTaskController extends Controller
                 ->first();
 
             // Handle case where task is not found
-            if ($task->isEmpty()) {
+            if (!$task) {
                 return response()->json([
                     'message' => 'Task not found.',
                 ], 404);
