@@ -70,7 +70,7 @@ class ProjectTaskStatusController extends Controller
             }
 
             // Fetch the status by its ID
-            $status = ProjectTaskStatus::where('project_task_id', $task->project_id)
+            $status = ProjectTaskStatus::where('project_task_id', $task->project_task_id)
                 ->where('project_task_status_id', $id)
                 ->first();
 

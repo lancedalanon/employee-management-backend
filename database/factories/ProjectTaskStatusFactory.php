@@ -23,7 +23,7 @@ class ProjectTaskStatusFactory extends Factory
     public function definition()
     {
         return [
-            'project_task_id' => \App\Models\ProjectTask::inRandomOrder()->first()->id ?? null,
+            'project_task_id' => ProjectTask::factory(),
             'project_task_status' => $this->faker->word,
             'project_task_status_media_file' => $this->faker->filePath(),
         ];
