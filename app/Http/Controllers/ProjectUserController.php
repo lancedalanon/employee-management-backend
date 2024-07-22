@@ -54,17 +54,26 @@ class ProjectUserController extends Controller
             $request->validate([
                 'user_ids' => 'required|array',
                 'user_ids.*' => 'exists:users,user_id',
+                'project_role' => 'required|string|in:project-admin,project-user',
             ]);
 
             $userIds = $request->input('user_ids');
+            $projectRole = $request->input('project_role');
 
-            // Attach users to the project
+            // Attach users to the project with the specified role
             $project = Project::findOrFail($projectId);
-            $project->users()->syncWithoutDetaching($userIds);
+
+            // Prepare data to sync without detaching
+            $syncData = [];
+            foreach ($userIds as $userId) {
+                $syncData[$userId] = ['project_role' => $projectRole];
+            }
+
+            $project->users()->syncWithoutDetaching($syncData);
 
             // Return a success response
             return response()->json([
-                'message' => 'Users added to project successfully.',
+                'message' => 'Users added to project successfully with the specified role.',
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             // Handle DTR record not found
