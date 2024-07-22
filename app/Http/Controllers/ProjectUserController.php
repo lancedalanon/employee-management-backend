@@ -54,11 +54,10 @@ class ProjectUserController extends Controller
             $request->validate([
                 'user_ids' => 'required|array',
                 'user_ids.*' => 'exists:users,user_id',
-                'project_role' => 'required|string|in:project-admin,project-user',
             ]);
 
             $userIds = $request->input('user_ids');
-            $projectRole = $request->input('project_role');
+            $defaultProjectRole = 'project-user';
 
             // Attach users to the project with the specified role
             $project = Project::findOrFail($projectId);
@@ -66,7 +65,7 @@ class ProjectUserController extends Controller
             // Prepare data to sync without detaching
             $syncData = [];
             foreach ($userIds as $userId) {
-                $syncData[$userId] = ['project_role' => $projectRole];
+                $syncData[$userId] = ['project_role' => $defaultProjectRole];
             }
 
             $project->users()->syncWithoutDetaching($syncData);
