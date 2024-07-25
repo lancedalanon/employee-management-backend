@@ -3,16 +3,25 @@
 namespace Tests\Feature;
 
 use App\Models\Project;
+use App\Models\ProjectUser;
 use App\Models\User;
 use App\Testing\ProjectTestingTrait;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Response;
+use Laravel\Sanctum\Sanctum;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class ProjectUserControllerTest extends TestCase
 {
     use RefreshDatabase, ProjectTestingTrait;
+
+    protected $user;
+    protected $project;
+    protected $projectUser;
+    protected $validRole;
 
     /**
      * Setup method to create user, admin, and projects.
@@ -21,6 +30,21 @@ class ProjectUserControllerTest extends TestCase
     {
         parent::setUp();
         $this->setUpProject();
+
+        // Create a user and an admin
+        $this->user = User::factory()->create();
+
+        // Create a project
+        $this->project = Project::factory()->create();
+
+        // Assign the user to the project
+        $this->projectUser = ProjectUser::create([
+            'project_id' => $this->project->project_id,
+            'user_id' => $this->user->user_id,
+            'project_role' => config('constants.project_roles')['project-user']
+        ]);
+
+        $this->validRole = array_key_first(config('constants.project_roles'));
     }
 
     /**
@@ -51,24 +75,50 @@ class ProjectUserControllerTest extends TestCase
 
         // Assert: Check that the request was successful
         $response->assertStatus(200)
-            ->assertJson([
-                'message' => 'Project users retrieved successfully.',
-                'data' => $users->toArray(),
-            ]);
-
-        // Additional assertion: Verify the response structure
-        $response->assertJsonStructure([
-            'message',
-            'data' => [
-                '*' => [
-                    'user_id',
-                    'username',
-                    'email',
-                    'created_at',
-                    'updated_at',
+            ->assertJsonStructure([
+                'message',
+                'data' => [
+                    'current_page',
+                    'data' => [
+                        '*' => [
+                            'user_id',
+                            'first_name',
+                            'middle_name',
+                            'last_name',
+                            'suffix',
+                            'place_of_birth',
+                            'date_of_birth',
+                            'gender',
+                            'username',
+                            'email',
+                            'recovery_email',
+                            'phone_number',
+                            'emergency_contact_name',
+                            'emergency_contact_number',
+                            'email_verified_at',
+                            'created_at',
+                            'updated_at',
+                            'pivot' => [
+                                'project_id',
+                                'user_id',
+                                'project_role',
+                                'created_at',
+                                'updated_at',
+                            ],
+                        ],
+                    ],
+                    'first_page_url',
+                    'last_page_url',
+                    'prev_page_url',
+                    'next_page_url',
+                    'path',
+                    'per_page',
+                    'from',
+                    'to',
+                    'total',
+                    'last_page',
                 ],
-            ],
-        ]);
+            ]);
     }
 
     /**
@@ -109,7 +159,7 @@ class ProjectUserControllerTest extends TestCase
         // Assert: Check that the users were added successfully
         $response->assertStatus(200)
             ->assertJson([
-                'message' => 'Users added to project successfully.',
+                'message' => 'Users added to project successfully with the specified role.',
             ]);
 
         // Assert: Check that the users were actually attached to the project
@@ -261,6 +311,116 @@ class ProjectUserControllerTest extends TestCase
         $response->assertStatus(422)
             ->assertJson([
                 'message' => 'Validation error.',
+            ]);
+    }
+
+    /**
+     * Test updating project role successfully.
+     *
+     * @return void
+     */
+    public function test_update_project_role_successfully()
+    {
+        $response = $this->putJson(route('admin.projects.updateProjectRole', ['projectId' => $this->project->project_id]), [
+            'user_id' => $this->user->user_id,
+            'project_role' => $this->validRole,
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'message' => 'Project role updated successfully.',
+            ]);
+
+        // Verify the role was updated
+        $this->assertEquals(config('constants.project_roles')[$this->validRole], $this->projectUser->fresh()->project_role);
+    }
+
+    /**
+     * Test updating project role with invalid role.
+     *
+     * @return void
+     */
+    public function test_update_project_role_with_invalid_role()
+    {
+        $response = $this->putJson(route('admin.projects.updateProjectRole', ['projectId' => $this->project->project_id]), [
+            'user_id' => $this->user->user_id,
+            'project_role' => 'invalid_role',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'message' => 'The selected project role is invalid.',
+                'errors' => [
+                    'project_role' => [
+                        'The selected project role is invalid.'
+                    ]
+                ]
+            ]);
+    }
+
+    /**
+     * Test updating project role with invalid user ID.
+     *
+     * @return void
+     */
+    public function test_update_project_role_with_invalid_user_id()
+    {
+        $response = $this->putJson(route('admin.projects.updateProjectRole', ['projectId' => $this->project->project_id]), [
+            'user_id' => 99999, // Non-existent user ID
+            'project_role' => $this->validRole,
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'message' => 'The selected user id is invalid.',
+                'errors' => [
+                    'user_id' => [
+                        'The selected user id is invalid.'
+                    ]
+                ]
+            ]);
+    }
+
+    /**
+     * Test updating project role when user is not part of the project.
+     *
+     * @return void
+     */
+    public function test_update_project_role_when_user_not_part_of_project()
+    {
+        $newUser = User::factory()->create();
+
+        $response = $this->putJson(route('admin.projects.updateProjectRole', ['projectId' => $this->project->project_id]), [
+            'user_id' => $newUser->user_id,
+            'project_role' => $this->validRole,
+        ]);
+
+        $response->assertStatus(400)
+            ->assertJson([
+                'message' => 'User is not part of the project.',
+            ]);
+    }
+
+    /**
+     * Test updating project role with missing parameters.
+     *
+     * @return void
+     */
+    public function test_update_project_role_with_missing_parameters()
+    {
+        $response = $this->putJson(route('admin.projects.updateProjectRole', ['projectId' => $this->project->project_id]), []);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'message' => 'The user id field is required. (and 1 more error)',
+                'errors' => [
+                    'user_id' => [
+                        'The user id field is required.'
+                    ],
+                    'project_role' => [
+                        'The project role field is required.'
+                    ],
+                ],
             ]);
     }
 }

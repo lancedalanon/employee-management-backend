@@ -165,13 +165,13 @@ class ProjectUserController extends Controller
         // Define the available roles from the constants
         $validRoles = config('constants.project_roles');
 
-        try {
-            // Validate the incoming request
-            $request->validate([
-                'user_id' => 'required|exists:users,user_id',
-                'project_role' => 'required|in:' . implode(',', array_keys($validRoles)),
-            ]);
+        // Validate the incoming request
+        $request->validate([
+            'user_id' => 'required|exists:users,user_id',
+            'project_role' => 'required|in:' . implode(',', array_keys($validRoles)),
+        ]);
 
+        try {
             $userId = $request->input('user_id');
             $role = $request->input('project_role');
 
@@ -212,14 +212,6 @@ class ProjectUserController extends Controller
                 'message' => 'Validation error.',
             ], 422);
         } catch (\Exception $e) {
-            // Log the error details
-            Log::error('Error updating project role:', [
-                'exception' => $e,
-                'project_id' => $projectId,
-                'user_id' => $request->input('user_id'),
-                'role' => $request->input('project_role')
-            ]);
-
             // Handle any other errors
             return response()->json([
                 'message' => 'An error occurred while updating project role.',
