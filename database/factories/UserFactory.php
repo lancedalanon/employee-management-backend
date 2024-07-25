@@ -23,13 +23,17 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $suffixes = ['Jr.', 'Sr.', 'III', 'IV', 'V'];
+        $gender = ['Male', 'Female'];
+
         return [
             'first_name' => $this->faker->firstName,
             'middle_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,
+            'suffix' => $this->faker->randomElement(array_merge($suffixes, [null])),
             'place_of_birth' => $this->faker->city,
             'date_of_birth' => $this->faker->date(),
-            'gender' => $this->faker->randomElement(['Male', 'Female']),
+            'gender' => $this->faker->randomElement($gender),
             'username' => $this->faker->userName,
             'email' => $this->faker->unique()->safeEmail,
             'phone_number' => $this->faker->regexify('09[0-9]{2}-[0-9]{3}-[0-9]{4}'),

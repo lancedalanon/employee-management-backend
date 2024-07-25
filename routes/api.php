@@ -60,6 +60,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::delete('/{id}', [ProjectController::class, 'deleteProject'])->name('deleteProject');
             Route::post('/{projectId}/add-users', [ProjectUserController::class, 'addUsersToProject'])->name('addUsersToProject');
             Route::post('/{projectId}/remove-users', [ProjectUserController::class, 'removeUsersFromProject'])->name('removeUsersFromProject');
+            Route::put('/{projectId}/update-role', [ProjectUserController::class, 'updateProjectRole'])->name('updateProjectRole');
         });
     });
 });

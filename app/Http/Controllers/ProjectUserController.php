@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Models\ProjectUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ProjectUserController extends Controller
 {
@@ -13,14 +15,14 @@ class ProjectUserController extends Controller
      * @param int $projectId
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getProjectUsers($projectId)
+    public function getProjectUsers(Request $request, $projectId)
     {
         try {
             // Retrieve the project and eager load its users
             $project = Project::with('users')->findOrFail($projectId);
 
             // Extract users from the project
-            $users = $project->users;
+            $users = $project->users()->paginate(10);
 
             // Return a JSON response with the users
             return response()->json([
@@ -47,8 +49,10 @@ class ProjectUserController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function addUsersToProject($projectId, Request $request)
+    public function addUsersToProject(Request $request, $projectId)
     {
+        $defaultProjectRole = config('constants.project_roles.project-user');
+
         try {
             // Validate the incoming request
             $request->validate([
@@ -57,17 +61,32 @@ class ProjectUserController extends Controller
             ]);
 
             $userIds = $request->input('user_ids');
-            $defaultProjectRole = 'project-user';
 
             // Attach users to the project with the specified role
             $project = Project::findOrFail($projectId);
 
-            // Prepare data to sync without detaching
-            $syncData = [];
-            foreach ($userIds as $userId) {
-                $syncData[$userId] = ['project_role' => $defaultProjectRole];
+            // Ensure defaultProjectRole is not null
+            if (is_null($defaultProjectRole)) {
+                throw new \RuntimeException('Default project role is not configured.');
             }
 
+            // Check if any users are already in the project
+            $existingUserIds = $project->users()->pluck('users.user_id')->toArray();
+            $usersToAdd = array_diff($userIds, $existingUserIds);
+
+            // Handle already existing users
+            if (count($usersToAdd) < count($userIds)) {
+                $alreadyInProjectIds = array_diff($userIds, $usersToAdd);
+                return response()->json([
+                    'message' => 'Some users are already in the project.',
+                    'data' => $alreadyInProjectIds,
+                ], 409);
+            }
+
+            // Prepare sync data
+            $syncData = array_fill_keys($usersToAdd, ['project_role' => $defaultProjectRole]);
+
+            // Attach users to the project
             $project->users()->syncWithoutDetaching($syncData);
 
             // Return a success response
@@ -98,7 +117,7 @@ class ProjectUserController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function removeUsersFromProject($projectId, Request $request)
+    public function removeUsersFromProject(Request $request, $projectId)
     {
         try {
             // Validate the incoming request
@@ -130,6 +149,80 @@ class ProjectUserController extends Controller
             // Handle any other errors that occur during the process
             return response()->json([
                 'message' => 'An error occurred while removing users to project.',
+            ], 500);
+        }
+    }
+
+    /**
+     * Update the project role of a single user in a project.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $projectId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateProjectRole(Request $request, $projectId)
+    {
+        // Define the available roles from the constants
+        $validRoles = config('constants.project_roles');
+
+        try {
+            // Validate the incoming request
+            $request->validate([
+                'user_id' => 'required|exists:users,user_id',
+                'project_role' => 'required|in:' . implode(',', array_keys($validRoles)),
+            ]);
+
+            $userId = $request->input('user_id');
+            $role = $request->input('project_role');
+
+            // Check if the role is valid
+            if (!array_key_exists($role, $validRoles)) {
+                return response()->json([
+                    'message' => 'Invalid role provided.',
+                ], 400);
+            }
+
+            // Check if the user is part of the project
+            $projectUser = ProjectUser::where('project_id', $projectId)
+                ->where('user_id', $userId)
+                ->first();
+
+            if (!$projectUser) {
+                return response()->json([
+                    'message' => 'User is not part of the project.',
+                ], 400);
+            }
+
+            // Update the role for the user in the project
+            $projectUser->project_role = $validRoles[$role];
+            $projectUser->save();
+
+            // Return a success response
+            return response()->json([
+                'message' => 'Project role updated successfully.',
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            // Handle project not found
+            return response()->json([
+                'message' => 'Project not found.',
+            ], 404);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation errors
+            return response()->json([
+                'message' => 'Validation error.',
+            ], 422);
+        } catch (\Exception $e) {
+            // Log the error details
+            Log::error('Error updating project role:', [
+                'exception' => $e,
+                'project_id' => $projectId,
+                'user_id' => $request->input('user_id'),
+                'role' => $request->input('project_role')
+            ]);
+
+            // Handle any other errors
+            return response()->json([
+                'message' => 'An error occurred while updating project role.',
             ], 500);
         }
     }

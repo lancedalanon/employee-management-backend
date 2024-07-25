@@ -32,6 +32,7 @@ class User extends Authenticatable implements JWTSubject
         'first_name',
         'middle_name',
         'last_name',
+        'suffix',
         'place_of_birth',
         'date_of_birth',
         'gender',
@@ -67,21 +68,11 @@ class User extends Authenticatable implements JWTSubject
         ];
     }
 
-    /**
-     * Get the identifier that will be stored in the JWT subject claim.
-     *
-     * @return mixed
-     */
     public function getJWTIdentifier()
     {
         return $this->getKey();
     }
 
-    /**
-     * Return a key value array, containing any custom claims to be added to the JWT.
-     *
-     * @return array
-     */
     public function getJWTCustomClaims()
     {
         return [
@@ -99,19 +90,13 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Dtr::class, 'user_id', 'user_id');
     }
 
-    /**
-     * The projects that belong to the user.
-     */
     public function projects()
     {
-        return $this->belongsToMany(Project::class, 'project_users', 'user_id', 'project_id')->withTimestamps();
+        return $this->belongsToMany(Project::class, 'project_users', 'user_id', 'project_id')
+            ->withPivot('project_role')
+            ->withTimestamps();
     }
 
-    /**
-     * Get the user's full name attribute.
-     *
-     * @return string
-     */
     public function getFullNameAttribute()
     {
         $full_name = "{$this->first_name} ";
@@ -121,6 +106,10 @@ class User extends Authenticatable implements JWTSubject
         }
 
         $full_name .= "{$this->last_name} ";
+
+        if ($this->suffix) {
+            $full_name .= "{$this->suffix}";
+        }
 
         return trim($full_name);
     }

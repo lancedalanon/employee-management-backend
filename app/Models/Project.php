@@ -19,17 +19,13 @@ class Project extends Model
         'project_description'
     ];
 
-    /**
-     * The users that belong to the project.
-     */
     public function users()
     {
-        return $this->belongsToMany(User::class, 'project_users', 'project_id', 'user_id')->withTimestamps();
+        return $this->belongsToMany(User::class, 'project_users', 'project_id', 'user_id')
+            ->withPivot('project_role')
+            ->withTimestamps();
     }
 
-    /**
-     * Get the tasks for the project.
-     */
     public function tasks()
     {
         return $this->hasMany(ProjectTask::class, 'project_id', 'project_id');
