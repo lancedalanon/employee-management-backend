@@ -56,7 +56,9 @@ class ResumeControllerTest extends TestCase
             'dtr_id' => $dtr->dtr_id,
         ]);
 
-        $response = $this->postJson('/api/dtr/resume/' . $dtr->dtr_id);
+        $response = $this->postJson(route('dtrs.storeResume', [
+            'dtr' => $dtr->dtr_id,
+        ]));
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -84,8 +86,9 @@ class ResumeControllerTest extends TestCase
      */
     public function test_resume_break_dtr_not_found()
     {
-        $invalidDtrId = 999; // Assumed non-existent DTR ID
-        $response = $this->postJson('/api/dtr/resume/' . $invalidDtrId);
+        $response = $this->postJson(route('dtrs.storeResume', [
+            'dtr' => 'invalidId',
+        ]));
 
         $response->assertStatus(404);
         $response->assertJson([
@@ -110,7 +113,9 @@ class ResumeControllerTest extends TestCase
             'user_id' => $user->user_id,
         ]);
 
-        $response = $this->postJson('/api/dtr/resume/' . $dtr->dtr_id);
+        $response = $this->postJson(route('dtrs.storeResume', [
+            'dtr' => $dtr->dtr_id,
+        ]));
 
         $response->assertStatus(400);
         $response->assertJson([

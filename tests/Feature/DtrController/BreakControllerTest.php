@@ -50,7 +50,9 @@ class BreakControllerTest extends TestCase
             'user_id' => $user->user_id,
         ]);
 
-        $response = $this->postJson('/api/dtr/break/' . $dtr->dtr_id);
+        $response = $this->postJson(route('dtrs.storeBreak', [
+            'dtr' => $dtr->dtr_id,
+        ]));
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -95,7 +97,9 @@ class BreakControllerTest extends TestCase
             'dtr_id' => $dtr->dtr_id,
         ]);
 
-        $response = $this->postJson('/api/dtr/break/' . $dtr->dtr_id);
+        $response = $this->postJson(route('dtrs.storeBreak', [
+            'dtr' => $dtr->dtr_id,
+        ]));
 
         $response->assertStatus(400);
         $response->assertJson([
@@ -111,7 +115,9 @@ class BreakControllerTest extends TestCase
     public function test_start_break_dtr_not_found()
     {
         $invalidDtrId = 999; // Assumed non-existent DTR ID
-        $response = $this->postJson('/api/dtr/break/' . $invalidDtrId);
+        $response = $this->postJson(route('dtrs.storeBreak', [
+            'dtr' => $invalidDtrId,
+        ]));
 
         $response->assertStatus(404);
         $response->assertJson([

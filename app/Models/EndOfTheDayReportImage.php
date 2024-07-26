@@ -13,7 +13,7 @@ class EndOfTheDayReportImage extends Model
 
     protected $fillable = [
         'dtr_id',
-        'end_of_the_day_image'
+        'end_of_the_day_report_image'
     ];
 
     public function dtr()

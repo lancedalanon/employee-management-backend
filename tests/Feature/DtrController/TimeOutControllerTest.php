@@ -82,10 +82,11 @@ class TimeOutControllerTest extends TestCase
             UploadedFile::fake()->image('report2.jpg')
         ];
 
-        $response = $this->postJson('/api/dtr/time-out/' . $dtr->dtr_id, [
+        $response = $this->postJson(route('dtrs.storeTimeOut', [
+            'dtr' => $dtr->dtr_id,
             'end_of_the_day_report' => 'This is the end of the day report.',
             'end_of_the_day_images' => $images,
-        ]);
+        ]));
 
         $response->assertStatus(200)
             ->assertJson([
@@ -109,12 +110,13 @@ class TimeOutControllerTest extends TestCase
         $user = $this->createUserWithRoles();
         Sanctum::actingAs($user);
 
-        $response = $this->postJson('/api/dtr/time-out/99999', [
+        $response = $this->postJson(route('dtrs.storeTimeOut', [
+            'dtr' => 99999,
             'end_of_the_day_report' => 'This is the end of the day report.',
             'end_of_the_day_images' => [
                 UploadedFile::fake()->image('report1.jpg')
             ],
-        ]); // Non-existent DTR ID
+        ]));
 
         $response->assertStatus(404)
             ->assertJson([
@@ -138,12 +140,13 @@ class TimeOutControllerTest extends TestCase
             'user_id' => $user->user_id,
         ]);
 
-        $response = $this->postJson('/api/dtr/time-out/' . $dtr->dtr_id, [
+        $response = $this->postJson(route('dtrs.storeTimeOut', [
+            'dtr' => $dtr->dtr_id,
             'end_of_the_day_report' => 'This is the end of the day report.',
             'end_of_the_day_images' => [
                 UploadedFile::fake()->image('report1.jpg')
             ],
-        ]);
+        ]));
 
         $response->assertStatus(400)
             ->assertJson([
@@ -170,12 +173,13 @@ class TimeOutControllerTest extends TestCase
             'dtr_id' => $dtr->dtr_id,
         ]);
 
-        $response = $this->postJson('/api/dtr/time-out/' . $dtr->dtr_id, [
+        $response = $this->postJson(route('dtrs.storeTimeOut', [
+            'dtr' => $dtr->dtr_id,
             'end_of_the_day_report' => 'This is the end of the day report.',
             'end_of_the_day_images' => [
                 UploadedFile::fake()->image('report1.jpg')
             ],
-        ]);
+        ]));
 
         $response->assertStatus(400)
             ->assertJson([
@@ -198,12 +202,13 @@ class TimeOutControllerTest extends TestCase
             'user_id' => $user->user_id,
         ]);
 
-        $response = $this->postJson('/api/dtr/time-out/' . $dtr->dtr_id, [
+        $response = $this->postJson(route('dtrs.storeTimeOut', [
+            'dtr' => $dtr->dtr_id,
             'end_of_the_day_report' => 'This is the end of the day report.',
             'end_of_the_day_images' => [
                 UploadedFile::fake()->image('report1.jpg')
             ],
-        ]);
+        ]));
 
         $response->assertStatus(400)
             ->assertJson([
@@ -235,6 +240,12 @@ class TimeOutControllerTest extends TestCase
             'end_of_the_day_images' => $images,
         ]);
 
+        $response = $this->postJson(route('dtrs.storeTimeOut', [
+            'dtr' => $dtr->dtr_id,
+            'end_of_the_day_report' => 'This is the end of the day report.',
+            'end_of_the_day_images' => $images,
+        ]));
+
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['end_of_the_day_report']);
     }
@@ -254,9 +265,10 @@ class TimeOutControllerTest extends TestCase
             'user_id' => $user->user_id,
         ]);
 
-        $response = $this->postJson('/api/dtr/time-out/' . $dtr->dtr_id, [
+        $response = $this->postJson(route('dtrs.storeTimeOut', [
+            'dtr' => $dtr->dtr_id,
             'end_of_the_day_report' => 'This is the end of the day report.',
-        ]);
+        ]));
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['end_of_the_day_images']);
@@ -285,10 +297,11 @@ class TimeOutControllerTest extends TestCase
             UploadedFile::fake()->image('report5.jpg')
         ];
 
-        $response = $this->postJson('/api/dtr/time-out/' . $dtr->dtr_id, [
+        $response = $this->postJson(route('dtrs.storeTimeOut', [
+            'dtr' => $dtr->dtr_id,
             'end_of_the_day_report' => 'This is the end of the day report.',
             'end_of_the_day_images' => $images,
-        ]);
+        ]));
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['end_of_the_day_images']);

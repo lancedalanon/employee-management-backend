@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('end_of_the_day_report_image_id');
             $table->unsignedBigInteger('dtr_id');
             $table->foreign('dtr_id')->references('dtr_id')->on('dtrs')->onDelete('cascade');
-            $table->binary('end_of_the_day_image');
+            $table->binary('end_of_the_day_report_image');
             $table->timestamps();
         });
     }

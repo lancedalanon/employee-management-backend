@@ -38,7 +38,7 @@ class TimeInControllerTest extends TestCase
      */
     public function test_time_in()
     {
-        $response = $this->postJson('/api/dtr/time-in');
+        $response = $this->postJson(route('dtrs.storeTimeIn'));
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -71,7 +71,7 @@ class TimeInControllerTest extends TestCase
             'time_out' => null
         ]);
 
-        $response = $this->postJson('/api/dtr/time-in');
+        $response = $this->postJson(route('dtrs.storeTimeIn'));
 
         $response->assertStatus(400)
             ->assertJson([
