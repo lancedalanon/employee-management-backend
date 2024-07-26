@@ -70,16 +70,16 @@ class ProjectController extends Controller
     /**
      * Display the specified project by ID.
      *
-     * @param int $id
+     * @param int $projectId
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getProjectsById($id)
+    public function getProjectsById($projectId)
     {
         try {
             // Fetch the project by ID with users and their full names
             $project = Project::with(['users' => function ($query) {
                 $query->select('project_id', 'first_name', 'middle_name', 'last_name', 'username');
-            }])->findOrFail($id);
+            }])->findOrFail($projectId);
 
             // Transform the users array to include full names only
             $project->users->each(function ($user) {
@@ -143,10 +143,10 @@ class ProjectController extends Controller
      * Update the specified project's name by ID.
      *
      * @param \Illuminate\Http\Request $request
-     * @param int $id
+     * @param int $projectId
      * @return \Illuminate\Http\JsonResponse
      */
-    public function updateProject(Request $request, $id)
+    public function updateProject(Request $request, $projectId)
     {
         // Validate the incoming request
         $request->validate([
@@ -156,7 +156,7 @@ class ProjectController extends Controller
 
         try {
             // Fetch the project by ID
-            $project = Project::findOrFail($id);
+            $project = Project::findOrFail($projectId);
 
             if (!($request->input('project_name') !== $project->project_name)) {
                 // Return a validation error response
@@ -191,14 +191,14 @@ class ProjectController extends Controller
     /**
      * Soft delete the specified project by ID.
      *
-     * @param int $id
+     * @param int $projectId
      * @return \Illuminate\Http\JsonResponse
      */
-    public function deleteProject($id)
+    public function deleteProject($projectId)
     {
         try {
             // Fetch the project by ID
-            $project = Project::findOrFail($id);
+            $project = Project::findOrFail($projectId);
 
             // Soft delete the project
             $project->delete();

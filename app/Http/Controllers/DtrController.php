@@ -24,85 +24,46 @@ class DtrController extends Controller
 
     public function index(Request $request)
     {
-        // Set up pagination parameters with defaults
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
-
-        try {
-            $response = $this->dtrService->index($perPage, $page);
-            return $response;
-        } catch (\Exception $e) {
-            return Response::json([
-                'message' => 'An error occurred while retrieving the DTR entries.',
-            ], 500);
-        }
+        $response = $this->dtrService->index($perPage, $page);
+        return $response;
     }
 
     public function show(int $dtrId)
     {
-        try {
-            $response = $this->dtrService->show($dtrId);
-            return $response;
-        } catch (\Exception $e) {
-            return Response::json([
-                'message' => 'An error occurred while retrieving the DTR entry.',
-            ], 500);
-        }
+        $response = $this->dtrService->show($dtrId);
+        return $response;
     }
 
     public function storeTimeIn()
     {
-        try {
-            $response = $this->dtrService->storeTimeIn();
-            return $response;
-        } catch (\Exception $e) {
-            return Response::json([
-                'message' => 'An error occurred while recording the time in.',
-            ], 500);
-        }
+        $response = $this->dtrService->storeTimeIn();
+        return $response;
     }
 
     public function storeBreak(int $dtrId)
     {
-        try {
-            $response = $this->dtrService->storeBreak($dtrId);
-            return $response;
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'An error occurred while starting the break.',
-            ], 500);
-        }
+        $response = $this->dtrService->storeBreak($dtrId);
+        return $response;
     }
 
     public function storeResume(int $dtrId)
     {
-        try {
-            $response = $this->dtrService->storeResume($dtrId);
-            return $response;
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'An error occurred while resuming the break.',
-            ], 500);
-        }
+        $response = $this->dtrService->storeResume($dtrId);
+        return $response;
     }
 
     public function storeTimeOut(StoreTimeOutRequest $request, $dtrId)
     {
         $validatedData = $request->validated();
 
-        try {
-            // Pass the validated data and uploaded images to the service
-            $response = $this->dtrService->storeTimeOut(
-                $validatedData['end_of_the_day_report'],
-                $dtrId,
-                $request->file('end_of_the_day_report_images')
-            );
+        $response = $this->dtrService->storeTimeOut(
+            $validatedData['end_of_the_day_report'],
+            $dtrId,
+            $request->file('end_of_the_day_report_images')
+        );
 
-            return $response;
-        } catch (\Exception $e) {
-            return Response::json([
-                'message' => 'An error occurred while recording the time out.',
-            ], 500);
-        }
+        return $response;
     }
 }

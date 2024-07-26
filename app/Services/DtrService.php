@@ -142,7 +142,7 @@ class DtrService
                 ->where('dtr_id', $dtrId)
                 ->where('user_id', $userId)
                 ->where('time_out', null)
-                ->firstOrFail();
+                ->first();
 
             // Handle DTR record not found
             if (!$dtr) {
@@ -192,7 +192,7 @@ class DtrService
                 ->where('dtr_id', $dtrId)
                 ->where('user_id', $userId)
                 ->where('time_out', null)
-                ->firstOrFail();
+                ->first();
 
             // Handle DTR record not found
             if (!$dtr) {
@@ -240,7 +240,14 @@ class DtrService
             // Find the DTR record
             $dtr = Dtr::where('user_id', $user->user_id)
                 ->where('dtr_id', $dtrId)
-                ->firstOrFail();
+                ->first();
+
+            // Handle DTR record not found
+            if (!$dtr) {
+                return Response::json([
+                    'message' => 'DTR record not found.',
+                ], 404);
+            }
 
             // Check if the DTR record is found and if it's not already timed out
             if ($dtr->time_out) {
@@ -300,7 +307,6 @@ class DtrService
             // Handle any other errors that occur during the process
             return Response::json([
                 'message' => 'An error occurred while recording the time out.',
-                'error' => $e->getMessage()
             ], 500);
         }
     }

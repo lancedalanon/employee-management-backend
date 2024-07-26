@@ -42,7 +42,7 @@ class GetProjectByIdTest extends TestCase
     public function test_get_existing_project_by_id()
     {
         // Send a GET request to the endpoint with the project ID
-        $response = $this->getJson(route('projects.getProjectsById', ['id' => $this->project->project_id]));
+        $response = $this->getJson(route('projects.getProjectsById', ['projectId' => $this->project->project_id]));
 
         // Assert that the response is successful (200 OK)
         $response->assertStatus(200);
@@ -76,7 +76,7 @@ class GetProjectByIdTest extends TestCase
     public function test_get_non_existing_project_by_id()
     {
         // Send a GET request to the endpoint with a non-existent project ID
-        $response = $this->getJson(route('projects.getProjectsById', ['id' => 999]));
+        $response = $this->getJson(route('projects.getProjectsById', ['projectId' => 9999]));
 
         // Assert that the response status is 404 (Not Found)
         $response->assertStatus(404);

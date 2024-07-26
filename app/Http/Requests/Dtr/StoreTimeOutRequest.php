@@ -24,7 +24,7 @@ class StoreTimeOutRequest extends FormRequest
         return [
             'end_of_the_day_report' => 'required|string|max:500',
             'end_of_the_day_report_images' => 'required|array|max:4',
-            'end_of_the_day_report_images.*' => 'required|image|mimes:jpeg,png,jpg,webp,svg|max:2048'
+            'end_of_the_day_report_images.*' => 'required|file|image|mimes:jpg,jpeg,png|max:2048'
         ];
     }
 }

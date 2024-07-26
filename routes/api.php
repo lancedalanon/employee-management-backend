@@ -26,9 +26,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [DtrController::class, 'index'])->name('index');
         Route::get('/{dtrId}', [DtrController::class, 'show'])->name('show');
         Route::post('/time-in', [DtrController::class, 'storeTimeIn'])->name('storeTimeIn');
-        Route::post('/break/{dtrId}', [DtrController::class, 'storeBreak'])->name('storeBreak');
-        Route::post('/resume/{dtrId}', [DtrController::class, 'storeResume'])->name('storeResume');
-        Route::post('/time-out/{dtrId}', [DtrController::class, 'storeTimeOut'])->name('storeTimeOut');
+        Route::post('{dtrId}/break', [DtrController::class, 'storeBreak'])->name('storeBreak');
+        Route::post('{dtrId}/resume', [DtrController::class, 'storeResume'])->name('storeResume');
+        Route::post('{dtrId}/time-out', [DtrController::class, 'storeTimeOut'])->name('storeTimeOut');
     });
 
     Route::prefix('projects')->name('projects.')->group(function () {

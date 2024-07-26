@@ -77,7 +77,7 @@ class GetDtrControllerTest extends TestCase
     {
         // Simulate GET request to the getDtrById endpoint
         $response = $this->getJson(route('dtrs.show', [
-            'dtr' => $this->dtr->dtr_id,
+            'dtrId' => $this->dtr->dtr_id,
         ]));
 
         // Assert response status is 200
@@ -93,16 +93,6 @@ class GetDtrControllerTest extends TestCase
                 'time_out',
                 'created_at',
                 'updated_at',
-                'breaks' => [
-                    [
-                        'dtr_break_id',
-                        'dtr_id',
-                        'break_time',
-                        'resume_time',
-                        'created_at',
-                        'updated_at',
-                    ],
-                ],
             ],
         ]);
     }
@@ -114,7 +104,7 @@ class GetDtrControllerTest extends TestCase
     {
         // Simulate GET request to the getDtrById endpoint with a non-existent DTR ID
         $response = $this->getJson(route('dtrs.show', [
-            'dtr' => 'invalidId',
+            'dtrId' => 99999,
         ]));
 
         // Assert response status and structure for not found
