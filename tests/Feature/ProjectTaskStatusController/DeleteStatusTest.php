@@ -59,18 +59,18 @@ class DeleteStatusTest extends TestCase
     {
         $deletedStatusId = $this->status->first()->project_task_status_id;
 
-        $response = $this->deleteJson(route('projects.tasks.statuses.deleteStatus', [
+        $response = $this->deleteJson(route('projects.tasks.statuses.destroy', [
             'projectId' => $this->project->project_id,
             'taskId' => $this->task->project_task_id,
-            'id' => $this->status->first()->project_task_status_id,
+            'statusId' => $this->status->first()->project_task_status_id,
         ]));
 
         $response->assertStatus(200)
             ->assertJson([
-                'message' => 'Status entry deleted successfully.',
+                'message' => 'Status deleted successfully.',
             ]);
 
-        // Assert the status entry was soft deleted
+        // Assert the status was soft deleted
         $this->assertSoftDeleted('project_task_statuses', [
             'project_task_status_id' => $deletedStatusId,
         ]);
@@ -83,15 +83,15 @@ class DeleteStatusTest extends TestCase
      */
     public function test_should_return_404_if_task_not_found()
     {
-        $response = $this->deleteJson(route('projects.tasks.statuses.deleteStatus', [
+        $response = $this->deleteJson(route('projects.tasks.statuses.destroy', [
             'projectId' => 999,
             'taskId' => 999,
-            'id' => $this->status->first()->project_task_status_id,
+            'statusId' => $this->status->first()->project_task_status_id,
         ]));
 
         $response->assertStatus(404)
             ->assertJson([
-                'message' => 'Task not found.',
+                'message' => 'Status not found.',
             ]);
     }
 
@@ -102,10 +102,10 @@ class DeleteStatusTest extends TestCase
      */
     public function test_should_return_404_if_status_not_found()
     {
-        $response = $this->deleteJson(route('projects.tasks.statuses.deleteStatus', [
+        $response = $this->deleteJson(route('projects.tasks.statuses.destroy', [
             'projectId' => $this->project->project_id,
             'taskId' => $this->task->first()->project_task_id,
-            'id' => 999,
+            'statusId' => 999,
         ]));
 
         $response->assertStatus(404)

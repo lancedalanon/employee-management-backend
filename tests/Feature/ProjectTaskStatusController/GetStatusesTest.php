@@ -49,7 +49,7 @@ class GetStatusesTest extends TestCase
     public function test_can_get_paginated_statuses_for_a_task()
     {
         // Send a GET request to the endpoint with pagination query parameters
-        $response = $this->getJson(route('projects.tasks.statuses.getStatuses', [
+        $response = $this->getJson(route('projects.tasks.statuses.index', [
             'projectId' => $this->project->project_id,
             'taskId' => $this->task->project_task_id,
         ]));
@@ -60,27 +60,25 @@ class GetStatusesTest extends TestCase
         // Assert the response contains the correct keys and data
         $response->assertJsonStructure([
             'message',
+            'current_page',
             'data' => [
-                'current_page',
-                'data' => [
-                    '*' => [
-                        'project_task_id',
-                        'project_task_status',
-                        'project_task_status_media_file',
-                    ],
+                '*' => [
+                    'project_task_id',
+                    'project_task_status',
+                    'project_task_status_media_file',
                 ],
-                'first_page_url',
-                'from',
-                'last_page',
-                'last_page_url',
-                'links',
-                'next_page_url',
-                'path',
-                'per_page',
-                'prev_page_url',
-                'to',
-                'total',
             ],
+            'first_page_url',
+            'from',
+            'last_page',
+            'last_page_url',
+            'links',
+            'next_page_url',
+            'path',
+            'per_page',
+            'prev_page_url',
+            'to',
+            'total',
         ]);
     }
 
@@ -92,7 +90,7 @@ class GetStatusesTest extends TestCase
         ]);
 
         // Send a GET request to the endpoint with the new task ID
-        $response = $this->getJson(route('projects.tasks.statuses.getStatuses', [
+        $response = $this->getJson(route('projects.tasks.statuses.index', [
             'projectId' => $this->project->project_id,
             'taskId' => $taskWithoutStatuses->project_task_id,
         ]));
@@ -102,10 +100,8 @@ class GetStatusesTest extends TestCase
 
         // Assert the response contains the correct structure and empty data
         $response->assertJson([
-            'message' => 'Statuses entry retrieved successfully.',
-            'data' => [
-                'data' => [],
-            ],
+            'message' => 'Statuses retrieved successfully.',
+            'data' => [],
         ]);
     }
 }

@@ -50,10 +50,10 @@ class GetStatusByIdTest extends TestCase
 
     public function test_should_retrieve_status_by_id()
     {
-        $response = $this->getJson(route('projects.tasks.statuses.getStatusById', [
+        $response = $this->getJson(route('projects.tasks.statuses.show', [
             'projectId' => $this->project->project_id,
             'taskId' => $this->task->project_task_id,
-            'id' => $this->status->first()->project_task_status_id,
+            'statusId' => $this->status->first()->project_task_status_id,
         ]));
 
         $response->assertStatus(200)
@@ -73,15 +73,15 @@ class GetStatusByIdTest extends TestCase
 
     public function test_should_return_404_when_task_not_found()
     {
-        $response = $this->getJson(route('projects.tasks.statuses.getStatusById', [
+        $response = $this->getJson(route('projects.tasks.statuses.show', [
             'projectId' => $this->project->project_id,
-            'taskId' => 9999, // Non-existent task ID
-            'id' => $this->status->first()->project_task_status_id,
+            'taskId' => 99999,
+            'statusId' => $this->status->first()->project_task_status_id,
         ]));
 
         $response->assertStatus(404)
             ->assertJson([
-                'message' => 'Task not found.',
+                'message' => 'Status not found.',
             ]);
     }
 }

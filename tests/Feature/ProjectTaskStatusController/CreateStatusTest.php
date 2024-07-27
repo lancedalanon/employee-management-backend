@@ -33,6 +33,8 @@ class CreateStatusTest extends TestCase
         $this->task = ProjectTask::factory()->create([
             'project_id' => $this->project->project_id,
         ]);
+
+        Storage::fake('public');
     }
 
     protected function tearDown(): void
@@ -50,12 +52,9 @@ class CreateStatusTest extends TestCase
      */
     public function test_should_create_status_successfully_with_file(): void
     {
-        // Fake the public disk storage
-        Storage::fake('public');
-
         $file = UploadedFile::fake()->image('status_image.jpg');
 
-        $response = $this->postJson(route('projects.tasks.statuses.createStatus', [
+        $response = $this->postJson(route('projects.tasks.statuses.store', [
             'projectId' => $this->project->project_id,
             'taskId' => $this->task->project_task_id,
         ]), [
@@ -80,7 +79,7 @@ class CreateStatusTest extends TestCase
         ]);
 
         // Assert the file was stored
-        Storage::disk('public')->assertExists($file->hashName('project_task_status_media_file'));
+        Storage::disk('public')->assertExists('project_task_status_media_files/' . $file->hashName());
     }
 
     /**
@@ -90,7 +89,7 @@ class CreateStatusTest extends TestCase
      */
     public function test_should_return_validation_error_for_invalid_data(): void
     {
-        $response = $this->postJson(route('projects.tasks.statuses.createStatus', [
+        $response = $this->postJson(route('projects.tasks.statuses.store', [
             'projectId' => $this->project->project_id,
             'taskId' => $this->task->project_task_id,
         ]), [
@@ -107,14 +106,16 @@ class CreateStatusTest extends TestCase
      *
      * @return void
      */
-    public function test_should_return_404_if_task_not_found(): void
+    public function test_should_return_404_if_status_not_found(): void
     {
-        $response = $this->postJson(route('projects.tasks.statuses.createStatus', [
+        $file = UploadedFile::fake()->image('status_image.jpg');
+
+        $response = $this->post(route('projects.tasks.statuses.store', [
             'projectId' => $this->project->project_id,
-            'taskId' => 999, // Non-existent task ID
+            'taskId' => 99999,
         ]), [
-            'project_task_status' => 'Completed',
-            'project_task_status_media_file' => UploadedFile::fake()->image('status_image.jpg'),
+            'project_task_status' => 'Complete',
+            'project_task_status_media_file' => $file,
         ]);
 
         $response->assertStatus(404)

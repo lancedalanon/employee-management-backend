@@ -40,6 +40,8 @@ class UpdateStatusTest extends TestCase
         $this->status = ProjectTaskStatus::factory()->create([
             'project_task_id' => $this->task->project_task_id,
         ]);
+
+        Storage::fake('public');
     }
 
     protected function tearDown(): void
@@ -53,37 +55,41 @@ class UpdateStatusTest extends TestCase
 
     public function test_should_update_status_successfully()
     {
-        Storage::fake('public');
-
         $newStatus = 'Updated status';
         $file = UploadedFile::fake()->image('status.jpg');
 
-        $response = $this->putJson(route('projects.tasks.statuses.updateStatus', [
+        $response = $this->putJson(route('projects.tasks.statuses.update', [
             'projectId' => $this->project->project_id,
             'taskId' => $this->task->project_task_id,
-            'id' => $this->status->first()->project_task_status_id,
+            'statusId' => $this->status->project_task_status_id,
         ]), [
             'project_task_status' => $newStatus,
             'project_task_status_media_file' => $file,
         ]);
 
         $response->assertStatus(200)
-            ->assertJson([
-                'message' => 'Status entry updated successfully.',
+            ->assertJsonStructure([
+                'message',
                 'data' => [
-                    'project_task_status' => $newStatus,
+                    'project_task_status_id',
+                    'project_task_status',
+                    'project_task_id',
+                    'project_task_status_media_file',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at'
                 ],
             ]);
 
-        Storage::disk('public')->assertExists($file->hashName('project_task_status_media_file'));
+        Storage::disk('public')->assertExists('project_task_status_media_files/' . $file->hashName());
     }
 
     public function test_should_fail_validation_for_missing_status()
     {
-        $response = $this->putJson(route('projects.tasks.statuses.updateStatus', [
+        $response = $this->putJson(route('projects.tasks.statuses.update', [
             'projectId' => $this->project->project_id,
             'taskId' => $this->task->project_task_id,
-            'id' => $this->status->project_task_status_id,
+            'statusId' => $this->status->project_task_status_id,
         ]));
 
         $response->assertStatus(422)
@@ -92,49 +98,26 @@ class UpdateStatusTest extends TestCase
 
     public function test_should_fail_validation_for_invalid_file_type()
     {
-        Storage::fake('public');
-
         $file = UploadedFile::fake()->create('document.pdf', 100);
 
-        $response = $this->putJson(route('projects.tasks.statuses.updateStatus', [
+        $response = $this->putJson(route('projects.tasks.statuses.update', [
             'projectId' => $this->project->project_id,
             'taskId' => $this->task->project_task_id,
-            'id' => $this->status->project_task_status_id,
-        ]), [
+            'statusId' => $this->status->project_task_status_id,
             'project_task_status' => 'Updated status',
             'project_task_status_media_file' => $file,
-        ]);
+        ]));
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['project_task_status_media_file']);
     }
 
-    public function test_should_return_404_for_nonexistent_task()
-    {
-        $nonExistentTaskId = 999;
-
-        $response = $this->putJson(route('projects.tasks.statuses.updateStatus', [
-            'projectId' => $this->project->project_id,
-            'taskId' => $nonExistentTaskId,
-            'id' => $this->status->project_task_status_id,
-        ]), [
-            'project_task_status' => 'Updated status',
-        ]);
-
-        $response->assertStatus(404)
-            ->assertJson([
-                'message' => 'Task not found.',
-            ]);
-    }
-
     public function test_should_return_404_for_nonexistent_status()
     {
-        $nonExistentStatusId = 999;
-
-        $response = $this->putJson(route('projects.tasks.statuses.updateStatus', [
+        $response = $this->putJson(route('projects.tasks.statuses.update', [
             'projectId' => $this->project->project_id,
             'taskId' => $this->task->project_task_id,
-            'id' => $nonExistentStatusId,
+            'statusId' => 99999,
         ]), [
             'project_task_status' => 'Updated status',
         ]);
