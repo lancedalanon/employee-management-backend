@@ -18,6 +18,7 @@ return new class extends Migration
             $table->dateTime('time_in');
             $table->dateTime('time_out')->nullable();
             $table->text('end_of_the_day_report')->nullable();
+            $table->boolean('is_overtime')->default(0);
             $table->timestamps();
         });
     }

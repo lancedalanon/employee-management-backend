@@ -13,15 +13,6 @@ class WorkHoursService
         $this->userRoleService = $userRoleService;
     }
 
-    /**
-     * Evaluate the time in based on the user's shift and handle shift-specific adjustments.
-     *
-     * @param \App\Models\User $user The user object
-     * @param \Carbon\Carbon $timeIn The time the user logged in
-     * @return \Carbon\Carbon The adjusted time based on shift or current time if not within expected range
-     *
-     * @throws \Exception When an unknown shift role is encountered
-     */
     public function evaluateTimeIn($user, $timeIn)
     {
         // Extract the user's shift role
@@ -88,15 +79,6 @@ class WorkHoursService
         return $timeOut->lt($expectedTime) ? $expectedTime : $timeOut;
     }
 
-    /**
-     * Adjusts the time-in based on the specified expected time and range.
-     *
-     * @param string $currentDate The current date in 'Y-m-d' format
-     * @param string $expectedTime The expected time in 'H:i:s' format
-     * @param string $expectedStartRange The expected start range in 'H:i:s' format
-     * @param string $expectedEndRange The expected end range in 'H:i:s' format
-     * @return \Carbon\Carbon The adjusted time based on shift and expected range
-     */
     protected function adjustTimeForShift($currentDate, $expectedTime, $expectedStartRange, $expectedEndRange)
     {
         // Define expected start and end times
@@ -133,23 +115,17 @@ class WorkHoursService
         return $totalWorkHours >= $requiredHours;
     }
 
-    /**
-     * Get the required working hours based on the user's role.
-     *
-     * @param \App\Models\User $user The user object
-     * @return int Required working hours (8 for full-time, 4 for part-time)
-     */
     protected function getRequiredHours($user)
     {
         $role = $this->userRoleService->getUserEmploymentRole($user);
 
         switch ($role) {
             case 'full-time':
-                return 8; // 8 hours for full-time
+                return 8;
             case 'part-time':
-                return 4; // 4 hours for part-time
+                return 4;
             default:
-                return 0; // Default to 0 if role is not defined
+                return 0;
         }
     }
 }
