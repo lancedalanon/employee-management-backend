@@ -99,7 +99,7 @@ class UserControllerTest extends TestCase
         ];
 
         // Send a PUT request to the update personal information endpoint
-        $response = $this->putJson('/api/users', $updateData);
+        $response = $this->putJson(route('users.updatePersonalInformation'), $updateData);
 
         // Assert the response status and structure
         $response->assertStatus(200)
@@ -120,7 +120,7 @@ class UserControllerTest extends TestCase
     public function test_change_password()
     {
         // Act as the created user
-        $response = $this->patchJson('/api/users/change-password', [
+        $response = $this->putJson(route('users.updatePassword'), [
             'old_password' => 'oldpassword',
             'new_password' => 'newpassword',
             'new_password_confirmation' => 'newpassword',
@@ -144,7 +144,7 @@ class UserControllerTest extends TestCase
     public function test_change_password_with_incorrect_old_password()
     {
         // Act as the created user
-        $response = $this->patchJson('/api/users/change-password', [
+        $response = $this->putJson(route('users.updatePassword'), [
             'old_password' => 'wrongpassword',
             'new_password' => 'newpassword',
             'new_password_confirmation' => 'newpassword',

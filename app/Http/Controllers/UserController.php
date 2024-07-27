@@ -14,7 +14,7 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function showAuthenticatedUser()
+    public function show()
     {
         // Get the authenticated user's information
         $user = Auth::user();
@@ -100,7 +100,7 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function changePassword(Request $request)
+    public function updatePassword(Request $request)
     {
         // Validate the request data
         $request->validate([
