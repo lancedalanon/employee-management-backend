@@ -32,35 +32,37 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('projects')->name('projects.')->group(function () {
-        Route::get('/', [ProjectController::class, 'getProjects'])->name('getProjects');
-        Route::get('/{projectId}', [ProjectController::class, 'getProjectsById'])->name('getProjectsById');
-        Route::get('/{projectId}/users', [ProjectUserController::class, 'getProjectUsers'])->name('getProjectUsers');
+        Route::get('/', [ProjectController::class, 'index'])->name('index');
+        Route::get('{projectId}', [ProjectController::class, 'show'])->name('show');
+
+        Route::get('{projectId}/users', [ProjectUserController::class, 'getProjectUsers'])->name('getProjectUsers');
 
         Route::prefix('{projectId}/tasks')->name('tasks.')->group(function () {
             Route::get('/', [ProjectTaskController::class, 'getTasks'])->name('getTasks');
-            Route::get('/{projectId}', [ProjectTaskController::class, 'getTaskById'])->name('getTaskById');
+            Route::get('{taskId}', [ProjectTaskController::class, 'getTaskById'])->name('getTaskById');
             Route::post('/', [ProjectTaskController::class, 'createTask'])->name('createTask');
-            Route::put('/{projectId}', [ProjectTaskController::class, 'updateTask'])->name('updateTask');
-            Route::delete('/{projectId}', [ProjectTaskController::class, 'deleteTask'])->name('deleteTask');
+            Route::put('{taskId}', [ProjectTaskController::class, 'updateTask'])->name('updateTask');
+            Route::delete('{taskId}', [ProjectTaskController::class, 'deleteTask'])->name('deleteTask');
 
             Route::prefix('{taskId}/statuses')->name('statuses.')->group(function () {
                 Route::get('/', [ProjectTaskStatusController::class, 'getStatuses'])->name('getStatuses');
-                Route::get('/{taskId}', [ProjectTaskStatusController::class, 'getStatusById'])->name('getStatusById');
+                Route::get('{statusId}', [ProjectTaskStatusController::class, 'getStatusById'])->name('getStatusById');
                 Route::post('/', [ProjectTaskStatusController::class, 'createStatus'])->name('createStatus');
-                Route::put('/{taskId}', [ProjectTaskStatusController::class, 'updateStatus'])->name('updateStatus');
-                Route::delete('/{taskId}', [ProjectTaskStatusController::class, 'deleteStatus'])->name('deleteStatus');
+                Route::put('{statusId}', [ProjectTaskStatusController::class, 'updateStatus'])->name('updateStatus');
+                Route::delete('{statusId}', [ProjectTaskStatusController::class, 'deleteStatus'])->name('deleteStatus');
             });
         });
     });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::prefix('projects')->name('projects.')->group(function () {
-            Route::post('/', [ProjectController::class, 'createProject'])->name('createProject');
-            Route::put('/{projectId}', [ProjectController::class, 'updateProject'])->name('updateProject');
-            Route::delete('/{projectId}', [ProjectController::class, 'deleteProject'])->name('deleteProject');
-            Route::post('/{projectId}/add-users', [ProjectUserController::class, 'addUsersToProject'])->name('addUsersToProject');
-            Route::post('/{projectId}/remove-users', [ProjectUserController::class, 'removeUsersFromProject'])->name('removeUsersFromProject');
-            Route::put('/{projectId}/update-role', [ProjectUserController::class, 'updateProjectRole'])->name('updateProjectRole');
+            Route::post('/', [ProjectController::class, 'store'])->name('store');
+            Route::put('{projectId}', [ProjectController::class, 'update'])->name('update');
+            Route::delete('{projectId}', [ProjectController::class, 'destroy'])->name('destroy');
+
+            Route::post('{projectId}/add-users', [ProjectUserController::class, 'addUsersToProject'])->name('addUsersToProject');
+            Route::post('{projectId}/remove-users', [ProjectUserController::class, 'removeUsersFromProject'])->name('removeUsersFromProject');
+            Route::put('{projectId}/update-role', [ProjectUserController::class, 'updateProjectRole'])->name('updateProjectRole');
         });
     });
 });

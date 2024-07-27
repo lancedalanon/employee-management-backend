@@ -41,7 +41,7 @@ class GetProjectsTest extends TestCase
     public function test_get_projects()
     {
         // Send a GET request to the projects endpoint
-        $response = $this->getJson(route('projects.getProjects'));
+        $response = $this->getJson(route('projects.index'));
 
         // Assert that the response is successful
         $response->assertStatus(200);
@@ -58,13 +58,6 @@ class GetProjectsTest extends TestCase
                     'created_at',
                     'updated_at',
                     'deleted_at',
-                    'users' => [
-                        '*' => [
-                            'user_id',
-                            'full_name',
-                            'username',
-                        ]
-                    ]
                 ]
             ],
             'first_page_url',

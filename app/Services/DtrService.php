@@ -66,7 +66,6 @@ class DtrService
             // Retrieve the DTR entry for the authenticated user
             $dtr = Dtr::where('dtr_id', $dtrId)
                 ->where('user_id', $userId)
-                ->orderBy('time_in', 'desc')
                 ->first();
 
             // Check if the DTR entry was found
@@ -231,7 +230,7 @@ class DtrService
         }
     }
 
-    public function storeTimeOut($endOfTheDayReport, $dtrId, $uploadedImages)
+    public function storeTimeOut(string $endOfTheDayReport, int $dtrId, ?array $uploadedImages)
     {
         try {
             // Get the authenticated user's ID
@@ -311,7 +310,7 @@ class DtrService
         }
     }
 
-    protected function handleEndOfTheDayReportImages($images)
+    protected function handleEndOfTheDayReportImages(?array $images)
     {
         // Check if the number of images exceeds the limit
         if (count($images) > 4) {

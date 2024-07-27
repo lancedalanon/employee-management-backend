@@ -4,14 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Dtr\StoreTimeOutRequest;
 use Illuminate\Http\Request;
-use App\Models\Dtr;
-use App\Models\DtrBreak;
-use App\Models\EndOfTheDayReportImage;
 use App\Services\DtrService;
-use Illuminate\Support\Facades\Auth;
-use App\Services\User\UserRoleService;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Response;
 
 class DtrController extends Controller
 {
@@ -54,7 +47,7 @@ class DtrController extends Controller
         return $response;
     }
 
-    public function storeTimeOut(StoreTimeOutRequest $request, $dtrId)
+    public function storeTimeOut(StoreTimeOutRequest $request, int $dtrId)
     {
         $validatedData = $request->validated();
 

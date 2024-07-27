@@ -2,221 +2,53 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Project\StoreProjectRequest;
+use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Models\Project;
+use App\Services\ProjectService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class ProjectController extends Controller
 {
-    /**
-     * Display a listing of the projects.
-     *
-     * 
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getProjects()
+    protected $projectService;
+
+    public function __construct(ProjectService $projectService)
     {
-        try {
-            // Fetch paginated projects with only necessary fields
-            $projects = Project::with(['users' => function ($query) {
-                $query->select('project_id', 'first_name', 'middle_name', 'last_name', 'username');
-            }])->paginate(10);
-
-
-            // Transform the projects to match the required JSON structure
-            $transformedProjects = $projects->getCollection()->map(function ($project) {
-                return [
-                    'project_id' => $project->project_id,
-                    'project_name' => $project->project_name,
-                    'project_description' => $project->project_description,
-                    'created_at' => $project->created_at->toIso8601String(),
-                    'updated_at' => $project->updated_at->toIso8601String(),
-                    'deleted_at' => $project->deleted_at,
-                    'users' => $project->users->map(function ($user) {
-                        return [
-                            'user_id' => $user->id,
-                            'full_name' => $user->full_name,
-                            'username' => $user->username,
-                        ];
-                    })
-                ];
-            });
-
-            // Return the paginated projects as a JSON response
-            return response()->json([
-                'message' => 'Project entries retrieved successfully.',
-                'current_page' => $projects->currentPage(),
-                'data' => $transformedProjects,
-                'first_page_url' => $projects->url(1),
-                'from' => $projects->firstItem(),
-                'last_page' => $projects->lastPage(),
-                'last_page_url' => $projects->url($projects->lastPage()),
-                'links' => $projects->links(),
-                'next_page_url' => $projects->nextPageUrl(),
-                'path' => $projects->path(),
-                'per_page' => $projects->perPage(),
-                'prev_page_url' => $projects->previousPageUrl(),
-                'to' => $projects->lastItem(),
-                'total' => $projects->total(),
-            ], 200);
-        } catch (\Exception $e) {
-            // Return an error response
-            return response()->json([
-                'message' => 'An error occurred while fetching projects.',
-            ], 500);
-        }
+        $this->projectService = $projectService;
     }
 
-    /**
-     * Display the specified project by ID.
-     *
-     * @param int $projectId
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getProjectsById($projectId)
+    public function index(Request $request)
     {
-        try {
-            // Fetch the project by ID with users and their full names
-            $project = Project::with(['users' => function ($query) {
-                $query->select('project_id', 'first_name', 'middle_name', 'last_name', 'username');
-            }])->findOrFail($projectId);
-
-            // Transform the users array to include full names only
-            $project->users->each(function ($user) {
-                $user->full_name = $user->full_name;
-            });
-
-            // Return the Project entry as a JSON response
-            return response()->json([
-                'message' => 'Project entry retrieved successfully.',
-                'data' => $project
-            ], 200);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            // Handle DTR record not found
-            return response()->json([
-                'message' => 'Project not found.',
-            ], 404);
-        } catch (\Exception $e) {
-            // Handle any other errors that occur during the process
-            return response()->json([
-                'message' => 'An error occurred while fetching the project.',
-            ], 500);
-        }
+        $perPage = $request->input('per_page', 10);
+        $page = $request->input('page', 1);
+        $response = $this->projectService->index($perPage, $page);
+        return $response;
     }
 
-    /**
-     * Create a new project.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function createProject(Request $request)
+    public function show(int $projectId)
     {
-        // Validate the incoming request
-        $validatedData = $request->validate([
-            'project_name' => 'required|string|max:255',
-            'project_description' => 'nullable|string|max:500',
-        ]);
-
-        try {
-            // Create a new project
-            $project = Project::create($validatedData);
-
-            // Return the created project as a JSON response
-            return response()->json([
-                'message' => 'Project created successfully',
-                'data' => $project,
-            ], 201);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation error.',
-            ], 422);
-        } catch (\Exception $e) {
-            // Handle any other errors that occur during the process
-            return response()->json([
-                'message' => 'An error occurred while creating the project.',
-            ], 500);
-        }
+        $response = $this->projectService->show($projectId);
+        return $response;
     }
 
-    /**
-     * Update the specified project's name by ID.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param int $projectId
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function updateProject(Request $request, $projectId)
+    public function store(StoreProjectRequest $request)
     {
-        // Validate the incoming request
-        $request->validate([
-            'project_name' => 'required|string|max:255',
-            'project_description' => 'nullable|string|max:500',
-        ]);
-
-        try {
-            // Fetch the project by ID
-            $project = Project::findOrFail($projectId);
-
-            if (!($request->input('project_name') !== $project->project_name)) {
-                // Return a validation error response
-                return response()->json([
-                    'message' => 'Project name cannot be the same as the current name.'
-                ], 422);
-            }
-
-            // Update the project's name
-            $project->project_name = $request->input('project_name');
-            $project->project_description = $request->input('project_description', '');
-            $project->save();
-
-            // Return the updated project as a JSON response
-            return response()->json([
-                'message' => 'Project updated successfully',
-                'data' => $project,
-            ], 200);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            // Handle DTR record not found
-            return response()->json([
-                'message' => 'Project not found.',
-            ], 404);
-        } catch (\Exception $e) {
-            // Handle any other errors that occur during the process
-            return response()->json([
-                'message' => 'An error occurred while updating the project.',
-            ], 500);
-        }
+        $validatedData = $request->validated();
+        $response = $this->projectService->store($validatedData);
+        return $response;
     }
 
-    /**
-     * Soft delete the specified project by ID.
-     *
-     * @param int $projectId
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function deleteProject($projectId)
+    public function update(UpdateProjectRequest $request, int $projectId)
     {
-        try {
-            // Fetch the project by ID
-            $project = Project::findOrFail($projectId);
+        $validatedData = $request->validated();
+        $response = $this->projectService->update($validatedData, $projectId);
+        return $response;
+    }
 
-            // Soft delete the project
-            $project->delete();
-
-            // Return a success response
-            return response()->json([
-                'message' => 'Project deleted successfully.',
-            ], 200);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            // Handle DTR record not found
-            return response()->json([
-                'message' => 'Project not found.',
-            ], 404);
-        } catch (\Exception $e) {
-            // Handle any other errors that occur during the process
-            return response()->json([
-                'message' => 'An error occurred while deleting the project.',
-            ], 500);
-        }
+    public function destroy(int $projectId)
+    {
+        $response = $this->projectService->destroy($projectId);
+        return $response;
     }
 }
