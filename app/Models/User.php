@@ -87,18 +87,6 @@ class User extends Authenticatable implements JWTSubject
         ];
     }
 
-    public function dtr()
-    {
-        return $this->hasMany(Dtr::class, 'user_id', 'user_id');
-    }
-
-    public function projects()
-    {
-        return $this->belongsToMany(Project::class, 'project_users', 'user_id', 'project_id')
-            ->withPivot('project_role')
-            ->withTimestamps();
-    }
-
     public function getFullNameAttribute()
     {
         $full_name = "{$this->first_name} ";
@@ -114,5 +102,22 @@ class User extends Authenticatable implements JWTSubject
         }
 
         return trim($full_name);
+    }
+
+    public function dtr()
+    {
+        return $this->hasMany(Dtr::class, 'user_id', 'user_id');
+    }
+
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class, 'project_users', 'user_id', 'project_id')
+            ->withPivot('project_role')
+            ->withTimestamps();
+    }
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class, 'user_id', 'user_id');
     }
 }
