@@ -43,6 +43,7 @@ class User extends Authenticatable implements JWTSubject
         'emergency_contact_name',
         'emergency_contact_number',
         'password',
+        'api_key',
     ];
 
     /**
