@@ -71,53 +71,51 @@ class ProjectUserControllerTest extends TestCase
         $project->users()->attach($users->pluck('user_id')->toArray());
 
         // Act: Send a GET request to retrieve users of the project
-        $response = $this->getJson(route('projects.getProjectUsers', ['projectId' => $project->project_id]));
+        $response = $this->getJson(route('projects.users.index', ['projectId' => $project->project_id]));
 
         // Assert: Check that the request was successful
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'message',
+                'current_page',
                 'data' => [
-                    'current_page',
-                    'data' => [
-                        '*' => [
+                    '*' => [
+                        'user_id',
+                        'first_name',
+                        'middle_name',
+                        'last_name',
+                        'suffix',
+                        'place_of_birth',
+                        'date_of_birth',
+                        'gender',
+                        'username',
+                        'email',
+                        'recovery_email',
+                        'phone_number',
+                        'emergency_contact_name',
+                        'emergency_contact_number',
+                        'email_verified_at',
+                        'created_at',
+                        'updated_at',
+                        'pivot' => [
+                            'project_id',
                             'user_id',
-                            'first_name',
-                            'middle_name',
-                            'last_name',
-                            'suffix',
-                            'place_of_birth',
-                            'date_of_birth',
-                            'gender',
-                            'username',
-                            'email',
-                            'recovery_email',
-                            'phone_number',
-                            'emergency_contact_name',
-                            'emergency_contact_number',
-                            'email_verified_at',
+                            'project_role',
                             'created_at',
                             'updated_at',
-                            'pivot' => [
-                                'project_id',
-                                'user_id',
-                                'project_role',
-                                'created_at',
-                                'updated_at',
-                            ],
                         ],
                     ],
-                    'first_page_url',
-                    'last_page_url',
-                    'prev_page_url',
-                    'next_page_url',
-                    'path',
-                    'per_page',
-                    'from',
-                    'to',
-                    'total',
-                    'last_page',
                 ],
+                'first_page_url',
+                'last_page_url',
+                'prev_page_url',
+                'next_page_url',
+                'path',
+                'per_page',
+                'from',
+                'to',
+                'total',
+                'last_page',
             ]);
     }
 
@@ -129,12 +127,12 @@ class ProjectUserControllerTest extends TestCase
     public function test_get_non_existent_project_users()
     {
         // Act: Send a GET request to a non-existent project
-        $response = $this->getJson(route('projects.getProjectUsers', ['projectId' => 9999]));
+        $response = $this->getJson(route('projects.users.index', ['projectId' => 9999]));
 
         // Assert: Check that the project not found response is returned
         $response->assertStatus(404)
             ->assertJson([
-                'message' => 'Project not found.',
+                'message' => 'Project entry not found.',
             ]);
     }
 
@@ -152,7 +150,7 @@ class ProjectUserControllerTest extends TestCase
         $userIds = User::factory()->count(3)->create()->pluck('user_id')->toArray();
 
         // Act: Send a POST request to add users to the project
-        $response = $this->postJson(route('admin.projects.addUsersToProject', ['projectId' => $project->project_id]), [
+        $response = $this->postJson(route('admin.projects.users.storeUser', ['projectId' => $project->project_id]), [
             'user_ids' => $userIds
         ]);
 
@@ -185,14 +183,14 @@ class ProjectUserControllerTest extends TestCase
         $nonExistentProjectId = 9999;
 
         // Act: Send a POST request to add users to the project
-        $response = $this->postJson(route('admin.projects.addUsersToProject', ['projectId' => $nonExistentProjectId]), [
+        $response = $this->postJson(route('admin.projects.users.storeUser', ['projectId' => $nonExistentProjectId]), [
             'user_ids' => $userIds
         ]);
 
         // Assert: Check that the response indicates project not found (404)
         $response->assertStatus(404)
             ->assertJson([
-                'message' => 'Project not found.',
+                'message' => 'Project entry not found.',
             ]);
     }
 
@@ -210,12 +208,20 @@ class ProjectUserControllerTest extends TestCase
         $invalidUserIds = ['asd', 'asd'];
 
         // Define the endpoint and request payload
-        $response = $this->postJson(route('admin.projects.addUsersToProject', ['projectId' => $project->project_id]), ['user_ids' => $invalidUserIds]);
+        $response = $this->postJson(route('admin.projects.users.storeUser', ['projectId' => $project->project_id]), ['user_ids' => $invalidUserIds]);
 
         // Assert: Check that the response indicates validation error (422)
         $response->assertStatus(422)
             ->assertJson([
-                'message' => 'Validation error.',
+                'message' => 'The selected user_ids.0 is invalid. (and 1 more error)',
+                'errors' => [
+                    'user_ids.0' => [
+                        'The selected user_ids.0 is invalid.',
+                    ],
+                    'user_ids.1' => [
+                        'The selected user_ids.1 is invalid.',
+                    ],
+                ],
             ]);
     }
 
@@ -243,7 +249,7 @@ class ProjectUserControllerTest extends TestCase
         }
 
         // Act: Send a POST request to remove users from the project
-        $response = $this->postJson(route('admin.projects.removeUsersFromProject', ['projectId' => $project->project_id]), [
+        $response = $this->postJson(route('admin.projects.users.destroyUser', ['projectId' => $project->project_id]), [
             'user_ids' => $userIds
         ]);
 
@@ -278,8 +284,8 @@ class ProjectUserControllerTest extends TestCase
         $project->users()->attach($userIds);
 
         // Act: Send a POST request to remove users from a non-existent project
-        $response = $this->postJson(route('admin.projects.removeUsersFromProject', ['projectId' => 'invalidId']), [
-            'user_ids' => $userIds, // Providing some user_ids, though the project doesn't exist
+        $response = $this->postJson(route('admin.projects.users.destroyUser', ['projectId' => 99999]), [
+            'user_ids' => $userIds,
         ]);
 
         // Assert: Check that the response status is 404 (Not Found)
@@ -303,14 +309,22 @@ class ProjectUserControllerTest extends TestCase
         $invalidUserIds = ['abc', 'def'];
 
         // Act: Send a POST request to remove users with invalid user IDs from the project
-        $response = $this->postJson(route('admin.projects.removeUsersFromProject', ['projectId' => $project->project_id]), [
+        $response = $this->postJson(route('admin.projects.users.destroyUser', ['projectId' => $project->project_id]), [
             'user_ids' => $invalidUserIds, // Invalid user IDs
         ]);
 
-        // Assert: Check that the response status is 422 (Unprocessable Entity)
+        // Assert: Check that the response indicates validation error (422)
         $response->assertStatus(422)
             ->assertJson([
-                'message' => 'Validation error.',
+                'message' => 'The selected user_ids.0 is invalid. (and 1 more error)',
+                'errors' => [
+                    'user_ids.0' => [
+                        'The selected user_ids.0 is invalid.',
+                    ],
+                    'user_ids.1' => [
+                        'The selected user_ids.1 is invalid.',
+                    ],
+                ],
             ]);
     }
 
@@ -321,7 +335,7 @@ class ProjectUserControllerTest extends TestCase
      */
     public function test_update_project_role_successfully()
     {
-        $response = $this->putJson(route('admin.projects.updateProjectRole', ['projectId' => $this->project->project_id]), [
+        $response = $this->putJson(route('admin.projects.users.updateUser', ['projectId' => $this->project->project_id]), [
             'user_id' => $this->user->user_id,
             'project_role' => $this->validRole,
         ]);
@@ -342,7 +356,7 @@ class ProjectUserControllerTest extends TestCase
      */
     public function test_update_project_role_with_invalid_role()
     {
-        $response = $this->putJson(route('admin.projects.updateProjectRole', ['projectId' => $this->project->project_id]), [
+        $response = $this->putJson(route('admin.projects.users.updateUser', ['projectId' => $this->project->project_id]), [
             'user_id' => $this->user->user_id,
             'project_role' => 'invalid_role',
         ]);
@@ -365,7 +379,7 @@ class ProjectUserControllerTest extends TestCase
      */
     public function test_update_project_role_with_invalid_user_id()
     {
-        $response = $this->putJson(route('admin.projects.updateProjectRole', ['projectId' => $this->project->project_id]), [
+        $response = $this->putJson(route('admin.projects.users.updateUser', ['projectId' => $this->project->project_id]), [
             'user_id' => 99999, // Non-existent user ID
             'project_role' => $this->validRole,
         ]);
@@ -390,7 +404,7 @@ class ProjectUserControllerTest extends TestCase
     {
         $newUser = User::factory()->create();
 
-        $response = $this->putJson(route('admin.projects.updateProjectRole', ['projectId' => $this->project->project_id]), [
+        $response = $this->putJson(route('admin.projects.users.updateUser', ['projectId' => $this->project->project_id]), [
             'user_id' => $newUser->user_id,
             'project_role' => $this->validRole,
         ]);
@@ -408,7 +422,7 @@ class ProjectUserControllerTest extends TestCase
      */
     public function test_update_project_role_with_missing_parameters()
     {
-        $response = $this->putJson(route('admin.projects.updateProjectRole', ['projectId' => $this->project->project_id]), []);
+        $response = $this->putJson(route('admin.projects.users.updateUser', ['projectId' => $this->project->project_id]), []);
 
         $response->assertStatus(422)
             ->assertJson([

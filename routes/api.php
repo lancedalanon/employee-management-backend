@@ -35,7 +35,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [ProjectController::class, 'index'])->name('index');
         Route::get('{projectId}', [ProjectController::class, 'show'])->name('show');
 
-        Route::get('{projectId}/users', [ProjectUserController::class, 'getProjectUsers'])->name('getProjectUsers');
+        Route::prefix('{projectId}/users')->name('users.')->group(function () {
+            Route::get('/', [ProjectUserController::class, 'index'])->name('index');
+        });
 
         Route::prefix('{projectId}/tasks')->name('tasks.')->group(function () {
             Route::get('/', [ProjectTaskController::class, 'getTasks'])->name('getTasks');
@@ -60,9 +62,11 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::put('{projectId}', [ProjectController::class, 'update'])->name('update');
             Route::delete('{projectId}', [ProjectController::class, 'destroy'])->name('destroy');
 
-            Route::post('{projectId}/add-users', [ProjectUserController::class, 'addUsersToProject'])->name('addUsersToProject');
-            Route::post('{projectId}/remove-users', [ProjectUserController::class, 'removeUsersFromProject'])->name('removeUsersFromProject');
-            Route::put('{projectId}/update-role', [ProjectUserController::class, 'updateProjectRole'])->name('updateProjectRole');
+            Route::prefix('{projectId}/users')->name('users.')->group(function () {
+                Route::post('/add', [ProjectUserController::class, 'storeUser'])->name('storeUser');
+                Route::post('/remove', [ProjectUserController::class, 'destroyUser'])->name('destroyUser');
+                Route::put('/role', [ProjectUserController::class, 'updateUser'])->name('updateUser');
+            });
         });
     });
 });
