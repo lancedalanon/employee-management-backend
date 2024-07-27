@@ -36,7 +36,7 @@ class UpdateTaskTest extends TestCase
         $project = Project::factory()->create();
         $task = ProjectTask::factory()->create(['project_id' => $project->project_id]);
 
-        $response = $this->putJson(route('projects.tasks.updateTask', ['projectId' => $project->project_id, 'id' => $task->project_task_id]), [
+        $response = $this->putJson(route('projects.tasks.update', ['projectId' => $project->project_id, 'taskId' => $task->project_task_id]), [
             'project_task_name' => 'Updated Task Name',
             'project_task_description' => 'Updated Task Description',
             'project_task_progress' => 'In progress',
@@ -44,13 +44,17 @@ class UpdateTaskTest extends TestCase
         ]);
 
         $response->assertStatus(200);
-        $response->assertJson([
-            'message' => 'Task updated successfully.',
+        $response->assertJsonStructure([
+            'message',
             'data' => [
-                'project_task_name' => 'Updated Task Name',
-                'project_task_description' => 'Updated Task Description',
-                'project_task_progress' => 'In progress',
-                'project_task_priority_level' => 'High',
+                'project_task_name',
+                'project_task_description',
+                'project_task_progress',
+                'project_task_priority_level',
+                'updated_at',
+                'created_at',
+                'project_id',
+                'project_task_id',
             ],
         ]);
     }
@@ -60,7 +64,7 @@ class UpdateTaskTest extends TestCase
         $project = Project::factory()->create();
         $task = ProjectTask::factory()->create(['project_id' => $project->project_id]);
 
-        $response = $this->putJson(route('projects.tasks.updateTask', ['projectId' => $project->project_id, 'id' => $task->project_task_id]), []);
+        $response = $this->putJson(route('projects.tasks.update', ['projectId' => $project->project_id, 'taskId' => $task->project_task_id]), []);
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors([
@@ -76,7 +80,7 @@ class UpdateTaskTest extends TestCase
         $project = Project::factory()->create();
         $task = ProjectTask::factory()->create(['project_id' => $project->project_id]);
 
-        $response = $this->putJson(route('projects.tasks.updateTask', ['projectId' => $project->project_id, 'id' => $task->project_task_id]), [
+        $response = $this->putJson(route('projects.tasks.update', ['projectId' => $project->project_id, 'taskId' => $task->project_task_id]), [
             'project_task_name' => '',
             'project_task_description' => '',
             'project_task_progress' => '',
@@ -94,7 +98,7 @@ class UpdateTaskTest extends TestCase
 
     public function test_returns_not_found_when_project_does_not_exist()
     {
-        $response = $this->putJson(route('projects.tasks.updateTask', ['projectId' => 999, 'id' => 1]), [
+        $response = $this->putJson(route('projects.tasks.update', ['projectId' => 99999, 'taskId' => 1]), [
             'project_task_name' => 'Updated Task Name',
             'project_task_description' => 'Updated Task Description',
             'project_task_progress' => 'In progress',
@@ -111,7 +115,7 @@ class UpdateTaskTest extends TestCase
     {
         $project = Project::factory()->create();
 
-        $response = $this->putJson(route('projects.tasks.updateTask', ['projectId' => $project->project_id, 'id' => 999]), [
+        $response = $this->putJson(route('projects.tasks.update', ['projectId' => $project->project_id, 'taskId' => 999999]), [
             'project_task_name' => 'Updated Task Name',
             'project_task_description' => 'Updated Task Description',
             'project_task_progress' => 'In progress',

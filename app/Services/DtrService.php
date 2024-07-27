@@ -4,13 +4,9 @@ namespace App\Services;
 
 use App\Models\Dtr;
 use App\Models\DtrBreak;
-use App\Models\EndOfTheDayReportImage;
 use Illuminate\Support\Facades\Auth;
 use App\Services\User\WorkHoursService;
-use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 
 class DtrService

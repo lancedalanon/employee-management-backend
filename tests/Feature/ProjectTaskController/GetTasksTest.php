@@ -40,7 +40,7 @@ class GetTasksTest extends TestCase
         ProjectTask::factory()->count(5)->create(['project_id' => $project->project_id]);
 
         // Hit the endpoint to get tasks for the created project
-        $response = $this->getJson(route('projects.tasks.getTasks', ['projectId' => $project->project_id]));
+        $response = $this->getJson(route('projects.tasks.index', ['projectId' => $project->project_id]));
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -63,7 +63,7 @@ class GetTasksTest extends TestCase
         $nonExistingProjectId = 999; // Assuming this ID does not exist in the database
 
         // Hit the endpoint with a non-existing project ID
-        $response = $this->getJson(route('projects.tasks.getTasks', ['projectId' => $nonExistingProjectId]));
+        $response = $this->getJson(route('projects.tasks.index', ['projectId' => $nonExistingProjectId]));
 
         $response->assertStatus(404)
             ->assertJson([
@@ -77,7 +77,7 @@ class GetTasksTest extends TestCase
         $project = Project::factory()->create();
 
         // Hit the endpoint to get tasks for the created project (which has no tasks)
-        $response = $this->getJson(route('projects.tasks.getTasks', ['projectId' => $project->project_id]));
+        $response = $this->getJson(route('projects.tasks.index', ['projectId' => $project->project_id]));
 
         $response->assertStatus(404)
             ->assertJson([

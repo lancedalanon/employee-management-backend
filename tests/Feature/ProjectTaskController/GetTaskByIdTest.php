@@ -38,7 +38,7 @@ class GetTaskByIdTest extends TestCase
         $task = ProjectTask::factory()->create(['project_id' => $project->project_id]);
 
         // Make a GET request to fetch the task
-        $response = $this->getJson(route('projects.tasks.getTaskById', ['projectId' => $project->project_id, 'id' => $task->project_task_id]));
+        $response = $this->getJson(route('projects.tasks.show', ['projectId' => $project->project_id, 'taskId' => $task->project_task_id]));
 
         // Assert response status is 200 and structure of returned JSON
         $response->assertStatus(200)
@@ -61,7 +61,7 @@ class GetTaskByIdTest extends TestCase
     public function test_returns_not_found_if_project_does_not_exist()
     {
         // Make a GET request with non-existent project ID
-        $response = $this->getJson(route('projects.tasks.getTaskById', ['projectId' => 999, 'id' => 1]));
+        $response = $this->getJson(route('projects.tasks.show', ['projectId' => 99999, 'taskId' => 1]));
 
         // Assert response status is 404
         $response->assertStatus(404)
@@ -76,7 +76,7 @@ class GetTaskByIdTest extends TestCase
         $project = Project::factory()->create();
 
         // Make a GET request with existing project ID but non-existent task ID
-        $response = $this->getJson(route('projects.tasks.getTaskById', ['projectId' => $project->project_id, 'id' => 'invalidId']));
+        $response = $this->getJson(route('projects.tasks.show', ['projectId' => $project->project_id, 'taskId' => 99999]));
 
         // Assert response status is 404
         $response->assertStatus(404)

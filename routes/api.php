@@ -47,11 +47,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Routes for managing tasks within a project
         Route::prefix('{projectId}/tasks')->name('tasks.')->group(function () {
-            Route::get('/', [ProjectTaskController::class, 'getTasks'])->name('getTasks');
-            Route::get('{taskId}', [ProjectTaskController::class, 'getTaskById'])->name('getTaskById');
-            Route::post('/', [ProjectTaskController::class, 'createTask'])->name('createTask');
-            Route::put('{taskId}', [ProjectTaskController::class, 'updateTask'])->name('updateTask');
-            Route::delete('{taskId}', [ProjectTaskController::class, 'deleteTask'])->name('deleteTask');
+            Route::get('/', [ProjectTaskController::class, 'index'])->name('index');
+            Route::get('{taskId}', [ProjectTaskController::class, 'show'])->name('show');
+            Route::post('/', [ProjectTaskController::class, 'store'])->name('store');
+            Route::put('{taskId}', [ProjectTaskController::class, 'update'])->name('update');
+            Route::delete('{taskId}', [ProjectTaskController::class, 'destroy'])->name('destroy');
 
             // Routes for managing task statuses
             Route::prefix('{taskId}/statuses')->name('statuses.')->group(function () {

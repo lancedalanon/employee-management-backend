@@ -41,7 +41,7 @@ class DeleteTaskTest extends TestCase
         $task = ProjectTask::factory()->create(['project_id' => $project->project_id]);
 
         // Send the delete request
-        $response = $this->deleteJson(route('projects.tasks.deleteTask', ['projectId' => $project->project_id, 'id' => $task->project_task_id]));
+        $response = $this->deleteJson(route('projects.tasks.destroy', ['projectId' => $project->project_id, 'taskId' => $task->project_task_id]));
 
         // Assert the response
         $response->assertStatus(200)
@@ -57,7 +57,7 @@ class DeleteTaskTest extends TestCase
     public function test_delete_task_from_non_existing_project(): void
     {
         // Send the delete request
-        $response = $this->deleteJson(route('projects.tasks.deleteTask', ['projectId' => 999, 'id' => 1]));
+        $response = $this->deleteJson(route('projects.tasks.destroy', ['projectId' => 99999, 'taskId' => 1]));
 
         // Assert the response
         $response->assertStatus(404)
@@ -73,7 +73,7 @@ class DeleteTaskTest extends TestCase
         $project = Project::factory()->create();
 
         // Send the delete request for a non-existing task
-        $response = $this->deleteJson(route('projects.tasks.deleteTask', ['projectId' => $project->project_id, 'id' => 999]));
+        $response = $this->deleteJson(route('projects.tasks.destroy', ['projectId' => $project->project_id, 'taskId' => 99999]));
 
         // Assert the response
         $response->assertStatus(404)

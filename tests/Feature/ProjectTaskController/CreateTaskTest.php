@@ -47,7 +47,7 @@ class CreateTaskTest extends TestCase
         ];
 
         // Send a POST request to create the task
-        $response = $this->postJson(route('projects.tasks.createTask', ['projectId' => $project->project_id]), $taskData);
+        $response = $this->postJson(route('projects.tasks.store', ['projectId' => $project->project_id]), $taskData);
 
         // Assert that the response status is 201 (Created)
         $response->assertStatus(201);
@@ -85,7 +85,7 @@ class CreateTaskTest extends TestCase
             'project_task_progress' => 'Not started',
             'project_task_priority_level' => 'Medium',
         ];
-        $response = $this->postJson(route('projects.tasks.createTask', ['projectId' => $project->project_id]), $taskData);
+        $response = $this->postJson(route('projects.tasks.store', ['projectId' => $project->project_id]), $taskData);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['project_task_name']);
     }
@@ -101,7 +101,7 @@ class CreateTaskTest extends TestCase
             'project_task_progress' => 'Not started',
             'project_task_priority_level' => 'Medium',
         ];
-        $response = $this->postJson(route('projects.tasks.createTask', ['projectId' => $project->project_id]), $taskData);
+        $response = $this->postJson(route('projects.tasks.store', ['projectId' => $project->project_id]), $taskData);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['project_task_description']);
     }
@@ -118,7 +118,7 @@ class CreateTaskTest extends TestCase
             'project_task_progress' => 'Unknown',
             'project_task_priority_level' => 'Medium',
         ];
-        $response = $this->postJson(route('projects.tasks.createTask', ['projectId' => $project->project_id]), $taskData);
+        $response = $this->postJson(route('projects.tasks.store', ['projectId' => $project->project_id]), $taskData);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['project_task_progress']);
     }
@@ -135,7 +135,7 @@ class CreateTaskTest extends TestCase
             'project_task_progress' => 'Not started',
             'project_task_priority_level' => 'Unknown',
         ];
-        $response = $this->postJson(route('projects.tasks.createTask', ['projectId' => $project->project_id]), $taskData);
+        $response = $this->postJson(route('projects.tasks.store', ['projectId' => $project->project_id]), $taskData);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['project_task_priority_level']);
     }
@@ -152,7 +152,7 @@ class CreateTaskTest extends TestCase
             'project_task_progress' => 'Unknown', // Invalid: not in the list
             'project_task_priority_level' => 'Unknown', // Invalid: not in the list
         ];
-        $response = $this->postJson(route('projects.tasks.createTask', ['projectId' => $project->project_id]), $taskData);
+        $response = $this->postJson(route('projects.tasks.store', ['projectId' => $project->project_id]), $taskData);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors([
             'project_task_name',
@@ -179,7 +179,7 @@ class CreateTaskTest extends TestCase
         ];
 
         // Send a POST request to create the task
-        $response = $this->postJson(route('projects.tasks.createTask', ['projectId' => $nonExistentProjectId]), $taskData);
+        $response = $this->postJson(route('projects.tasks.store', ['projectId' => $nonExistentProjectId]), $taskData);
 
         // Assert that the response status is 404 (Not Found)
         $response->assertStatus(404);
