@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('post_media', function (Blueprint $table) {
             $table->id('post_media_id');
-            $table->binary('post_media');
-            $table->string('post_media_type');
+            $table->binary('post_media')->nullable();
+            $table->string('post_media_type')->nullable();
             $table->unsignedBigInteger('post_id');
             $table->timestamps();
             $table->softDeletes();
