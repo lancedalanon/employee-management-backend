@@ -28,4 +28,9 @@ class Post extends Model
     {
         return $this->hasMany(PostTag::class, 'post_id', 'post_id');
     }
+
+    public function media()
+    {
+        return $this->hasMany(PostMedia::class, 'post_id', 'post_id');
+    }
 }

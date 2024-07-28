@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DtrController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectTaskController;
 use App\Http\Controllers\ProjectTaskStatusController;
@@ -64,8 +65,14 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     });
 
-    // Admin routes with additional permissions
+    // Post-related routes
+    Route::prefix('posts')->name('posts.')->group(function () {
+        Route::get('/', [PostController::class, 'index'])->name('index');
+        Route::get('{postId}', [PostController::class, 'show'])->name('show');
+    });
+
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        // Admin routes for managing projects
         Route::prefix('projects')->name('projects.')->group(function () {
             Route::post('/', [ProjectController::class, 'store'])->name('store');
             Route::put('{projectId}', [ProjectController::class, 'update'])->name('update');
@@ -77,6 +84,13 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::post('remove', [ProjectUserController::class, 'destroyUser'])->name('destroyUser');
                 Route::put('role', [ProjectUserController::class, 'updateUser'])->name('updateUser');
             });
+        });
+
+        // Admin routes for managing posts
+        Route::prefix('posts')->name('posts.')->group(function () {
+            Route::post('/', [PostController::class, 'store'])->name('store');
+            Route::put('{postId}', [PostController::class, 'update'])->name('update');
+            Route::delete('{postId}', [PostController::class, 'destroy'])->name('destroy');
         });
     });
 });
