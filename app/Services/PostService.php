@@ -48,7 +48,7 @@ class PostService
     {
         try {
             // Retrieve the post entry for the given ID
-            $post = Post::with(['tags', 'media'])
+            $post = Post::with(['tags'])
                 ->where('post_id', $postId)
                 ->first();
 
