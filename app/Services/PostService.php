@@ -16,8 +16,7 @@ class PostService
     {
         try {
             // Retrieve paginated post entries for the user
-            $posts = Post::with(['tags'])
-                ->orderBy('post_id', 'desc')
+            $posts = Post::orderBy('post_id', 'desc')
                 ->paginate($perPage, ['*'], 'page', $page);
 
             // Return the success response with post data
@@ -83,15 +82,14 @@ class PostService
             $post = Post::create([
                 'post_title' => $validatedData['post_title'],
                 'post_content' => $validatedData['post_content'],
-                'post_slug' => $validatedData['post_slug'],
                 'user_id' => $userId,
             ]);
 
             // Iterate through each tag and save it to the post_tags table
-            foreach ($validatedData['post_tags'] as $post_tag) {
+            foreach ($validatedData['post_tags'] as $postTag) {
                 PostTag::create([
                     'post_id' => $post->post_id,
-                    'post_tag' => $post_tag,
+                    'post_tag' => $postTag,
                 ]);
             }
 
@@ -154,7 +152,6 @@ class PostService
             $post->update([
                 'post_title' => $validatedData['post_title'],
                 'post_content' => $validatedData['post_content'],
-                'post_slug' => $validatedData['post_slug'],
             ]);
 
             // Delete existing tags

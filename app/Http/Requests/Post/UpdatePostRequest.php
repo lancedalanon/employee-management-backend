@@ -24,7 +24,6 @@ class UpdatePostRequest extends FormRequest
         return [
             'post_title' => 'required|string|max:255',
             'post_content' => 'required|string',
-            'post_slug' => 'required|string|max:255',
             'post_tags' => 'required|array',
             'post_tags.*' => 'string|max:50',
             'post_media' => 'nullable|array',
