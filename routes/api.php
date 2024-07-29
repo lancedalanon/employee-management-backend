@@ -8,6 +8,7 @@ use App\Http\Controllers\ProjectTaskController;
 use App\Http\Controllers\ProjectTaskStatusController;
 use App\Http\Controllers\ProjectUserController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WeeklyReportController;
 use Illuminate\Support\Facades\Route;
 
 // Authentication routes
@@ -69,6 +70,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('posts')->name('posts.')->group(function () {
         Route::get('/', [PostController::class, 'index'])->name('index');
         Route::get('{postId}', [PostController::class, 'show'])->name('show');
+    });
+
+    // Weekly report-related routes
+    Route::prefix('weekly-reports')->name('weeklyReports.')->group(function () {
+        Route::post('/', [WeeklyReportController::class, 'generate'])->name('generate');
     });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
