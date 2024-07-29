@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Models\ProjectUser;
 use App\Models\User;
 use App\Testing\ProjectTestingTrait;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Response;
@@ -265,7 +266,7 @@ class ProjectUserControllerTest extends TestCase
             $this->assertDatabaseHas('project_users', [
                 'project_id' => $project->project_id,
                 'user_id' => $userId,
-                'deleted_at' => now(),
+                'deleted_at' => Carbon::now(),
             ]);
         }
     }
