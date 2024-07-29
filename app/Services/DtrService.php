@@ -31,7 +31,7 @@ class DtrService
             $cacheKey = "user_{$userId}_dtrs_perPage_{$perPage}_page_{$page}";
 
             // Retrieve paginated DTR for the authenticated user
-            $dtrs = $this->cacheService->remember($cacheKey, function () use ($perPage, $page, $userId) {
+            $dtrs = $this->cacheService->rememberForever($cacheKey, function () use ($perPage, $page, $userId) {
                 return Dtr::where('user_id', $userId)
                     ->orderBy('time_in', 'desc')
                     ->paginate($perPage, ['*'], 'page', $page);
@@ -72,7 +72,7 @@ class DtrService
             $cacheKey = "user_{$userId}_dtr_{$dtrId}";
 
             // Retrieve the DTR for the authenticated user
-            $dtr = $this->cacheService->remember($cacheKey, function () use ($dtrId, $userId) {
+            $dtr = $this->cacheService->rememberForever($cacheKey, function () use ($dtrId, $userId) {
                 $dtr = Dtr::where('dtr_id', $dtrId)
                     ->where('user_id', $userId)
                     ->first();
@@ -87,19 +87,20 @@ class DtrService
                 return $dtr;
             });
 
+            // Check if the DTR is a JSON response
             if (is_a($dtr, 'Illuminate\Http\JsonResponse')) {
                 return $dtr;
             }
 
-            // Return the success response with the DTR entry data
+            // Return the success response with the DTR data
             return Response::json([
-                'message' => 'DTR entry retrieved successfully.',
+                'message' => 'DTR retrieved successfully.',
                 'data' => $dtr
             ], 200);
         } catch (\Exception $e) {
             // Return a generic error response
             return Response::json([
-                'message' => 'An error occurred while retrieving the DTR entry.',
+                'message' => 'An error occurred while retrieving the DTR.',
             ], 500);
         }
     }
@@ -124,16 +125,16 @@ class DtrService
             // Evaluate time in based on user's shift
             $timeIn = $this->workHoursService->evaluateTimeIn($user, now());
 
-            // Create a new DTR entry for the authenticated user
+            // Create a new DTR for the authenticated user
             $dtr = new Dtr();
             $dtr->user_id = $user->user_id;
             $dtr->time_in = $timeIn;
             $dtr->save();
 
-            // Fetch the newly created DTR entry from the database
+            // Fetch the newly created DTR from the database
             $latestTimeIn = Dtr::where('dtr_id', $dtr->dtr_id)->where('user_id', $user->user_id)->latest()->first();
 
-            // Return the success response with the newly created DTR entry data
+            // Return the success response with the newly created DTR data
             return Response::json([
                 'message' => 'Time in recorded successfully.',
                 'data' => $latestTimeIn,
@@ -180,7 +181,7 @@ class DtrService
             $dtrBreak->break_time = Carbon::now();
             $dtrBreak->save();
 
-            // Retrieve the latest DtrBreak entry
+            // Retrieve the latest DtrBreak
             $latestDtrBreak = DtrBreak::where('dtr_id', $dtr->dtr_id)->latest()->first();
 
             // Return success response with added data
@@ -216,10 +217,10 @@ class DtrService
                 ], 404);
             }
 
-            // Retrieve the latest DtrBreak entry with no resume_time
+            // Retrieve the latest DtrBreak with no resume_time
             $dtrBreak = $dtr->breaks()->whereNull('resume_time')->latest()->first();
 
-            // Check if the break entry is found
+            // Check if the break is found
             if (!$dtrBreak) {
                 return Response::json([
                     'message' => 'Failed to resume break. No open break session found.'
@@ -230,7 +231,7 @@ class DtrService
             $dtrBreak->resume_time = Carbon::now();
             $dtrBreak->save();
 
-            // Retrieve the latest DtrBreak entry
+            // Retrieve the latest DtrBreak
             $latestDtrResume = DtrBreak::where('dtr_id', $dtr->dtr_id)->latest()->first();
 
             // Return success response with added data

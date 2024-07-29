@@ -29,7 +29,7 @@ class PostService
             $cacheKey = "posts_perPage_{$perPage}_page_{$page}";
 
             // Retrieve the paginated posts from the cache or database
-            $posts = $this->cacheService->remember($cacheKey, function () use ($perPage, $page) {
+            $posts = $this->cacheService->rememberForever($cacheKey, function () use ($perPage, $page) {
                 return Post::orderBy('post_id', 'desc')
                     ->paginate($perPage, ['*'], 'page', $page);
             });
@@ -65,7 +65,7 @@ class PostService
             $cacheKey = "post_{$postId}";
 
             // Retrieve the post entry from the cache or database
-            $post = $this->cacheService->remember($cacheKey, function () use ($postId) {
+            $post = $this->cacheService->rememberForever($cacheKey, function () use ($postId) {
                 $post = Post::with(['tags'])->where('post_id', $postId)->first();
 
                 if (!$post) {
