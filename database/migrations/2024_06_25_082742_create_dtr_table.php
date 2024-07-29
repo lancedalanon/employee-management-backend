@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id('dtr_id');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
-            $table->dateTime('time_in');
+            $table->dateTime('time_in')->nullable();
             $table->dateTime('time_out')->nullable();
             $table->text('end_of_the_day_report')->nullable();
             $table->boolean('is_overtime')->default(0);
+            $table->boolean('is_absent')->default(0);
             $table->timestamps();
         });
     }

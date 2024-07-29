@@ -136,8 +136,10 @@ class ProjectUserService
             // Fetch users to be removed
             $usersToRemove = $project->users()->whereIn('users.user_id', $userIds)->get();
 
-            // Remove users from the project
-            $project->users()->detach($userIds);
+            // Soft delete the relationship in the pivot table
+            foreach ($userIds as $userId) {
+                $project->users()->updateExistingPivot($userId, ['deleted_at' => now()]);
+            }
 
             // Return a success response
             return response()->json([

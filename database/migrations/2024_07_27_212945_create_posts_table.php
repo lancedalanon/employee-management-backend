@@ -17,6 +17,8 @@ return new class extends Migration
             $table->text('post_content');
             $table->string('post_slug');
             $table->unsignedBigInteger('user_id');
+            $table->timestamp('published_at')->useCurrent();
+            $table->boolean('is_draft')->default(0);
             $table->timestamps();
             $table->softDeletes();
 

@@ -245,6 +245,7 @@ class ProjectUserControllerTest extends TestCase
             $this->assertDatabaseHas('project_users', [
                 'project_id' => $project->project_id,
                 'user_id' => $userId,
+                'deleted_at' => null,
             ]);
         }
 
@@ -261,9 +262,10 @@ class ProjectUserControllerTest extends TestCase
 
         // Assert: Check that the users were actually detached from the project
         foreach ($userIds as $userId) {
-            $this->assertDatabaseMissing('project_users', [
+            $this->assertDatabaseHas('project_users', [
                 'project_id' => $project->project_id,
                 'user_id' => $userId,
+                'deleted_at' => now(),
             ]);
         }
     }
