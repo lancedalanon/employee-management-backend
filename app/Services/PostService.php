@@ -8,18 +8,30 @@ use App\Models\PostTag;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use App\Services\CacheService;
 
 class PostService
 {
+    protected $cacheService;
+
+    public function __construct(CacheService $cacheService)
+    {
+        $this->cacheService = $cacheService;
+    }
+
     public function index(int $perPage, int $page)
     {
         try {
-            // Retrieve paginated post entries for the user
-            $posts = Post::orderBy('post_id', 'desc')
-                ->paginate($perPage, ['*'], 'page', $page);
+            $cacheKey = "posts_perPage_{$perPage}_page_{$page}";
 
-            // Return the success response with post data
+            $posts = $this->cacheService->remember($cacheKey, function () use ($perPage, $page) {
+                return Post::orderBy('post_id', 'desc')
+                    ->paginate($perPage, ['*'], 'page', $page);
+            });
+
             return Response::json([
                 'message' => 'Posts retrieved successfully.',
                 'current_page' => $posts->currentPage(),
@@ -37,7 +49,6 @@ class PostService
                 'total' => $posts->total(),
             ], 200);
         } catch (\Exception $e) {
-            // Return a generic error response
             return Response::json([
                 'message' => 'An error occurred while retrieving the posts.',
             ], 500);
@@ -47,25 +58,29 @@ class PostService
     public function show(int $postId)
     {
         try {
-            // Retrieve the post entry for the given ID
-            $post = Post::with(['tags'])
-                ->where('post_id', $postId)
-                ->first();
+            $cacheKey = "post_{$postId}";
 
-            if (!$post) {
-                // Return a 404 Not Found response
-                return Response::json([
-                    'message' => 'Post not found.',
-                ], 404);
+            $post = $this->cacheService->remember($cacheKey, function () use ($postId) {
+                $post = Post::with(['tags'])->where('post_id', $postId)->first();
+
+                if (!$post) {
+                    return Response::json([
+                        'message' => 'Post not found.',
+                    ], 404);
+                }
+
+                return $post;
+            });
+
+            if (is_a($post, 'Illuminate\Http\JsonResponse')) {
+                return $post;
             }
 
-            // Return the success response with the Post entry data
             return Response::json([
                 'message' => 'Post entry retrieved successfully.',
-                'data' =>  $post
+                'data' => $post,
             ], 200);
         } catch (\Exception $e) {
-            // Return a generic error response
             return Response::json([
                 'message' => 'An error occurred while retrieving the post.',
             ], 500);
