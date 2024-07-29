@@ -8,14 +8,17 @@ use Illuminate\Support\Facades\Auth;
 use App\Services\User\WorkHoursService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Response;
+use App\Services\CacheService;
 
 class DtrService
 {
     protected $workHoursService;
+    protected $cacheService;
 
-    public function __construct(WorkHoursService $workHoursService)
+    public function __construct(WorkHoursService $workHoursService, CacheService $cacheService)
     {
         $this->workHoursService = $workHoursService;
+        $this->cacheService = $cacheService;
     }
 
     public function index(int $perPage, int $page)
@@ -24,14 +27,19 @@ class DtrService
             // Retrieve the authenticated user's ID
             $userId = Auth::id();
 
-            // Retrieve paginated DTR entries for the authenticated user
-            $dtrs = Dtr::where('user_id', $userId)
-                ->orderBy('time_in', 'desc')
-                ->paginate($perPage, ['*'], 'page', $page);
+            // Cache the paginated DTR for the authenticated user
+            $cacheKey = "user_{$userId}_dtrs_perPage_{$perPage}_page_{$page}";
+
+            // Retrieve paginated DTR for the authenticated user
+            $dtrs = $this->cacheService->remember($cacheKey, function () use ($perPage, $page, $userId) {
+                return Dtr::where('user_id', $userId)
+                    ->orderBy('time_in', 'desc')
+                    ->paginate($perPage, ['*'], 'page', $page);
+            });
 
             // Return the success response with DTR data
             return Response::json([
-                'message' => 'DTR entries retrieved successfully.',
+                'message' => 'DTR retrieved successfully.',
                 'current_page' => $dtrs->currentPage(),
                 'data' => $dtrs->items(),
                 'first_page_url' => $dtrs->url(1),
@@ -49,7 +57,7 @@ class DtrService
         } catch (\Exception $e) {
             // Return a generic error response
             return Response::json([
-                'message' => 'An error occurred while retrieving the DTR entries.',
+                'message' => 'An error occurred while retrieving the DTRs.',
             ], 500);
         }
     }
@@ -57,18 +65,30 @@ class DtrService
     public function show(int $dtrId)
     {
         try {
+            // Retrieve the authenticated user's ID
             $userId = Auth::id();
 
-            // Retrieve the DTR entry for the authenticated user
-            $dtr = Dtr::where('dtr_id', $dtrId)
-                ->where('user_id', $userId)
-                ->first();
+            // Cache the DTR for the authenticated user
+            $cacheKey = "user_{$userId}_dtr_{$dtrId}";
 
-            // Check if the DTR entry was found
-            if (!$dtr) {
-                return Response::json([
-                    'message' => 'DTR entry not found.'
-                ], 404);
+            // Retrieve the DTR for the authenticated user
+            $dtr = $this->cacheService->remember($cacheKey, function () use ($dtrId, $userId) {
+                $dtr = Dtr::where('dtr_id', $dtrId)
+                    ->where('user_id', $userId)
+                    ->first();
+
+                // Check if the DTR was found
+                if (!$dtr) {
+                    return Response::json([
+                        'message' => 'DTR not found.'
+                    ], 404);
+                }
+
+                return $dtr;
+            });
+
+            if (is_a($dtr, 'Illuminate\Http\JsonResponse')) {
+                return $dtr;
             }
 
             // Return the success response with the DTR entry data

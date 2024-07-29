@@ -25,13 +25,16 @@ class PostService
     public function index(int $perPage, int $page)
     {
         try {
+            // Generate a cache key for the specified number of posts per page and page number
             $cacheKey = "posts_perPage_{$perPage}_page_{$page}";
 
+            // Retrieve the paginated posts from the cache or database
             $posts = $this->cacheService->remember($cacheKey, function () use ($perPage, $page) {
                 return Post::orderBy('post_id', 'desc')
                     ->paginate($perPage, ['*'], 'page', $page);
             });
 
+            // Return the paginated posts as JSON response
             return Response::json([
                 'message' => 'Posts retrieved successfully.',
                 'current_page' => $posts->currentPage(),
@@ -58,8 +61,10 @@ class PostService
     public function show(int $postId)
     {
         try {
+            // Generate a cache key for the specified post ID
             $cacheKey = "post_{$postId}";
 
+            // Retrieve the post entry from the cache or database
             $post = $this->cacheService->remember($cacheKey, function () use ($postId) {
                 $post = Post::with(['tags'])->where('post_id', $postId)->first();
 
@@ -72,10 +77,12 @@ class PostService
                 return $post;
             });
 
+            // Check if the retrieved post is a JSON response
             if (is_a($post, 'Illuminate\Http\JsonResponse')) {
                 return $post;
             }
 
+            // Prepare the post data for JSON response
             return Response::json([
                 'message' => 'Post entry retrieved successfully.',
                 'data' => $post,
