@@ -31,9 +31,6 @@ class DeleteTaskTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * Test deleting an existing task successfully.
-     */
     public function test_delete_existing_task(): void
     {
         // Create a project and a task
@@ -51,22 +48,6 @@ class DeleteTaskTest extends TestCase
         $this->assertSoftDeleted($task);
     }
 
-    /**
-     * Test deleting a task from a non-existing project.
-     */
-    public function test_delete_task_from_non_existing_project(): void
-    {
-        // Send the delete request
-        $response = $this->deleteJson(route('projects.tasks.destroy', ['projectId' => 99999, 'taskId' => 1]));
-
-        // Assert the response
-        $response->assertStatus(404)
-            ->assertJson(['message' => 'Project not found.']);
-    }
-
-    /**
-     * Test deleting a non-existing task.
-     */
     public function test_delete_non_existing_task(): void
     {
         // Create a project

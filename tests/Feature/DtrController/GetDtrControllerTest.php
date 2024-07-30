@@ -110,7 +110,7 @@ class GetDtrControllerTest extends TestCase
         // Assert response status and structure for not found
         $response->assertStatus(404)
             ->assertJson([
-                'message' => 'DTR entry not found.',
+                'message' => 'DTR not found.',
             ]);
     }
 }

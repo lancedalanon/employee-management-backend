@@ -57,31 +57,4 @@ class GetTasksTest extends TestCase
                 ]
             ]);
     }
-
-    public function test_returns_404_if_project_not_found()
-    {
-        $nonExistingProjectId = 999; // Assuming this ID does not exist in the database
-
-        // Hit the endpoint with a non-existing project ID
-        $response = $this->getJson(route('projects.tasks.index', ['projectId' => $nonExistingProjectId]));
-
-        $response->assertStatus(404)
-            ->assertJson([
-                'message' => 'Project not found.',
-            ]);
-    }
-
-    public function test_returns_404_if_no_tasks_found_for_project()
-    {
-        // Create a project without any tasks
-        $project = Project::factory()->create();
-
-        // Hit the endpoint to get tasks for the created project (which has no tasks)
-        $response = $this->getJson(route('projects.tasks.index', ['projectId' => $project->project_id]));
-
-        $response->assertStatus(404)
-            ->assertJson([
-                'message' => 'Task not found.',
-            ]);
-    }
 }

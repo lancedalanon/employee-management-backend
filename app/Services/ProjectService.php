@@ -28,7 +28,7 @@ class ProjectService
 
             // Return the paginated projects as a JSON response
             return Response::json([
-                'message' => 'Project entries retrieved successfully.',
+                'message' => 'Projects retrieved successfully.',
                 'current_page' => $projects->currentPage(),
                 'data' => $projects->items(),
                 'first_page_url' => $projects->url(1),
@@ -54,7 +54,8 @@ class ProjectService
     public function show(int $projectId)
     {
         try {
-            $cacheKey = "projects_{$projectId}";
+            // Generate a cache key for the project based on the project ID
+            $cacheKey = "project_{$projectId}";
 
             // Fetch the project by ID
             $project =  $this->cacheService->rememberForever($cacheKey, function () use ($projectId) {
@@ -62,16 +63,16 @@ class ProjectService
                     ->first();
             });
 
-            // Check if the Project entry was found
+            // Check if the Project was found
             if (!$project) {
                 return Response::json([
-                    'message' => 'Project entry not found.'
+                    'message' => 'Project not found.'
                 ], 404);
             }
 
-            // Return the Project entry as a JSON response
+            // Return the Project as a JSON response
             return Response::json([
-                'message' => 'Project entry retrieved successfully.',
+                'message' => 'Project retrieved successfully.',
                 'data' => $project
             ], 200);
         } catch (\Exception $e) {
@@ -108,10 +109,10 @@ class ProjectService
             $project = Project::where('project_id', $projectId)
                 ->first();
 
-            // Check if the Project entry was found
+            // Check if the Project was found
             if (!$project) {
                 return Response::json([
-                    'message' => 'Project entry not found.'
+                    'message' => 'Project not found.'
                 ], 404);
             }
 
@@ -147,10 +148,10 @@ class ProjectService
             $project = Project::where('project_id', $projectId)
                 ->first();
 
-            // Check if the Project entry was found
+            // Check if the Project was found
             if (!$project) {
                 return Response::json([
-                    'message' => 'Project entry not found.'
+                    'message' => 'Project not found.'
                 ], 404);
             }
 

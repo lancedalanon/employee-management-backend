@@ -82,7 +82,7 @@ class UpdateProjectTest extends TestCase
 
         $response->assertStatus(404)
             ->assertJson([
-                'message' => 'Project entry not found.',
+                'message' => 'Project not found.',
             ]);
     }
 

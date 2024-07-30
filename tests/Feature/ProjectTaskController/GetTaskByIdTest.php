@@ -58,18 +58,6 @@ class GetTaskByIdTest extends TestCase
             ]);
     }
 
-    public function test_returns_not_found_if_project_does_not_exist()
-    {
-        // Make a GET request with non-existent project ID
-        $response = $this->getJson(route('projects.tasks.show', ['projectId' => 99999, 'taskId' => 1]));
-
-        // Assert response status is 404
-        $response->assertStatus(404)
-            ->assertJson([
-                'message' => 'Project not found.',
-            ]);
-    }
-
     public function test_returns_not_found_if_task_does_not_exist()
     {
         // Create a project

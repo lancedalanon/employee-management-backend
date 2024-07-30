@@ -9,18 +9,30 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use App\Services\CacheService;
 
 class ProjectTaskStatusService
 {
+    protected $cacheService;
+
+    public function __construct(CacheService $cacheService)
+    {
+        $this->cacheService = $cacheService;
+    }
+
     public function index(int $projectId, int $taskId, int $perPage, int $page)
     {
         try {
+            $cacheKey = "project_task_statuses_perPage_{$perPage}_page_{$page}";
+
             // Fetch paginated statuses for the given task within the project
-            $statuses = ProjectTaskStatus::where('project_task_id', $taskId)
-                ->whereHas('task', function ($query) use ($projectId) {
-                    $query->where('project_id', $projectId);
-                })
-                ->paginate($perPage, ['*'], 'page', $page);
+            $statuses = $this->cacheService->rememberForever($cacheKey, function () use ($perPage, $page, $projectId, $taskId) {
+                return ProjectTaskStatus::where('project_task_id', $taskId)
+                    ->whereHas('task', function ($query) use ($projectId) {
+                        $query->where('project_id', $projectId);
+                    })
+                    ->paginate($perPage, ['*'], 'page', $page);
+            });
 
             // Return the specific ProjectTaskStatus as a JSON response
             return Response::json([
@@ -50,13 +62,18 @@ class ProjectTaskStatusService
     public function show(int $projectId, int $taskId, int $statusId)
     {
         try {
+            // Create cache key for the specific status entry
+            $cacheKey = "project_task_status_projectId{$projectId}_taskId{$taskId}_statusId{$statusId}";
+
             // Fetch the status by its ID
-            $status = ProjectTaskStatus::where('project_task_status_id', $statusId)
-                ->where('project_task_id', $taskId)
-                ->whereHas('task', function ($query) use ($projectId) {
-                    $query->where('project_id', $projectId);
-                })
-                ->first();
+            $status = $this->cacheService->rememberForever($cacheKey, function () use ($projectId, $taskId, $statusId) {
+                return ProjectTaskStatus::where('project_task_status_id', $statusId)
+                    ->where('project_task_id', $taskId)
+                    ->whereHas('task', function ($query) use ($projectId) {
+                        $query->where('project_id', $projectId);
+                    })
+                    ->first();
+            });
 
             // Handle case where status is not found
             if (!$status) {
@@ -65,15 +82,15 @@ class ProjectTaskStatusService
                 ], 404);
             }
 
-            // Return the specific ProjectTaskStatus entry as a JSON response
+            // Return the specific ProjectTaskStatus as a JSON response
             return Response::json([
-                'message' => 'Status entry retrieved successfully.',
+                'message' => 'Status retrieved successfully.',
                 'data' => $status
             ], 200);
         } catch (\Exception $e) {
             // Return a JSON response indicating the error
             return Response::json([
-                'message' => 'Failed to retrieve status entry.',
+                'message' => 'Failed to retrieve status',
             ], 500);
         }
     }
@@ -164,15 +181,6 @@ class ProjectTaskStatusService
                 'data' => $status,
             ], 200);
         } catch (\Exception $e) {
-            // Log the exception details
-            Log::error('Failed to update status', [
-                'exception' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'projectId' => $projectId,
-                'taskId' => $taskId,
-                'statusId' => $statusId,
-            ]);
-
             // Handle any other errors that occur during the process
             return Response::json([
                 'message' => 'Failed to update status.',

@@ -5,32 +5,28 @@ namespace App\Services;
 use App\Models\Project;
 use App\Models\ProjectTask;
 use Illuminate\Support\Facades\Response;
+use App\Services\CacheService;
 
 class ProjectTaskService
 {
+    protected $cacheService;
+
+    public function __construct(CacheService $cacheService)
+    {
+        $this->cacheService = $cacheService;
+    }
+
     public function index(int $perPage, int $page, int $projectId)
     {
         try {
-            // Check if the project exists
-            $project = Project::where('project_id', $projectId)->first();
-
-            // Handle case where project is not found
-            if (!$project) {
-                return Response::json([
-                    'message' => 'Project not found.',
-                ], 404);
-            }
+            // Generate a unique cache key for retrieving tasks for the given project ID and pagination parameters
+            $cacheKey = "project_tasks_perPage_{$perPage}_page_{$page}";
 
             // Retrieve tasks for the given project ID, with pagination
-            $tasks = ProjectTask::where('project_id', $project->project_id)
-                ->paginate($perPage, ['*'], 'page', $page);
-
-            // Handle case where tasks are not found
-            if ($tasks->isEmpty()) {
-                return Response::json([
-                    'message' => 'Task not found.',
-                ], 404);
-            }
+            $tasks = $this->cacheService->rememberForever($cacheKey, function () use ($perPage, $page, $projectId) {
+                return ProjectTask::where('project_id', $projectId)
+                    ->paginate($perPage, ['*'], 'page', $page);
+            });
 
             // Return the ProjectTask as a JSON response
             return Response::json([
@@ -60,26 +56,28 @@ class ProjectTaskService
     public function show(int $projectId, int $taskId)
     {
         try {
-            // Check if the project exists
-            $project = Project::where('project_id', $projectId)->first();
-
-            // Handle case where project is not found
-            if (!$project) {
-                return Response::json([
-                    'message' => 'Project not found.',
-                ], 404);
-            }
+            // Generate a unique cache key for retrieving the specific task for the given project ID and task ID
+            $cacheKey = "project_task_projectId_{$projectId}_taskId_{$taskId}";
 
             // Retrieve the specific task for the given project ID and task ID
-            $task = ProjectTask::where('project_id', $project->project_id)
-                ->where('project_task_id', $taskId)
-                ->first();
+            $task = $this->cacheService->rememberForever($cacheKey, function () use ($projectId, $taskId,) {
+                $task = ProjectTask::where('project_id', $projectId)
+                    ->where('project_task_id', $taskId)
+                    ->first();
 
-            // Handle case where task is not found
-            if (!$task) {
-                return Response::json([
-                    'message' => 'Task not found.',
-                ], 404);
+                // Check if the project task was found
+                if (!$task) {
+                    return Response::json([
+                        'message' => 'Task not found.'
+                    ], 404);
+                }
+
+                return $task;
+            });
+
+            // Check if the project task is a JSON response
+            if (is_a($task, 'Illuminate\Http\JsonResponse')) {
+                return $task;
             }
 
             // Return the specific ProjectTask as a JSON response
@@ -133,22 +131,11 @@ class ProjectTaskService
         }
     }
 
-    public function update(array $validatedData, int $projectId,  int $taskId)
+    public function update(array $validatedData, int $projectId, int $taskId)
     {
         try {
-            // Check if the project exists
-            $project = Project::where('project_id', $projectId)
-                ->first();
-
-            // Handle case where project is not found
-            if (!$project) {
-                return Response::json([
-                    'message' => 'Project not found.',
-                ], 404);
-            }
-
             // Find the task by its ID and project ID
-            $task = ProjectTask::where('project_id', $project->project_id)
+            $task = ProjectTask::where('project_id', $projectId)
                 ->where('project_task_id', $taskId)
                 ->first();
 
@@ -184,19 +171,8 @@ class ProjectTaskService
     public function destroy(int $projectId, int $taskId)
     {
         try {
-            // Check if the project exists
-            $project = Project::where('project_id', $projectId)
-                ->first();
-
-            // Handle case where project is not found
-            if (!$project) {
-                return Response::json([
-                    'message' => 'Project not found.',
-                ], 404);
-            }
-
             // Find the task by its ID and project ID
-            $task = ProjectTask::where('project_id', $project->project_id)
+            $task = ProjectTask::where('project_id', $projectId)
                 ->where('project_task_id', $taskId)
                 ->first();
 

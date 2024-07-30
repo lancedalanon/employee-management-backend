@@ -76,7 +76,7 @@ class GetProjectByIdTest extends TestCase
 
         // Assert that the JSON response contains the error message
         $response->assertJson([
-            'message' => 'Project entry not found.'
+            'message' => 'Project not found.'
         ]);
     }
 }

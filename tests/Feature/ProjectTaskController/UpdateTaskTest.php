@@ -96,21 +96,6 @@ class UpdateTaskTest extends TestCase
         ]);
     }
 
-    public function test_returns_not_found_when_project_does_not_exist()
-    {
-        $response = $this->putJson(route('projects.tasks.update', ['projectId' => 99999, 'taskId' => 1]), [
-            'project_task_name' => 'Updated Task Name',
-            'project_task_description' => 'Updated Task Description',
-            'project_task_progress' => 'In progress',
-            'project_task_priority_level' => 'High',
-        ]);
-
-        $response->assertStatus(404);
-        $response->assertJson([
-            'message' => 'Project not found.',
-        ]);
-    }
-
     public function test_returns_not_found_when_task_does_not_exist()
     {
         $project = Project::factory()->create();
