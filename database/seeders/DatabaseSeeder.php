@@ -15,7 +15,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Create roles
+        $superRole = Role::create(['name' => 'super']);
         $adminRole = Role::create(['name' => 'admin']);
+        $employeeRole = Role::create(['name' => 'employee']);
         $studentRole = Role::create(['name' => 'student']);
         $fullTimeRole = Role::create(['name' => 'full-time']);
         $partTimeRole = Role::create(['name' => 'part-time']);
@@ -60,5 +62,7 @@ class DatabaseSeeder extends Seeder
         $admin->assignRole($dayShiftRole);
         $admin->assignRole($fullTimeRole);
         $admin->assignRole($adminRole);
+        $admin->assignRole($employeeRole);
+        $admin->assignRole($superRole);
     }
 }
