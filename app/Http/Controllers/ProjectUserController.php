@@ -18,11 +18,11 @@ class ProjectUserController extends Controller
         $this->projectUserService = $projectUserService;
     }
 
-    public function index(Request $request, $projectId)
+    public function indexUser(Request $request, $projectId)
     {
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
-        $response = $this->projectUserService->index($projectId, $perPage, $page);
+        $response = $this->projectUserService->indexUser($projectId, $perPage, $page);
         return $response;
     }
 

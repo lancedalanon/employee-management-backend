@@ -72,7 +72,7 @@ class ProjectUserControllerTest extends TestCase
         $project->users()->attach($users->pluck('user_id')->toArray());
 
         // Act: Send a GET request to retrieve users of the project
-        $response = $this->getJson(route('projects.users.index', ['projectId' => $project->project_id]));
+        $response = $this->getJson(route('projects.users.indexUser', ['projectId' => $project->project_id]));
 
         // Assert: Check that the request was successful
         $response->assertStatus(200)
@@ -128,12 +128,12 @@ class ProjectUserControllerTest extends TestCase
     public function test_get_non_existent_project_users()
     {
         // Act: Send a GET request to a non-existent project
-        $response = $this->getJson(route('projects.users.index', ['projectId' => 9999]));
+        $response = $this->getJson(route('projects.users.indexUser', ['projectId' => 9999]));
 
         // Assert: Check that the project not found response is returned
         $response->assertStatus(404)
             ->assertJson([
-                'message' => 'Project entry not found.',
+                'message' => 'Project not found.',
             ]);
     }
 

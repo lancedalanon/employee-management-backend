@@ -44,7 +44,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Routes for managing users within a project
         Route::prefix('{projectId}/users')->name('users.')->group(function () {
-            Route::get('/', [ProjectUserController::class, 'index'])->name('index');
+            Route::get('/', [ProjectUserController::class, 'indexUser'])->name('indexUser');
+            Route::get('{userId}', [ProjectUserController::class, 'showUser'])->name('showUser');
         });
 
         // Routes for managing tasks within a project
