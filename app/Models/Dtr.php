@@ -31,12 +31,12 @@ class Dtr extends Model
         parent::boot();
 
         // Clear cache when a dtr is saved
-        static::saved(function ($dtr) {
+        static::saved(function () {
             Dtr::clearCache();
         });
 
         // Clear cache when a dtr is deleted
-        static::deleted(function ($dtr) {
+        static::deleted(function () {
             Dtr::clearCache();
         });
     }

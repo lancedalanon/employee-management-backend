@@ -37,12 +37,12 @@ class Post extends Model
         });
 
         // Clear cache when a post is saved
-        static::saved(function ($post) {
+        static::saved(function () {
             Post::clearCache();
         });
 
         // Clear cache when a post is deleted
-        static::deleted(function ($post) {
+        static::deleted(function () {
             Post::clearCache();
         });
     }

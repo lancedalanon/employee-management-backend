@@ -7,27 +7,21 @@ use Illuminate\Support\Facades\Log;
 
 class CacheService
 {
-    protected $cacheDuration;
-
-    public function __construct()
-    {
-        $this->cacheDuration = 60;
-    }
-
     /**
      * Retrieve data from cache or execute the callback and cache the result.
      *
      * @param string $cacheKey
      * @param \Closure $callback
+     * @param int $cacheDuration
      * @return mixed
      */
-    public function remember(string $cacheKey, \Closure $callback)
+    public function remember(string $cacheKey, \Closure $callback, int $cacheDuration)
     {
         if (Cache::has($cacheKey)) {
             return Cache::get($cacheKey);
         } else {
             $data = $callback();
-            Cache::put($cacheKey, $data, $this->cacheDuration);
+            Cache::put($cacheKey, $data, $cacheDuration);
             return $data;
         }
     }

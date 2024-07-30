@@ -4,14 +4,27 @@ namespace App\Services;
 
 use App\Models\Project;
 use Illuminate\Support\Facades\Response;
+use App\Services\CacheService;
 
 class ProjectService
 {
+    protected $cacheService;
+
+    public function __construct(CacheService $cacheService)
+    {
+        $this->cacheService = $cacheService;
+    }
+
     public function index(int $perPage, int $page)
     {
         try {
+            // Generate a cache key for the paginated projects based on the perPage and page parameters
+            $cacheKey = "projects_perPage_{$perPage}_page_{$page}";
+
             // Fetch paginated projects with only necessary fields
-            $projects = Project::paginate($perPage, ['*'], 'page', $page);
+            $projects = $this->cacheService->rememberForever($cacheKey, function () use ($perPage, $page) {
+                return Project::paginate($perPage, ['*'], 'page', $page);
+            });
 
             // Return the paginated projects as a JSON response
             return Response::json([
@@ -41,9 +54,13 @@ class ProjectService
     public function show(int $projectId)
     {
         try {
+            $cacheKey = "projects_{$projectId}";
+
             // Fetch the project by ID
-            $project = Project::where('project_id', $projectId)
-                ->first();
+            $project =  $this->cacheService->rememberForever($cacheKey, function () use ($projectId) {
+                return Project::where('project_id', $projectId)
+                    ->first();
+            });
 
             // Check if the Project entry was found
             if (!$project) {
