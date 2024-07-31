@@ -22,7 +22,6 @@ class ProjectUserControllerTest extends TestCase
     protected $user;
     protected $project;
     protected $projectUser;
-    protected $validRole;
 
     /**
      * Setup method to create user, admin, and projects.
@@ -42,10 +41,8 @@ class ProjectUserControllerTest extends TestCase
         $this->projectUser = ProjectUser::create([
             'project_id' => $this->project->project_id,
             'user_id' => $this->user->user_id,
-            'project_role' => config('constants.project_roles')['project-user']
+            'project_role' => 'project-user'
         ]);
-
-        $this->validRole = array_key_first(config('constants.project_roles'));
     }
 
     /**
@@ -340,7 +337,7 @@ class ProjectUserControllerTest extends TestCase
     {
         $response = $this->putJson(route('admin.projects.users.updateUser', ['projectId' => $this->project->project_id]), [
             'user_id' => $this->user->user_id,
-            'project_role' => $this->validRole,
+            'project_role' => 'project-user',
         ]);
 
         $response->assertStatus(200)
@@ -349,7 +346,7 @@ class ProjectUserControllerTest extends TestCase
             ]);
 
         // Verify the role was updated
-        $this->assertEquals(config('constants.project_roles')[$this->validRole], $this->projectUser->fresh()->project_role);
+        $this->assertEquals('project-user', $this->projectUser->fresh()->project_role);
     }
 
     /**
@@ -384,7 +381,7 @@ class ProjectUserControllerTest extends TestCase
     {
         $response = $this->putJson(route('admin.projects.users.updateUser', ['projectId' => $this->project->project_id]), [
             'user_id' => 99999, // Non-existent user ID
-            'project_role' => $this->validRole,
+            'project_role' => 'project-user',
         ]);
 
         $response->assertStatus(422)
@@ -409,7 +406,7 @@ class ProjectUserControllerTest extends TestCase
 
         $response = $this->putJson(route('admin.projects.users.updateUser', ['projectId' => $this->project->project_id]), [
             'user_id' => $newUser->user_id,
-            'project_role' => $this->validRole,
+            'project_role' => 'project-user',
         ]);
 
         $response->assertStatus(400)

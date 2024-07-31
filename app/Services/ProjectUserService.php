@@ -10,13 +10,11 @@ use App\Services\CacheService;
 class ProjectUserService
 {
     protected $defaultProjectRole;
-    protected $validRoles;
     protected $cacheService;
 
     public function __construct(CacheService $cacheService)
     {
-        $this->defaultProjectRole = config('constants.project_roles.project-user');
-        $this->validRoles = config('constants.project_roles');
+        $this->defaultProjectRole = 'project_user';
         $this->cacheService = $cacheService;
     }
 
@@ -120,11 +118,6 @@ class ProjectUserService
                 ], 404);
             }
 
-            // Ensure defaultProjectRole is not null
-            if (is_null($this->defaultProjectRole)) {
-                throw new \RuntimeException('Default project role is not configured.');
-            }
-
             // Check if any users are already in the project
             $existingUserIds = $project->users()->pluck('users.user_id')->toArray();
             $usersToAdd = array_diff($userIds, $existingUserIds);
@@ -166,13 +159,6 @@ class ProjectUserService
             $userId = $validatedData['user_id'];
             $role = $validatedData['project_role'];
 
-            // Check if the role is valid
-            if (!array_key_exists($role, $this->validRoles)) {
-                return response()->json([
-                    'message' => 'Invalid role provided.',
-                ], 400);
-            }
-
             // Check if the user is part of the project
             $projectUser = ProjectUser::where('project_id', $projectId)
                 ->where('user_id', $userId)
@@ -185,7 +171,7 @@ class ProjectUserService
             }
 
             // Update the role for the user in the project
-            $projectUser->project_role = $this->validRoles[$role];
+            $projectUser->project_role = $role;
             $projectUser->save();
 
             // Return a success response

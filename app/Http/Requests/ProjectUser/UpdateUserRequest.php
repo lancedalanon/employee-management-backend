@@ -30,7 +30,7 @@ class UpdateUserRequest extends FormRequest
     {
         return [
             'user_id' => 'required|exists:users,user_id',
-            'project_role' => 'required|in:' . implode(',', array_keys($this->validRoles)),
+            'project_role' => 'required|in:' . implode(',', $this->validRoles),
         ];
     }
 }

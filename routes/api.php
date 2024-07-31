@@ -6,6 +6,8 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectTaskController;
 use App\Http\Controllers\ProjectTaskStatusController;
+use App\Http\Controllers\ProjectTaskSubtaskController;
+use App\Http\Controllers\ProjectTaskSubtaskStatusController;
 use App\Http\Controllers\ProjectUserController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WeeklyReportController;
@@ -63,6 +65,24 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::post('/', [ProjectTaskStatusController::class, 'store'])->name('store');
                 Route::put('{statusId}', [ProjectTaskStatusController::class, 'update'])->name('update');
                 Route::delete('{statusId}', [ProjectTaskStatusController::class, 'destroy'])->name('destroy');
+            });
+
+            // Routes for managing sub tasks
+            Route::prefix('{taskId}/subtasks')->name('subtasks.')->group(function () {
+                Route::get('/', [ProjectTaskSubtaskController::class, 'index'])->name('index');
+                Route::get('{subtaskId}', [ProjectTaskSubtaskController::class, 'show'])->name('show');
+                Route::post('/', [ProjectTaskSubtaskController::class, 'store'])->name('store');
+                Route::put('{subtaskId}', [ProjectTaskSubtaskController::class, 'update'])->name('update');
+                Route::delete('{subtaskId}', [ProjectTaskSubtaskController::class, 'destroy'])->name('destroy');
+
+                // Routes for managing sub task statuses
+                Route::prefix('{subtaskId}/statuses')->name('statuses.')->group(function () {
+                    Route::get('/', [ProjectTaskSubtaskStatusController::class, 'index'])->name('index');
+                    Route::get('{statusId}', [ProjectTaskSubtaskStatusController::class, 'show'])->name('show');
+                    Route::post('/', [ProjectTaskSubtaskStatusController::class, 'store'])->name('store');
+                    Route::put('{statusId}', [ProjectTaskSubtaskStatusController::class, 'update'])->name('update');
+                    Route::delete('{statusId}', [ProjectTaskSubtaskStatusController::class, 'destroy'])->name('destroy');
+                });
             });
         });
     });
