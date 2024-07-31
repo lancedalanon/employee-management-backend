@@ -126,13 +126,13 @@ class ProjectTaskStatusService
             $status->save();
 
             // Return a JSON response with the created status
-            return response()->json([
+            return Response::json([
                 'message' => 'Status created successfully.',
                 'data' => $status,
             ], 201);
         } catch (\Exception $e) {
             // Return a JSON response indicating the error
-            return response()->json([
+            return Response::json([
                 'message' => 'Failed to create status.',
             ], 500);
         }
