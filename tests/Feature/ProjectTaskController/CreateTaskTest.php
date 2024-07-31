@@ -7,6 +7,7 @@ use App\Models\ProjectTask;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class CreateTaskTest extends TestCase
@@ -21,6 +22,8 @@ class CreateTaskTest extends TestCase
 
         // Create a user with known credentials and authenticate
         $this->user = User::factory()->create();
+        $adminRole = Role::create(['name' => 'admin']);
+        $this->user->assignRole($adminRole);
         Sanctum::actingAs($this->user);
     }
 

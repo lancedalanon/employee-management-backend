@@ -3,6 +3,7 @@
 namespace App\Services\User;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class UserRoleService
 {
@@ -44,5 +45,20 @@ class UserRoleService
         }
 
         return null;
+    }
+    /**
+     * Check if the authenticated user has either the 'admin' or 'super' role.
+     *
+     * @return bool Returns true if the user has either the 'admin' or 'super' role, otherwise false.
+     */
+    public function hasAdminRole(): bool
+    {
+        $user = Auth::user();
+
+        if ($user->hasRole('admin') || $user->hasRole('super')) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

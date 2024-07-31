@@ -5,25 +5,37 @@ namespace App\Services;
 use App\Models\Project;
 use Illuminate\Support\Facades\Response;
 use App\Services\CacheService;
+use App\Services\User\UserRoleService;
+use Illuminate\Support\Facades\Auth;
 
 class ProjectService
 {
     protected $cacheService;
+    protected $userRoleService;
+    protected $userId;
 
-    public function __construct(CacheService $cacheService)
+    public function __construct(CacheService $cacheService, UserRoleService $userRoleService)
     {
         $this->cacheService = $cacheService;
+        $this->userRoleService = $userRoleService;
+        $this->userId = Auth::id();
     }
 
     public function index(int $perPage, int $page)
     {
         try {
             // Generate a cache key for the paginated projects based on the perPage and page parameters
-            $cacheKey = "projects_perPage_{$perPage}_page_{$page}";
+            $cacheKey = "projects_userId_{$this->userId}_perPage_{$perPage}_page_{$page}";
 
             // Fetch paginated projects with only necessary fields
             $projects = $this->cacheService->rememberForever($cacheKey, function () use ($perPage, $page) {
-                return Project::paginate($perPage, ['*'], 'page', $page);
+                if ($this->userRoleService->hasAdminRole()) {
+                    return Project::paginate($perPage, ['*'], 'page', $page);
+                } else {
+                    return Project::whereHas('users', function ($query) {
+                        $query->where('user_id', $this->userId);
+                    })->paginate($perPage, ['*'], 'page', $page);
+                }
             });
 
             // Return the paginated projects as a JSON response
@@ -55,12 +67,20 @@ class ProjectService
     {
         try {
             // Generate a cache key for the project based on the project ID
-            $cacheKey = "project_{$projectId}";
+            $cacheKey = "project_userId_{$this->userId}_{$projectId}";
 
             // Fetch the project by ID
             $project =  $this->cacheService->rememberForever($cacheKey, function () use ($projectId) {
-                return Project::where('project_id', $projectId)
-                    ->first();
+                if ($this->userRoleService->hasAdminRole()) {
+                    return Project::where('project_id', $projectId)
+                        ->first();
+                } else {
+                    return Project::where('project_id', $projectId)
+                        ->whereHas('users', function ($query) {
+                            $query->where('user_id', $this->userId);
+                        })
+                        ->first();
+                }
             });
 
             // Check if the Project was found

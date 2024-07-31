@@ -6,26 +6,40 @@ use App\Models\Project;
 use App\Models\ProjectTask;
 use Illuminate\Support\Facades\Response;
 use App\Services\CacheService;
+use App\Services\User\UserRoleService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ProjectTaskService
 {
     protected $cacheService;
+    protected $userRoleService;
+    protected $userId;
 
-    public function __construct(CacheService $cacheService)
+    public function __construct(CacheService $cacheService, UserRoleService $userRoleService)
     {
         $this->cacheService = $cacheService;
+        $this->userRoleService = $userRoleService;
+        $this->userId = Auth::id();
     }
 
     public function index(int $perPage, int $page, int $projectId)
     {
         try {
             // Generate a unique cache key for retrieving tasks for the given project ID and pagination parameters
-            $cacheKey = "project_tasks_perPage_{$perPage}_page_{$page}";
+            $cacheKey = "project_tasks_userId_{$this->userId}_perPage_{$perPage}_page_{$page}";
 
             // Retrieve tasks for the given project ID, with pagination
             $tasks = $this->cacheService->rememberForever($cacheKey, function () use ($perPage, $page, $projectId) {
-                return ProjectTask::where('project_id', $projectId)
-                    ->paginate($perPage, ['*'], 'page', $page);
+                if ($this->userRoleService->hasAdminRole()) {
+                    return ProjectTask::where('project_id', $projectId)
+                        ->paginate($perPage, ['*'], 'page', $page);
+                } else {
+                    return ProjectTask::where('project_id', $projectId)
+                        ->whereHas('users', function ($query) {
+                            $query->where('user_id', $this->userId);
+                        })->paginate($perPage, ['*'], 'page', $page);
+                }
             });
 
             // Return the ProjectTask as a JSON response
@@ -57,27 +71,29 @@ class ProjectTaskService
     {
         try {
             // Generate a unique cache key for retrieving the specific task for the given project ID and task ID
-            $cacheKey = "project_task_projectId_{$projectId}_taskId_{$taskId}";
+            $cacheKey = "project_task_userId_{$this->userId}_projectId_{$projectId}_taskId_{$taskId}";
 
             // Retrieve the specific task for the given project ID and task ID
             $task = $this->cacheService->rememberForever($cacheKey, function () use ($projectId, $taskId,) {
-                $task = ProjectTask::where('project_id', $projectId)
-                    ->where('project_task_id', $taskId)
-                    ->first();
-
-                // Check if the project task was found
-                if (!$task) {
-                    return Response::json([
-                        'message' => 'Task not found.'
-                    ], 404);
+                if ($this->userRoleService->hasAdminRole()) {
+                    return ProjectTask::where('project_id', $projectId)
+                        ->where('project_task_id', $taskId)
+                        ->first();
+                } else {
+                    return ProjectTask::where('project_id', $projectId)
+                        ->where('project_task_id', $taskId)
+                        ->whereHas('users', function ($query) {
+                            $query->where('user_id', $this->userId);
+                        })
+                        ->first();
                 }
-
-                return $task;
             });
 
-            // Check if the project task is a JSON response
-            if (is_a($task, 'Illuminate\Http\JsonResponse')) {
-                return $task;
+            // Check if the project task was found
+            if (!$task) {
+                return Response::json([
+                    'message' => 'Task not found.'
+                ], 404);
             }
 
             // Return the specific ProjectTask as a JSON response
@@ -97,7 +113,13 @@ class ProjectTaskService
     {
         try {
             // Check if the project exists
-            $project = Project::where('project_id', $projectId)->first();
+            $project = $this->userRoleService->hasAdminRole()
+                ? Project::where('project_id', $projectId)->first()
+                : Project::where('project_id', $projectId)
+                ->whereHas('users', function ($query) {
+                    $query->where('project_users.user_id', $this->userId);
+                })
+                ->first();
 
             // Handle case where project is not found
             if (!$project) {
@@ -124,6 +146,13 @@ class ProjectTaskService
                 'data' => $task
             ], 201);
         } catch (\Exception $e) {
+            Log::error('Failed to create task', [
+                'error' => $e->getMessage(),
+                'user_id' => $this->userId,
+                'project_id' => $projectId,
+                'validated_data' => $validatedData
+            ]);
+
             // Return a JSON response indicating the error
             return Response::json([
                 'message' => 'Failed to create task.',
@@ -135,8 +164,15 @@ class ProjectTaskService
     {
         try {
             // Find the task by its ID and project ID
-            $task = ProjectTask::where('project_id', $projectId)
+            $task = $this->userRoleService->hasAdminRole()
+                ? ProjectTask::where('project_id', $projectId)
                 ->where('project_task_id', $taskId)
+                ->first()
+                : ProjectTask::where('project_id', $projectId)
+                ->where('project_task_id', $taskId)
+                ->whereHas('user', function ($query) {
+                    $query->where('project_users.user_id', $this->userId);
+                })
                 ->first();
 
             // Handle case where task is not found
@@ -172,8 +208,15 @@ class ProjectTaskService
     {
         try {
             // Find the task by its ID and project ID
-            $task = ProjectTask::where('project_id', $projectId)
+            $task = $this->userRoleService->hasAdminRole()
+                ? ProjectTask::where('project_id', $projectId)
                 ->where('project_task_id', $taskId)
+                ->first()
+                : ProjectTask::where('project_id', $projectId)
+                ->where('project_task_id', $taskId)
+                ->whereHas('user', function ($query) {
+                    $query->where('project_users.user_id', $this->userId);
+                })
                 ->first();
 
             // Handle case where task is not found
