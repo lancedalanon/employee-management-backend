@@ -79,6 +79,11 @@ class ProjectTask extends Model
         return $this->belongsTo(Project::class, 'project_id', 'project_id');
     }
 
+    public function subtasks()
+    {
+        return $this->hasMany(ProjectTask::class, 'project_task_id', 'project_task_id');
+    }
+
     public function statuses()
     {
         return $this->hasMany(ProjectTaskStatus::class, 'project_task_id', 'project_task_id');

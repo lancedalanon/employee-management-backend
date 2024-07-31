@@ -10,13 +10,12 @@ return [
         'Not started',
         'In progress',
         'Reviewing',
-        'Completed'
+        'Completed',
     ],
 
-    'project_task_subtask_progress' => [
-        'Not started',
-        'In progress',
-        'Reviewing',
-        'Completed'
+    'project_task_priority_level' => [
+        'Low',
+        'Medium',
+        'High',
     ],
 ];

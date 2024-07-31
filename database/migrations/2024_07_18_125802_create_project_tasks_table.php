@@ -16,11 +16,12 @@ return new class extends Migration
             $table->string('project_task_name');
             $table->text('project_task_description');
             $table->unsignedBigInteger('project_id');
-            $table->foreign('project_id')->references('project_id')->on('projects')->onDelete('cascade');
             $table->string('project_task_progress');
             $table->string('project_task_priority_level');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('project_id')->references('project_id')->on('projects')->onDelete('cascade');
         });
     }
 

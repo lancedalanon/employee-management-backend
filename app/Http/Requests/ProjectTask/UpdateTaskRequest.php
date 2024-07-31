@@ -7,10 +7,12 @@ use Illuminate\Foundation\Http\FormRequest;
 class UpdateTaskRequest extends FormRequest
 {
     protected $validProjectTaskProgress;
+    protected $projectTaskPriorityLevel;
 
     public function __construct()
     {
         $this->validProjectTaskProgress = config('constants.project_task_progress');
+        $this->projectTaskPriorityLevel = config('constants.project_task_priority_level');
     }
 
     /**
@@ -32,7 +34,7 @@ class UpdateTaskRequest extends FormRequest
             'project_task_name' => 'required|string|max:255',
             'project_task_description' => 'required|string',
             'project_task_progress' => 'required|in:' . implode(',', $this->validProjectTaskProgress),
-            'project_task_priority_level' => 'required|string|in:Low,Medium,High',
+            'project_task_priority_level' => 'required|in:' . implode(',', $this->projectTaskPriorityLevel),
         ];
     }
 }
