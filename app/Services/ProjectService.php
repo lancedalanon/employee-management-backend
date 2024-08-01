@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Response;
 use App\Services\CacheService;
 use App\Services\User\UserRoleService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ProjectService
 {
@@ -29,13 +30,9 @@ class ProjectService
 
             // Fetch paginated projects with only necessary fields
             $projects = $this->cacheService->rememberForever($cacheKey, function () use ($perPage, $page) {
-                if ($this->userRoleService->hasAdminRole()) {
-                    return Project::paginate($perPage, ['*'], 'page', $page);
-                } else {
-                    return Project::whereHas('users', function ($query) {
-                        $query->where('user_id', $this->userId);
-                    })->paginate($perPage, ['*'], 'page', $page);
-                }
+                return Project::whereHas('users', function ($query) {
+                    $query->where('users.user_id', $this->userId);
+                })->paginate($perPage, ['*'], 'page', $page);
             });
 
             // Return the paginated projects as a JSON response
@@ -71,16 +68,11 @@ class ProjectService
 
             // Fetch the project by ID
             $project =  $this->cacheService->rememberForever($cacheKey, function () use ($projectId) {
-                if ($this->userRoleService->hasAdminRole()) {
-                    return Project::where('project_id', $projectId)
-                        ->first();
-                } else {
-                    return Project::where('project_id', $projectId)
-                        ->whereHas('users', function ($query) {
-                            $query->where('user_id', $this->userId);
-                        })
-                        ->first();
-                }
+                return Project::where('project_id', $projectId)
+                    ->whereHas('users', function ($query) {
+                        $query->where('users.user_id', $this->userId);
+                    })
+                    ->first();
             });
 
             // Check if the Project was found
@@ -126,8 +118,7 @@ class ProjectService
     {
         try {
             // Fetch the project by ID
-            $project = Project::where('project_id', $projectId)
-                ->first();
+            $project = Project::where('project_id', $projectId)->first();
 
             // Check if the Project was found
             if (!$project) {
@@ -165,8 +156,7 @@ class ProjectService
     {
         try {
             // Fetch the project by ID
-            $project = Project::where('project_id', $projectId)
-                ->first();
+            $project = Project::where('project_id', $projectId)->first();
 
             // Check if the Project was found
             if (!$project) {
@@ -183,6 +173,8 @@ class ProjectService
                 'message' => 'Project deleted successfully.',
             ], 200);
         } catch (\Exception $e) {
+            Log::error('An error occurred while deleting the project: ' . $e->getMessage());
+
             // Handle any other errors that occur during the process
             return Response::json([
                 'message' => 'An error occurred while deleting the project.',
