@@ -93,7 +93,7 @@ class ProjectTaskService
             ], 200);
         } catch (\Exception $e) {
             // Return a JSON response indicating the error
-            return response()->json([
+            return Response::json([
                 'message' => 'Failed to retrieve task.',
             ], 500);
         }
