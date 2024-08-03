@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Response;
 use App\Services\CacheService;
 use App\Services\User\UserRoleService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class ProjectService
 {
@@ -173,8 +172,6 @@ class ProjectService
                 'message' => 'Project deleted successfully.',
             ], 200);
         } catch (\Exception $e) {
-            Log::error('An error occurred while deleting the project: ' . $e->getMessage());
-
             // Handle any other errors that occur during the process
             return Response::json([
                 'message' => 'An error occurred while deleting the project.',

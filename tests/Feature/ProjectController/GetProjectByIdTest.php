@@ -5,6 +5,7 @@ namespace Tests\Feature\ProjectController;
 use App\Models\Project;
 use App\Testing\ProjectTestingTrait;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class GetProjectByIdTest extends TestCase
@@ -12,6 +13,7 @@ class GetProjectByIdTest extends TestCase
     use RefreshDatabase, ProjectTestingTrait;
 
     protected $project;
+    protected $user;
 
     /**
      * Setup method to create user, admin, and projects.
@@ -19,10 +21,9 @@ class GetProjectByIdTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->setUpProject();
-
-        // Create a mock project
-        $this->project = Project::factory()->create();
+        $this->project = Project::factory()->withUsers(5)->create();
+        $this->user = $this->project->users()->first();
+        Sanctum::actingAs($this->user);
     }
 
     /**

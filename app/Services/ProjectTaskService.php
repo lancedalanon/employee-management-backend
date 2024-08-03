@@ -134,13 +134,6 @@ class ProjectTaskService
                 'data' => $task
             ], 201);
         } catch (\Exception $e) {
-            Log::error('Failed to create task', [
-                'error' => $e->getMessage(),
-                'user_id' => $this->userId,
-                'project_id' => $projectId,
-                'validated_data' => $validatedData
-            ]);
-
             // Return a JSON response indicating the error
             return Response::json([
                 'message' => 'Failed to create task.',

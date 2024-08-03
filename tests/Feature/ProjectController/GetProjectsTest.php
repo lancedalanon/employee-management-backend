@@ -15,13 +15,18 @@ class GetProjectsTest extends TestCase
 {
     use RefreshDatabase, ProjectTestingTrait;
 
+    protected $project;
+    protected $user;
+
     /**
      * Setup method to create user, admin, and projects.
      */
     protected function setUp(): void
     {
         parent::setUp();
-        $this->setUpProject();
+        $this->project = Project::factory()->withUsers(5)->create();
+        $this->user = $this->project->users()->first();
+        Sanctum::actingAs($this->user);
     }
 
     /**
