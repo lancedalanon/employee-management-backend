@@ -15,17 +15,18 @@ class DeleteTaskTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected $project;
     protected $user;
+    protected $task;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        // Create a user with known credentials and authenticate
         $this->user = User::factory()->create();
-        $adminRole = Role::create(['name' => 'admin']);
-        $this->user->assignRole($adminRole);
+        $this->project = Project::factory()->withUsers(5)->create();
+        $this->user = $this->project->users()->first();
         Sanctum::actingAs($this->user);
+        $this->task = ProjectTask::factory()->count(5)->create(['project_id' => $this->project->project_id]);
     }
 
     protected function tearDown(): void
@@ -36,28 +37,21 @@ class DeleteTaskTest extends TestCase
 
     public function test_delete_existing_task(): void
     {
-        // Create a project and a task
-        $project = Project::factory()->create();
-        $task = ProjectTask::factory()->create(['project_id' => $project->project_id]);
-
         // Send the delete request
-        $response = $this->deleteJson(route('projects.tasks.destroy', ['projectId' => $project->project_id, 'taskId' => $task->project_task_id]));
+        $response = $this->deleteJson(route('projects.tasks.destroy', ['projectId' => $this->project->project_id, 'taskId' => $this->task->first()->project_task_id]));
 
         // Assert the response
         $response->assertStatus(200)
             ->assertJson(['message' => 'Task deleted successfully.']);
 
         // Assert the task is soft deleted
-        $this->assertSoftDeleted($task);
+        $this->assertSoftDeleted($this->task->first());
     }
 
     public function test_delete_non_existing_task(): void
     {
-        // Create a project
-        $project = Project::factory()->create();
-
         // Send the delete request for a non-existing task
-        $response = $this->deleteJson(route('projects.tasks.destroy', ['projectId' => $project->project_id, 'taskId' => 99999]));
+        $response = $this->deleteJson(route('projects.tasks.destroy', ['projectId' => $this->project->project_id, 'taskId' => 99999]));
 
         // Assert the response
         $response->assertStatus(404)

@@ -14,6 +14,7 @@ class CreateTaskTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected $project;
     protected $user;
 
     protected function setUp(): void
@@ -22,8 +23,8 @@ class CreateTaskTest extends TestCase
 
         // Create a user with known credentials and authenticate
         $this->user = User::factory()->create();
-        $adminRole = Role::create(['name' => 'admin']);
-        $this->user->assignRole($adminRole);
+        $this->project = Project::factory()->withUsers(5)->create();
+        $this->user = $this->project->users()->first();
         Sanctum::actingAs($this->user);
     }
 
@@ -38,9 +39,6 @@ class CreateTaskTest extends TestCase
      */
     public function test_create_task_with_valid_data(): void
     {
-        // Create a project to associate with the task
-        $project = Project::factory()->create();
-
         // Data for the task creation
         $taskData = [
             'project_task_name' => 'Test Task',
@@ -50,7 +48,7 @@ class CreateTaskTest extends TestCase
         ];
 
         // Send a POST request to create the task
-        $response = $this->postJson(route('projects.tasks.store', ['projectId' => $project->project_id]), $taskData);
+        $response = $this->postJson(route('projects.tasks.store', ['projectId' => $this->project->project_id]), $taskData);
 
         // Assert that the response status is 201 (Created)
         $response->assertStatus(201);
@@ -63,7 +61,7 @@ class CreateTaskTest extends TestCase
                 'project_task_description' => $taskData['project_task_description'],
                 'project_task_progress' => $taskData['project_task_progress'],
                 'project_task_priority_level' => $taskData['project_task_priority_level'],
-                'project_id' => $project->project_id,
+                'project_id' => $this->project->project_id,
             ],
         ]);
 
@@ -73,7 +71,7 @@ class CreateTaskTest extends TestCase
             'project_task_description' => $taskData['project_task_description'],
             'project_task_progress' => $taskData['project_task_progress'],
             'project_task_priority_level' => $taskData['project_task_priority_level'],
-            'project_id' => $project->project_id,
+            'project_id' => $this->project->project_id,
         ]);
     }
 
@@ -82,13 +80,12 @@ class CreateTaskTest extends TestCase
      */
     public function test_create_task_without_project_task_name(): void
     {
-        $project = Project::factory()->create();
         $taskData = [
             'project_task_description' => 'This is a test task description.',
             'project_task_progress' => 'Not started',
             'project_task_priority_level' => 'Medium',
         ];
-        $response = $this->postJson(route('projects.tasks.store', ['projectId' => $project->project_id]), $taskData);
+        $response = $this->postJson(route('projects.tasks.store', ['projectId' => $this->project->project_id]), $taskData);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['project_task_name']);
     }
@@ -98,13 +95,12 @@ class CreateTaskTest extends TestCase
      */
     public function test_create_task_without_project_task_description(): void
     {
-        $project = Project::factory()->create();
         $taskData = [
             'project_task_name' => 'Test Task',
             'project_task_progress' => 'Not started',
             'project_task_priority_level' => 'Medium',
         ];
-        $response = $this->postJson(route('projects.tasks.store', ['projectId' => $project->project_id]), $taskData);
+        $response = $this->postJson(route('projects.tasks.store', ['projectId' => $this->project->project_id]), $taskData);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['project_task_description']);
     }
@@ -114,14 +110,13 @@ class CreateTaskTest extends TestCase
      */
     public function test_create_task_with_invalid_project_task_progress(): void
     {
-        $project = Project::factory()->create();
         $taskData = [
             'project_task_name' => 'Test Task',
             'project_task_description' => 'This is a test task description.',
             'project_task_progress' => 'Unknown',
             'project_task_priority_level' => 'Medium',
         ];
-        $response = $this->postJson(route('projects.tasks.store', ['projectId' => $project->project_id]), $taskData);
+        $response = $this->postJson(route('projects.tasks.store', ['projectId' => $this->project->project_id]), $taskData);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['project_task_progress']);
     }
@@ -131,14 +126,13 @@ class CreateTaskTest extends TestCase
      */
     public function test_create_task_with_invalid_project_task_priority_level(): void
     {
-        $project = Project::factory()->create();
         $taskData = [
             'project_task_name' => 'Test Task',
             'project_task_description' => 'This is a test task description.',
             'project_task_progress' => 'Not started',
             'project_task_priority_level' => 'Unknown',
         ];
-        $response = $this->postJson(route('projects.tasks.store', ['projectId' => $project->project_id]), $taskData);
+        $response = $this->postJson(route('projects.tasks.store', ['projectId' => $this->project->project_id]), $taskData);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['project_task_priority_level']);
     }
@@ -148,14 +142,13 @@ class CreateTaskTest extends TestCase
      */
     public function test_create_task_with_all_invalid_data(): void
     {
-        $project = Project::factory()->create();
         $taskData = [
             'project_task_name' => '', // Invalid: required field
             'project_task_description' => '', // Invalid: required field
             'project_task_progress' => 'Unknown', // Invalid: not in the list
             'project_task_priority_level' => 'Unknown', // Invalid: not in the list
         ];
-        $response = $this->postJson(route('projects.tasks.store', ['projectId' => $project->project_id]), $taskData);
+        $response = $this->postJson(route('projects.tasks.store', ['projectId' => $this->project->project_id]), $taskData);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors([
             'project_task_name',

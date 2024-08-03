@@ -15,17 +15,17 @@ class GetTaskByIdTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected $project;
     protected $user;
+    protected $task;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        // Create a user with known credentials and authenticate
-        $this->user = User::factory()->create();
-        $adminRole = Role::create(['name' => 'admin']);
-        $this->user->assignRole($adminRole);
+        $this->project = Project::factory()->withUsers(5)->create();
+        $this->user = $this->project->users()->first();
         Sanctum::actingAs($this->user);
+        $this->task = ProjectTask::factory()->count(5)->create(['project_id' => $this->project->project_id]);
     }
 
     protected function tearDown(): void
@@ -36,12 +36,8 @@ class GetTaskByIdTest extends TestCase
 
     public function test_returns_specific_task()
     {
-        // Create a project and a task for that project
-        $project = Project::factory()->create();
-        $task = ProjectTask::factory()->create(['project_id' => $project->project_id]);
-
         // Make a GET request to fetch the task
-        $response = $this->getJson(route('projects.tasks.show', ['projectId' => $project->project_id, 'taskId' => $task->project_task_id]));
+        $response = $this->getJson(route('projects.tasks.show', ['projectId' => $this->project->project_id, 'taskId' => $this->task->first()->project_task_id]));
 
         // Assert response status is 200 and structure of returned JSON
         $response->assertStatus(200)
@@ -63,11 +59,8 @@ class GetTaskByIdTest extends TestCase
 
     public function test_returns_not_found_if_task_does_not_exist()
     {
-        // Create a project
-        $project = Project::factory()->create();
-
         // Make a GET request with existing project ID but non-existent task ID
-        $response = $this->getJson(route('projects.tasks.show', ['projectId' => $project->project_id, 'taskId' => 99999]));
+        $response = $this->getJson(route('projects.tasks.show', ['projectId' => $this->project->project_id, 'taskId' => 99999]));
 
         // Assert response status is 404
         $response->assertStatus(404)

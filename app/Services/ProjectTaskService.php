@@ -32,7 +32,7 @@ class ProjectTaskService
             // Retrieve tasks for the given project ID, with pagination
             $tasks = $this->cacheService->rememberForever($cacheKey, function () use ($perPage, $page, $projectId) {
                 return ProjectTask::where('project_id', $projectId)
-                    ->whereHas('users', function ($query) {
+                    ->whereHas('project.users', function ($query) {
                         $query->where('users.user_id', $this->userId);
                     })
                     ->paginate($perPage, ['*'], 'page', $page);
@@ -73,7 +73,7 @@ class ProjectTaskService
             $task = $this->cacheService->rememberForever($cacheKey, function () use ($projectId, $taskId,) {
                 return ProjectTask::where('project_id', $projectId)
                     ->where('project_task_id', $taskId)
-                    ->whereHas('users', function ($query) {
+                    ->whereHas('project.users', function ($query) {
                         $query->where('users.user_id', $this->userId);
                     })
                     ->first();
@@ -134,6 +134,11 @@ class ProjectTaskService
                 'data' => $task
             ], 201);
         } catch (\Exception $e) {
+            Log::error('Failed to retrieve tasks', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             // Return a JSON response indicating the error
             return Response::json([
                 'message' => 'Failed to create task.',
@@ -147,7 +152,7 @@ class ProjectTaskService
             // Find the task by its ID and project ID
             $task = ProjectTask::where('project_id', $projectId)
                 ->where('project_task_id', $taskId)
-                ->whereHas('users', function ($query) {
+                ->whereHas('project.users', function ($query) {
                     $query->where('users.user_id', $this->userId);
                 })
                 ->first();
@@ -187,7 +192,7 @@ class ProjectTaskService
             // Find the task by its ID and project ID
             $task = ProjectTask::where('project_id', $projectId)
                 ->where('project_task_id', $taskId)
-                ->whereHas('users', function ($query) {
+                ->whereHas('project.users', function ($query) {
                     $query->where('users.user_id', $this->userId);
                 })
                 ->first();
