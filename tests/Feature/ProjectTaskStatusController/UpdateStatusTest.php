@@ -26,19 +26,11 @@ class UpdateStatusTest extends TestCase
     {
         parent::setUp();
 
-        // Create a user with known credentials and authenticate
-        $this->user = User::factory()->create();
-        Sanctum::actingAs($this->user);
-
-        // Create a project and task
-        $this->project = Project::factory()->create();
-        $this->task = ProjectTask::factory()->create([
-            'project_id' => $this->project->project_id,
-        ]);
-
-        // Create ProjectTaskStatus with the ID of the created ProjectTask
+        $this->project = Project::factory()->withUsers(5)->create();
+        $this->task = ProjectTask::factory()->create(['project_id' => $this->project->project_id]);
+        $this->user = $this->project->users()->first();
         $this->status = ProjectTaskStatus::factory()->create([
-            'project_task_id' => $this->task->project_task_id,
+            'project_task_id' => $this->task->first()->project_task_id,
         ]);
 
         Storage::fake('public');
@@ -55,13 +47,15 @@ class UpdateStatusTest extends TestCase
 
     public function test_should_update_status_successfully()
     {
+        Sanctum::actingAs($this->user);
+
         $newStatus = 'Updated status';
         $file = UploadedFile::fake()->image('status.jpg');
 
         $response = $this->putJson(route('projects.tasks.statuses.update', [
             'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
-            'statusId' => $this->status->project_task_status_id,
+            'taskId' => $this->task->first()->project_task_id,
+            'statusId' => $this->status->first()->project_task_status_id,
         ]), [
             'project_task_status' => $newStatus,
             'project_task_status_media_file' => $file,
@@ -86,10 +80,12 @@ class UpdateStatusTest extends TestCase
 
     public function test_should_fail_validation_for_missing_status()
     {
+        Sanctum::actingAs($this->user);
+
         $response = $this->putJson(route('projects.tasks.statuses.update', [
             'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
-            'statusId' => $this->status->project_task_status_id,
+            'taskId' => $this->task->first()->project_task_id,
+            'statusId' => $this->status->first()->project_task_status_id,
         ]));
 
         $response->assertStatus(422)
@@ -98,12 +94,14 @@ class UpdateStatusTest extends TestCase
 
     public function test_should_fail_validation_for_invalid_file_type()
     {
+        Sanctum::actingAs($this->user);
+
         $file = UploadedFile::fake()->create('document.pdf', 100);
 
         $response = $this->putJson(route('projects.tasks.statuses.update', [
             'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
-            'statusId' => $this->status->project_task_status_id,
+            'taskId' => $this->task->first()->project_task_id,
+            'statusId' => $this->status->first()->project_task_status_id,
             'project_task_status' => 'Updated status',
             'project_task_status_media_file' => $file,
         ]));
@@ -112,11 +110,13 @@ class UpdateStatusTest extends TestCase
             ->assertJsonValidationErrors(['project_task_status_media_file']);
     }
 
-    public function test_should_return_404_for_nonexistent_status()
+    public function test_should_return_404_if_status_not_found()
     {
+        Sanctum::actingAs($this->user);
+
         $response = $this->putJson(route('projects.tasks.statuses.update', [
             'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
+            'taskId' => $this->task->first()->project_task_id,
             'statusId' => 99999,
         ]), [
             'project_task_status' => 'Updated status',
@@ -125,6 +125,25 @@ class UpdateStatusTest extends TestCase
         $response->assertStatus(404)
             ->assertJson([
                 'message' => 'Status not found.',
+            ]);
+    }
+
+    public function test_should_return_403_if_unauthorized_to_update_status()
+    {
+        $newUser = User::factory()->create();
+        Sanctum::actingAs($newUser);
+
+        $response = $this->putJson(route('projects.tasks.statuses.update', [
+            'projectId' => $this->project->project_id,
+            'taskId' => $this->task->first()->project_task_id,
+            'statusId' => $this->status->first()->project_task_status_id,
+        ]), [
+            'project_task_status' => 'Updated status',
+        ]);
+
+        $response->assertStatus(403)
+            ->assertJson([
+                'message' => 'Forbidden.',
             ]);
     }
 }

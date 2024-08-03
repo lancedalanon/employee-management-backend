@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Response;
 use App\Services\CacheService;
 use App\Services\User\UserRoleService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class ProjectTaskService
 {
@@ -27,7 +26,7 @@ class ProjectTaskService
     {
         try {
             // Generate a unique cache key for retrieving tasks for the given project ID and pagination parameters
-            $cacheKey = "project_tasks_{$this->userId}_perPage_{$perPage}_page_{$page}";
+            $cacheKey = "project_tasks_userId_{$this->userId}_perPage_{$perPage}_page_{$page}";
 
             // Retrieve tasks for the given project ID, with pagination
             $tasks = $this->cacheService->rememberForever($cacheKey, function () use ($perPage, $page, $projectId) {

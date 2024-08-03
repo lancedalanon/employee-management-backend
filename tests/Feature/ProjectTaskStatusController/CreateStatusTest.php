@@ -24,15 +24,10 @@ class CreateStatusTest extends TestCase
     {
         parent::setUp();
 
-        // Create a user with known credentials and authenticate
-        $this->user = User::factory()->create();
+        $this->project = Project::factory()->withUsers(5)->create();
+        $this->task = ProjectTask::factory()->create(['project_id' => $this->project->project_id]);
+        $this->user = $this->project->users()->first();
         Sanctum::actingAs($this->user);
-
-        // Create a project and task
-        $this->project = Project::factory()->create();
-        $this->task = ProjectTask::factory()->create([
-            'project_id' => $this->project->project_id,
-        ]);
 
         Storage::fake('public');
     }
@@ -56,7 +51,7 @@ class CreateStatusTest extends TestCase
 
         $response = $this->postJson(route('projects.tasks.statuses.store', [
             'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
+            'taskId' => $this->task->first()->project_task_id,
         ]), [
             'project_task_status' => 'In progress',
             'project_task_status_media_file' => $file,
@@ -91,7 +86,7 @@ class CreateStatusTest extends TestCase
     {
         $response = $this->postJson(route('projects.tasks.statuses.store', [
             'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
+            'taskId' => $this->task->first()->project_task_id,
         ]), [
             'project_task_status' => '', // Invalid: required field
             'project_task_status_media_file' => 'invalid_file',
@@ -106,7 +101,7 @@ class CreateStatusTest extends TestCase
      *
      * @return void
      */
-    public function test_should_return_404_if_status_not_found(): void
+    public function test_should_return_403_if_unauthorized_to_create_status(): void
     {
         $file = UploadedFile::fake()->image('status_image.jpg');
 
@@ -118,9 +113,9 @@ class CreateStatusTest extends TestCase
             'project_task_status_media_file' => $file,
         ]);
 
-        $response->assertStatus(404)
+        $response->assertStatus(403)
             ->assertJson([
-                'message' => 'Task not found.',
+                'message' => 'Forbidden.',
             ]);
     }
 }

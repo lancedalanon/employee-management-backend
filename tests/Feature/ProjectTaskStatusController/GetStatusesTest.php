@@ -17,24 +17,19 @@ class GetStatusesTest extends TestCase
     protected $user;
     protected $project;
     protected $task;
+    protected $status;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Create a user with known credentials and authenticate
-        $this->user = User::factory()->create();
+        $this->project = Project::factory()->withUsers(5)->create();
+        $this->task = ProjectTask::factory()->create(['project_id' => $this->project->project_id]);
+        $this->user = $this->project->users()->first();
         Sanctum::actingAs($this->user);
 
-        // Create a project and task
-        $this->project = Project::factory()->create();
-        $this->task = ProjectTask::factory()->create([
-            'project_id' => $this->project->project_id,
-        ]);
-
-        // Create ProjectTaskStatus with the ID of the created ProjectTask
-        ProjectTaskStatus::factory()->count(20)->create([
-            'project_task_id' => $this->task->project_task_id,
+        $this->status = ProjectTaskStatus::factory()->create([
+            'project_task_id' => $this->task->first()->project_task_id,
         ]);
     }
 
@@ -50,8 +45,8 @@ class GetStatusesTest extends TestCase
     {
         // Send a GET request to the endpoint with pagination query parameters
         $response = $this->getJson(route('projects.tasks.statuses.index', [
-            'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
+            'projectId' => $this->project->first()->project_id,
+            'taskId' => $this->task->first()->project_task_id,
         ]));
 
         // Assert the response status is 200
@@ -103,5 +98,19 @@ class GetStatusesTest extends TestCase
             'message' => 'Statuses retrieved successfully.',
             'data' => [],
         ]);
+    }
+
+    public function test_should_return_403_if_unauthorized_to_get_statuses()
+    {
+        $response = $this->getJson(route('projects.tasks.statuses.index', [
+            'projectId' => $this->project->project_id,
+            'taskId' => 99999,
+            'statusId' => $this->status->first()->project_task_status_id,
+        ]));
+
+        $response->assertStatus(403)
+            ->assertJson([
+                'message' => 'Forbidden.',
+            ]);
     }
 }

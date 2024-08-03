@@ -23,19 +23,13 @@ class GetStatusByIdTest extends TestCase
     {
         parent::setUp();
 
-        // Create a user with known credentials and authenticate
-        $this->user = User::factory()->create();
+        $this->project = Project::factory()->withUsers(5)->create();
+        $this->task = ProjectTask::factory()->create(['project_id' => $this->project->project_id]);
+        $this->user = $this->project->users()->first();
         Sanctum::actingAs($this->user);
 
-        // Create a project and task
-        $this->project = Project::factory()->create();
-        $this->task = ProjectTask::factory()->create([
-            'project_id' => $this->project->project_id,
-        ]);
-
-        // Create ProjectTaskStatus with the ID of the created ProjectTask
         $this->status = ProjectTaskStatus::factory()->create([
-            'project_task_id' => $this->task->project_task_id,
+            'project_task_id' => $this->task->first()->project_task_id,
         ]);
     }
 
@@ -52,7 +46,7 @@ class GetStatusByIdTest extends TestCase
     {
         $response = $this->getJson(route('projects.tasks.statuses.show', [
             'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
+            'taskId' => $this->task->first()->project_task_id,
             'statusId' => $this->status->first()->project_task_status_id,
         ]));
 
@@ -71,7 +65,7 @@ class GetStatusByIdTest extends TestCase
             ]);
     }
 
-    public function test_should_return_404_when_task_not_found()
+    public function test_should_return_403_if_unauthorized_to_get_status_by_id()
     {
         $response = $this->getJson(route('projects.tasks.statuses.show', [
             'projectId' => $this->project->project_id,
@@ -79,9 +73,9 @@ class GetStatusByIdTest extends TestCase
             'statusId' => $this->status->first()->project_task_status_id,
         ]));
 
-        $response->assertStatus(404)
+        $response->assertStatus(403)
             ->assertJson([
-                'message' => 'Status not found.',
+                'message' => 'Forbidden.',
             ]);
     }
 }
