@@ -10,20 +10,31 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Services\CacheService;
+use Illuminate\Support\Facades\Auth;
 
 class ProjectTaskStatusService
 {
     protected $cacheService;
+    protected $userId;
 
     public function __construct(CacheService $cacheService)
     {
         $this->cacheService = $cacheService;
+        $this->userId = Auth::id();
     }
 
     public function index(int $projectId, int $taskId, int $perPage, int $page)
     {
         try {
+            // Create a cache key for fetching paginated statuses for the given task within the project
             $cacheKey = "project_task_statuses_perPage_{$perPage}_page_{$page}";
+
+            // If user does not have permission, return a 403 Forbidden response
+            if (!$this->isUserAuthorized($projectId, $taskId)) {
+                return Response::json([
+                    'message' => 'You do not have permission to view the statuses for this task.',
+                ], 403);
+            }
 
             // Fetch paginated statuses for the given task within the project
             $statuses = $this->cacheService->rememberForever($cacheKey, function () use ($perPage, $page, $projectId, $taskId) {
@@ -65,6 +76,13 @@ class ProjectTaskStatusService
             // Create cache key for the specific status entry
             $cacheKey = "project_task_status_projectId{$projectId}_taskId{$taskId}_statusId{$statusId}";
 
+            // If user does not have permission, return a 403 Forbidden response
+            if (!$this->isUserAuthorized($projectId, $taskId)) {
+                return Response::json([
+                    'message' => 'You do not have permission to view the statuses for this task.',
+                ], 403);
+            }
+
             // Fetch the status by its ID
             $status = $this->cacheService->rememberForever($cacheKey, function () use ($projectId, $taskId, $statusId) {
                 return ProjectTaskStatus::where('project_task_status_id', $statusId)
@@ -98,6 +116,13 @@ class ProjectTaskStatusService
     public function store(array $validatedData, int $projectId, int $taskId, ?UploadedFile $mediaFile)
     {
         try {
+            // If user does not have permission, return a 403 Forbidden response
+            if (!$this->isUserAuthorized($projectId, $taskId)) {
+                return Response::json([
+                    'message' => 'You do not have permission to view the statuses for this task.',
+                ], 403);
+            }
+
             // Fetch the task by its ID
             $task = ProjectTask::where('project_id', $projectId)
                 ->where('project_task_id', $taskId)
@@ -141,6 +166,13 @@ class ProjectTaskStatusService
     public function update(array $validatedData, int $projectId, int $taskId, int $statusId, ?UploadedFile $mediaFile)
     {
         try {
+            // If user does not have permission, return a 403 Forbidden response
+            if (!$this->isUserAuthorized($projectId, $taskId)) {
+                return Response::json([
+                    'message' => 'You do not have permission to view the statuses for this task.',
+                ], 403);
+            }
+
             // Fetch the status by its ID
             $status = ProjectTaskStatus::where('project_task_status_id', $statusId)
                 ->where('project_task_id', $taskId)
@@ -191,6 +223,13 @@ class ProjectTaskStatusService
     public function destroy(int $projectId, int $taskId, int $statusId)
     {
         try {
+            // If user does not have permission, return a 403 Forbidden response
+            if (!$this->isUserAuthorized($projectId, $taskId)) {
+                return Response::json([
+                    'message' => 'You do not have permission to view the statuses for this task.',
+                ], 403);
+            }
+
             // Fetch the status by its ID
             $status = ProjectTaskStatus::where('project_task_status_id', $statusId)
                 ->where('project_task_id', $taskId)
@@ -219,5 +258,17 @@ class ProjectTaskStatusService
                 'message' => 'Failed to delete status.',
             ], 500);
         }
+    }
+
+    protected function isUserAuthorized(int $projectId, int $taskId)
+    {
+        // Check if the user has permission to view the statuses for the given task
+        $user = ProjectTask::where('project_task_id', $taskId)
+            ->where('project_id', $projectId)
+            ->whereHas('project.users', function ($query) {
+                $query->where('users.user_id', $this->userId);
+            })->exists();
+
+        return $user;
     }
 }

@@ -134,11 +134,6 @@ class ProjectTaskService
                 'data' => $task
             ], 201);
         } catch (\Exception $e) {
-            Log::error('Failed to retrieve tasks', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
             // Return a JSON response indicating the error
             return Response::json([
                 'message' => 'Failed to create task.',
