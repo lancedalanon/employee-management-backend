@@ -241,8 +241,6 @@ class ProjectTaskStatusService
                 'message' => 'Status deleted successfully.',
             ], 200);
         } catch (\Exception $e) {
-            Log::error($e->getMessage());
-
             // Return a JSON response indicating the error
             return Response::json([
                 'message' => 'Failed to delete status.',
@@ -252,6 +250,7 @@ class ProjectTaskStatusService
 
     protected function isStatusExisting(int $projectId, int $taskId, int $statusId)
     {
+        // Fetch the status by its ID, project ID, and task ID to see if it exists
         return ProjectTaskStatus::where('project_task_status_id', $statusId)
             ->where('project_task_id', $taskId)
             ->whereHas('task', function ($query) use ($projectId) {
@@ -263,12 +262,10 @@ class ProjectTaskStatusService
     protected function isUserAuthorized(int $projectId, int $taskId)
     {
         // Check if the user has permission to view the statuses for the given task
-        $user = ProjectTask::where('project_task_id', $taskId)
+        return ProjectTask::where('project_task_id', $taskId)
             ->where('project_id', $projectId)
             ->whereHas('project.users', function ($query) {
                 $query->where('users.user_id', $this->userId);
             })->exists();
-
-        return $user;
     }
 }

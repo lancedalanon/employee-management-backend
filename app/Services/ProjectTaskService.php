@@ -6,19 +6,16 @@ use App\Models\Project;
 use App\Models\ProjectTask;
 use Illuminate\Support\Facades\Response;
 use App\Services\CacheService;
-use App\Services\User\UserRoleService;
 use Illuminate\Support\Facades\Auth;
 
 class ProjectTaskService
 {
     protected $cacheService;
-    protected $userRoleService;
     protected $userId;
 
-    public function __construct(CacheService $cacheService, UserRoleService $userRoleService)
+    public function __construct(CacheService $cacheService)
     {
         $this->cacheService = $cacheService;
-        $this->userRoleService = $userRoleService;
         $this->userId = Auth::id();
     }
 

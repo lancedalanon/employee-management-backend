@@ -6,12 +6,21 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateSubtaskRequest extends FormRequest
 {
+    protected $validProjectTaskProgress;
+    protected $projectTaskPriorityLevel;
+
+    public function __construct()
+    {
+        $this->validProjectTaskProgress = config('constants.project_task_progress');
+        $this->projectTaskPriorityLevel = config('constants.project_task_priority_level');
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +31,10 @@ class UpdateSubtaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'project_task_subtask_name' => 'required|string|max:255',
+            'project_task_subtask_description' => 'required|string',
+            'project_task_subtask_progress' => 'required|in:' . implode(',', $this->validProjectTaskProgress),
+            'project_task_subtask_priority_level' => 'required|in:' . implode(',', $this->projectTaskPriorityLevel),
         ];
     }
 }

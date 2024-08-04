@@ -17,33 +17,29 @@ class GetSubtaskByIdTest extends TestCase
 
     protected $user;
     protected $project;
-    protected $project_task;
-    protected $project_task_subtask;
+    protected $task;
+    protected $subtask;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Create a user with known credentials and authenticate
-        $this->user = User::factory()->create();
+        $this->project = Project::factory()->withUsers(5)->create();
+        $this->task = ProjectTask::factory()->create(['project_id' => $this->project->project_id]);
+        $this->user = $this->project->users()->first();
         Sanctum::actingAs($this->user);
 
-        // Create a project
-        $this->project = Project::factory()->create();
-
-        // Create some tasks for the project
-        $this->project_task = ProjectTask::factory()->count(1)->create(['project_id' => $this->project->project_id]);
-
-        // Create some subtasks for the project tasks
-        $this->project_task_subtask = ProjectTaskSubtask::factory()->count(1)->create(['project_task_id' => $this->project_task->first()->project_task_id]);
+        $this->subtask = ProjectTaskSubtask::factory()->create([
+            'project_task_id' => $this->task->first()->project_task_id,
+        ]);
     }
 
     protected function tearDown(): void
     {
         $this->user = null;
         $this->project = null;
-        $this->project_task = null;
-        $this->project_task_subtask = null;
+        $this->task = null;
+        $this->subtask = null;
         parent::tearDown();
     }
 
@@ -53,8 +49,8 @@ class GetSubtaskByIdTest extends TestCase
             'projects.tasks.subtasks.show',
             [
                 'projectId' => $this->project->project_id,
-                'taskId' => $this->project_task->first()->project_task_id,
-                'subtaskId' => $this->project_task_subtask->first()->project_task_subtask_id,
+                'taskId' => $this->task->first()->project_task_id,
+                'subtaskId' => $this->subtask->first()->project_task_subtask_id,
             ]
         ));
 

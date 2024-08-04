@@ -4,13 +4,31 @@ namespace App\Services;
 
 use App\Models\ProjectTask;
 use App\Models\ProjectTaskSubtask;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 
 class ProjectTaskSubtaskService
 {
+    protected $cacheService;
+    protected $userId;
+
+    public function __construct(CacheService $cacheService)
+    {
+        $this->cacheService = $cacheService;
+        $this->userId = Auth::id();
+    }
+
     public function index(int $perPage, int $page, int $projectId, int $taskId)
     {
         try {
+            // Check if the user has access to the subtask
+            if (!$this->isUserAuthorized($projectId, $taskId)) {
+                return Response::json([
+                    'message' => 'Forbidden.',
+                ], 403);
+            }
+
             // Query the database to retrieve the paginated subtasks associated with the given project ID and task ID
             $subtasks = ProjectTaskSubtask::where('project_task_id', $taskId)
                 ->whereHas('task', function ($query) use ($projectId) {
@@ -46,6 +64,13 @@ class ProjectTaskSubtaskService
     public function show(int $projectId, int $taskId, int $subtaskId)
     {
         try {
+            // Check if the user has access to the subtask
+            if (!$this->isUserAuthorized($projectId, $taskId)) {
+                return Response::json([
+                    'message' => 'Forbidden.',
+                ], 403);
+            }
+
             // Find the project task with the given project ID, task ID, and subtask ID
             $subtask = ProjectTaskSubtask::where('project_task_id', $taskId)
                 ->where('project_task_subtask_id', $subtaskId)
@@ -77,25 +102,20 @@ class ProjectTaskSubtaskService
     public function store(array $validatedData, int $projectId, int $taskId)
     {
         try {
-            // Find the project task with the given project ID and task ID
-            $task = ProjectTask::where('project_id', $projectId)
-                ->where('project_task_id', $taskId)
-                ->first();
-
-            // Handle case where subtask is not found
-            if (!$task) {
+            // Check if the user has access to the subtask
+            if (!$this->isUserAuthorized($projectId, $taskId)) {
                 return Response::json([
-                    'message' => 'Subtask not found.',
-                ], 404);
+                    'message' => 'Forbidden.',
+                ], 403);
             }
 
             // Create a new task for the given project ID
-            $subtask = new ProjectTask([
+            $subtask = new ProjectTaskSubtask([
                 'project_task_subtask_name' => $validatedData['project_task_subtask_name'],
                 'project_task_subtask_description' => $validatedData['project_task_subtask_description'],
                 'project_task_subtask_progress' => $validatedData['project_task_subtask_progress'],
                 'project_task_subtask_priority_level' => $validatedData['project_task_subtask_priority_level'],
-                'project_task_id' => $task->project_task_id,
+                'project_task_id' => $taskId,
             ]);
 
             // Save the subtask to the database
@@ -107,6 +127,14 @@ class ProjectTaskSubtaskService
                 'data' => $subtask
             ], 201);
         } catch (\Exception $e) {
+            // Log the error message
+            Log::error('Failed to create subtask: ' . $e->getMessage(), [
+                'projectId' => $projectId,
+                'taskId' => $taskId,
+                'validatedData' => $validatedData,
+                'exception' => $e,
+            ]);
+
             // Return a JSON response indicating the error
             return Response::json([
                 'message' => 'Failed to create subtask.',
@@ -117,13 +145,15 @@ class ProjectTaskSubtaskService
     public function update(array $validatedData, int $projectId, int $taskId, int $subtaskId)
     {
         try {
-            // Find the project task with the given project ID, task ID, and subtask ID
-            $subtask = ProjectTaskSubtask::where('project_task_id', $taskId)
-                ->where('project_task_subtask_id', $subtaskId)
-                ->whereHas('task', function ($query) use ($projectId) {
-                    $query->where('project_id', $projectId);
-                })
-                ->first();
+            // Check if the user has access to the subtask
+            if (!$this->isUserAuthorized($projectId, $taskId)) {
+                return Response::json([
+                    'message' => 'Forbidden.',
+                ], 403);
+            }
+
+            // Fetch the task by its ID and project ID
+            $subtask = $this->isSubtaskExisting($projectId, $taskId, $subtaskId);
 
             // Handle case where subtask is not found
             if (!$subtask) {
@@ -157,13 +187,15 @@ class ProjectTaskSubtaskService
     public function destroy(int $projectId, int $taskId, int $subtaskId)
     {
         try {
-            // Find the project task with the given project ID, task ID, and subtask ID
-            $subtask = ProjectTaskSubtask::where('project_task_id', $taskId)
-                ->where('project_task_subtask_id', $subtaskId)
-                ->whereHas('task', function ($query) use ($projectId) {
-                    $query->where('project_id', $projectId);
-                })
-                ->first();
+            // Check if the user has access to the subtask
+            if (!$this->isUserAuthorized($projectId, $taskId)) {
+                return Response::json([
+                    'message' => 'Forbidden.',
+                ], 403);
+            }
+
+            // Fetch the task by its ID and project ID
+            $subtask = $this->isSubtaskExisting($projectId, $taskId, $subtaskId);
 
             // Handle case where subtask is not found
             if (!$subtask) {
@@ -185,5 +217,26 @@ class ProjectTaskSubtaskService
                 'message' => 'Failed to delete subtask.',
             ], 500);
         }
+    }
+
+    protected function isSubTaskExisting(int $projectId, int $taskId, int $subtaskId)
+    {
+        // Fetch the subtask by its ID, project ID, and task ID, and subtask ID to see if it exists
+        return ProjectTaskSubtask::where('project_task_id', $taskId)
+            ->where('project_task_subtask_id', $subtaskId)
+            ->whereHas('task', function ($query) use ($projectId) {
+                $query->where('project_id', $projectId);
+            })
+            ->first();
+    }
+
+    protected function isUserAuthorized(int $projectId, int $taskId)
+    {
+        // Check if the user has permission to view the statuses for the given task
+        return ProjectTask::where('project_task_id', $taskId)
+            ->where('project_id', $projectId)
+            ->whereHas('project.users', function ($query) {
+                $query->where('users.user_id', $this->userId);
+            })->exists();
     }
 }

@@ -5,19 +5,16 @@ namespace App\Services;
 use App\Models\Project;
 use Illuminate\Support\Facades\Response;
 use App\Services\CacheService;
-use App\Services\User\UserRoleService;
 use Illuminate\Support\Facades\Auth;
 
 class ProjectService
 {
     protected $cacheService;
-    protected $userRoleService;
     protected $userId;
 
-    public function __construct(CacheService $cacheService, UserRoleService $userRoleService)
+    public function __construct(CacheService $cacheService)
     {
         $this->cacheService = $cacheService;
-        $this->userRoleService = $userRoleService;
         $this->userId = Auth::id();
     }
 
@@ -102,7 +99,7 @@ class ProjectService
 
             // Return the created project as a JSON response
             return Response::json([
-                'message' => 'Project created successfully',
+                'message' => 'Project created successfully.',
                 'data' => $project,
             ], 201);
         } catch (\Exception $e) {
