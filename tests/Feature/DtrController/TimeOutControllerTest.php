@@ -247,7 +247,7 @@ class TimeOutControllerTest extends TestCase
     /**
      * Test validation error for missing end of the day images.
      */
-    public function test_validation_rrror_for_missing_images()
+    public function test_validation_error_for_missing_images()
     {
         // Add a new user
         $user = $this->createUserWithRoles();
