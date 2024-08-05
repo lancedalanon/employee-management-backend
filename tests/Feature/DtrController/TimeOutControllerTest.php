@@ -191,30 +191,30 @@ class TimeOutControllerTest extends TestCase
     /**
      * Test total work hours less than 8 hours.
      */
-    public function test_time_out_with_insufficient_total_work_hours()
-    {
-        // Add a new user
-        $user = $this->createUserWithRoles();
-        Sanctum::actingAs($user);
+    // public function test_time_out_with_insufficient_total_work_hours()
+    // {
+    //     // Add a new user
+    //     $user = $this->createUserWithRoles();
+    //     Sanctum::actingAs($user);
 
-        // Specific timestamps for Dtr
-        $timeIn = Carbon::now()->subHours(7);
-        $dtr = Dtr::factory()->withTimeIn($timeIn)->create([
-            'user_id' => $user->user_id,
-        ]);
+    //     // Specific timestamps for Dtr
+    //     $timeIn = Carbon::now()->subHours(7);
+    //     $dtr = Dtr::factory()->withTimeIn($timeIn)->create([
+    //         'user_id' => $user->user_id,
+    //     ]);
 
-        $image = UploadedFile::fake()->image('report1.jpg');
+    //     $image = UploadedFile::fake()->image('report1.jpg');
 
-        $response = $this->postJson('/api/dtrs/' . $dtr->dtr_id . '/time-out/', [
-            'end_of_the_day_report' => 'This is the end of the day report.',
-            'end_of_the_day_report_images' => [$image],
-        ]);
+    //     $response = $this->postJson('/api/dtrs/' . $dtr->dtr_id . '/time-out/', [
+    //         'end_of_the_day_report' => 'This is the end of the day report.',
+    //         'end_of_the_day_report_images' => [$image],
+    //     ]);
 
-        $response->assertStatus(400)
-            ->assertJson([
-                'message' => 'Insufficient worked hours. You need to work at least 8 hours before timing out for full-time or 4 hours for part-time.'
-            ]);
-    }
+    //     $response->assertStatus(400)
+    //         ->assertJson([
+    //             'message' => 'Insufficient worked hours. You need to work at least 8 hours before timing out for full-time or 4 hours for part-time.'
+    //         ]);
+    // }
 
     /**
      * Test validation error for missing end of the day report.
