@@ -26,9 +26,4 @@ class ProjectTaskSubtask extends Model
     {
         return $this->belongsTo(ProjectTask::class, 'project_task_id', 'project_task_id');
     }
-
-    public function statuses()
-    {
-        return $this->hasMany(ProjectTaskSubtaskStatus::class, 'project_task_subtask_id', 'project_task_subtask_id');
-    }
 }
