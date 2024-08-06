@@ -45,17 +45,12 @@ class CreateStatusTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * Test successful creation of a subtask status.
-     *
-     * @return void
-     */
     public function test_can_create_subtask_status()
     {
         $response = $this->postJson(route('projects.tasks.subtasks.statuses.store', [
             'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
-            'subtaskId' => $this->subtask->project_task_subtask_id
+            'taskId' => $this->task->first()->project_task_id,
+            'subtaskId' => $this->subtask->first()->project_task_subtask_id
         ]), [
             'project_task_subtask_status' => 'In Progress',
         ]);
@@ -83,8 +78,8 @@ class CreateStatusTest extends TestCase
 
         $response = $this->postJson(route('projects.tasks.subtasks.statuses.store', [
             'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
-            'subtaskId' => $this->subtask->project_task_subtask_id
+            'taskId' => $this->task->first()->project_task_id,
+            'subtaskId' => $this->subtask->first()->project_task_subtask_id
         ]), [
             'project_task_subtask_status' => 'In Progress',
         ]);
@@ -99,8 +94,8 @@ class CreateStatusTest extends TestCase
     {
         $response = $this->postJson(route('projects.tasks.subtasks.statuses.store', [
             'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
-            'subtaskId' => $this->subtask->project_task_subtask_id
+            'taskId' => $this->task->first()->project_task_id,
+            'subtaskId' => $this->subtask->first()->project_task_subtask_id
         ]), [
             // Missing 'project_task_subtask_status' field
         ]);
@@ -119,8 +114,8 @@ class CreateStatusTest extends TestCase
 
         $response = $this->postJson(route('projects.tasks.subtasks.statuses.store', [
             'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
-            'subtaskId' => $this->subtask->project_task_subtask_id
+            'taskId' => $this->task->first()->project_task_id,
+            'subtaskId' => $this->subtask->first()->project_task_subtask_id
         ]), [
             'project_task_subtask_status' => 'In Progress',
             'project_task_subtask_status_media_file' => $file,

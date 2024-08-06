@@ -55,8 +55,8 @@ class DeleteStatusTest extends TestCase
         $response = $this->deleteJson(route('projects.tasks.subtasks.statuses.destroy', [
             'projectId' => $this->project->project_id,
             'taskId' => $this->task->first()->project_task_id,
-            'subtaskId' => $this->subtask->first()->project_task_subtask_id,
-            'subtaskStatusId' => $this->subtaskStatus->first()->project_task_subtask_status_id,
+            'subtaskId' => $this->subtask->project_task_subtask_id,
+            'subtaskStatusId' => $this->subtaskStatus->project_task_subtask_status_id,
         ]));
 
         $response->assertStatus(200);
@@ -75,7 +75,7 @@ class DeleteStatusTest extends TestCase
             'projectId' => $this->project->project_id,
             'taskId' => $this->task->first()->project_task_id,
             'subtaskId' => $this->subtask->first()->project_task_subtask_id,
-            'subtaskStatusId' => $this->subtaskStatus->first()->project_task_subtask_status_id,
+            'subtaskStatusId' => $this->subtaskStatus->project_task_subtask_status_id,
         ]));
 
         $response->assertStatus(403);
@@ -87,7 +87,7 @@ class DeleteStatusTest extends TestCase
         $response = $this->deleteJson(route('projects.tasks.subtasks.statuses.destroy', [
             'projectId' => $this->project->project_id,
             'taskId' => $this->task->first()->project_task_id,
-            'subtaskId' => $this->subtask->first()->project_task_subtask_id,
+            'subtaskId' => $this->subtask->project_task_subtask_id,
             'subtaskStatusId' => 99999,
         ]));
 

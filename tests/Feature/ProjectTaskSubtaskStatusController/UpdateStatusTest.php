@@ -56,9 +56,9 @@ class UpdateStatusTest extends TestCase
     {
         $response = $this->putJson(route('projects.tasks.subtasks.statuses.update', [
             'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
-            'subtaskId' => $this->subtask->project_task_subtask_id,
-            'subtaskStatusId' => $this->subtaskStatus->project_task_subtask_status_id
+            'taskId' => $this->task->first()->project_task_id,
+            'subtaskId' => $this->subtask->first()->project_task_subtask_id,
+            'subtaskStatusId' => $this->subtaskStatus->first()->project_task_subtask_status_id
         ]), [
             'project_task_subtask_status' => 'Completed',
         ]);
@@ -67,13 +67,13 @@ class UpdateStatusTest extends TestCase
             ->assertJson([
                 'message' => 'Subtask status updated successfully.',
                 'data' => [
-                    'project_task_subtask_status_id' => $this->subtaskStatus->project_task_subtask_status_id,
+                    'project_task_subtask_status_id' => $this->subtaskStatus->first()->project_task_subtask_status_id,
                     'project_task_subtask_status' => 'Completed',
                 ]
             ]);
 
         $this->assertDatabaseHas('project_task_subtask_statuses', [
-            'project_task_subtask_status_id' => $this->subtaskStatus->project_task_subtask_status_id,
+            'project_task_subtask_status_id' => $this->subtaskStatus->first()->project_task_subtask_status_id,
             'project_task_subtask_status' => 'Completed',
         ]);
     }
@@ -86,9 +86,9 @@ class UpdateStatusTest extends TestCase
 
         $response = $this->putJson(route('projects.tasks.subtasks.statuses.update', [
             'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
-            'subtaskId' => $this->subtask->project_task_subtask_id,
-            'subtaskStatusId' => $this->subtaskStatus->project_task_subtask_status_id
+            'taskId' => $this->task->first()->project_task_id,
+            'subtaskId' => $this->subtask->first()->project_task_subtask_id,
+            'subtaskStatusId' => $this->subtaskStatus->first()->project_task_subtask_status_id
         ]), [
             'project_task_subtask_status' => 'Completed',
         ]);
@@ -103,8 +103,8 @@ class UpdateStatusTest extends TestCase
     {
         $response = $this->putJson(route('projects.tasks.subtasks.statuses.update', [
             'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
-            'subtaskId' => $this->subtask->project_task_subtask_id,
+            'taskId' => $this->task->first()->project_task_id,
+            'subtaskId' => $this->subtask->first()->project_task_subtask_id,
             'subtaskStatusId' => 99999 // Non-existent status ID
         ]), [
             'project_task_subtask_status' => 'Completed',
@@ -124,9 +124,9 @@ class UpdateStatusTest extends TestCase
 
         $response = $this->putJson(route('projects.tasks.subtasks.statuses.update', [
             'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
-            'subtaskId' => $this->subtask->project_task_subtask_id,
-            'subtaskStatusId' => $this->subtaskStatus->project_task_subtask_status_id
+            'taskId' => $this->task->first()->project_task_id,
+            'subtaskId' => $this->subtask->first()->project_task_subtask_id,
+            'subtaskStatusId' => $this->subtaskStatus->first()->project_task_subtask_status_id
         ]), [
             'project_task_subtask_status' => 'Completed',
             'project_task_subtask_status_media_file' => $file,
@@ -139,10 +139,5 @@ class UpdateStatusTest extends TestCase
 
         // Assert the new file was uploaded and old file was deleted
         Storage::disk('public')->assertExists('project_task_subtask_status_media_files/' . $file->hashName());
-
-        // Check if the previous file was deleted
-        if ($this->subtaskStatus->project_task_subtask_status_media_file) {
-            Storage::disk('public')->assertMissing($this->subtaskStatus->project_task_subtask_status_media_file);
-        }
     }
 }

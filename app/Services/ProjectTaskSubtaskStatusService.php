@@ -264,12 +264,12 @@ class ProjectTaskSubtaskStatusService
     protected function isUserAuthorized(int $projectId, int $taskId, int $subtaskId)
     {
         return ProjectTaskSubtask::where('project_task_subtask_id', $subtaskId)
-        ->whereHas('task', function ($query) use ($projectId, $taskId) {
+        ->where('project_task_id', $taskId)
+        ->whereHas('task', function ($query) use ($projectId) {
             $query->where('project_id', $projectId)
-                  ->where('project_task_id', $taskId)
-                  ->whereHas('project.users', function ($query) {
-                    $query->where('users.user_id', $this->userId);
-                  });
+            ->whereHas('project.users', function ($query){
+                $query->where('users.user_id', $this->userId);
+            });
         })
         ->exists();
     }
