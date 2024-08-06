@@ -36,10 +36,7 @@ class ProjectTaskSubtaskStatusService
                 ->whereHas('subtask', function ($query) use ($taskId, $projectId) {
                     $query->where('project_task_id', $taskId)       
                     ->whereHas('task', function ($query) use ($projectId) {
-                        $query->where('project_id', $projectId)
-                        ->whereHas('project.users', function ($query){
-                            $query->where('users.user_id', $this->userId);
-                        });
+                        $query->where('project_id', $projectId);
                     });
                 })
                 ->paginate($perPage, ['*'], 'page', $page);
@@ -85,10 +82,7 @@ class ProjectTaskSubtaskStatusService
                 ->whereHas('subtask', function ($query) use ($taskId, $projectId) {
                     $query->where('project_task_id', $taskId)       
                     ->whereHas('task', function ($query) use ($projectId) {
-                        $query->where('project_id', $projectId)
-                        ->whereHas('project.users', function ($query){
-                            $query->where('users.user_id', $this->userId);
-                        });
+                        $query->where('project_id', $projectId);
                     });
                 })
                 ->first();

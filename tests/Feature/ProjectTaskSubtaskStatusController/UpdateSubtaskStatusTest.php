@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
-class UpdateStatusTest extends TestCase
+class UpdateSubtaskStatusTest extends TestCase
 {
     use RefreshDatabase;
 

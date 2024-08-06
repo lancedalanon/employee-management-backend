@@ -13,7 +13,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
-class GetStatusesTest extends TestCase
+class GetSubtaskStatusesTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -55,8 +55,8 @@ class GetStatusesTest extends TestCase
     {
         $response = $this->getJson(route('projects.tasks.subtasks.statuses.index', [
             'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
-            'subtaskId' => $this->subtask->project_task_subtask_id
+            'taskId' => $this->task->first()->project_task_id,
+            'subtaskId' => $this->subtask->first()->project_task_subtask_id
         ]));
 
         $response->assertStatus(200)
@@ -96,8 +96,8 @@ class GetStatusesTest extends TestCase
 
         $response = $this->getJson(route('projects.tasks.subtasks.statuses.index', [
             'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
-            'subtaskId' => $this->subtask->project_task_subtask_id
+            'taskId' => $this->task->first()->project_task_id,
+            'subtaskId' => $this->subtask->first()->project_task_subtask_id
         ]));
 
         $response->assertStatus(403)

@@ -12,7 +12,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
-class GetStatusByIdTest extends TestCase
+class DeleteSubtaskStatusTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -50,60 +50,48 @@ class GetStatusByIdTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_can_retrieve_subtask_status_by_id()
+    public function test_can_delete_subtask_status_successfully()
     {
-        $response = $this->getJson(route('projects.tasks.subtasks.statuses.show', [
+        $response = $this->deleteJson(route('projects.tasks.subtasks.statuses.destroy', [
             'projectId' => $this->project->project_id,
             'taskId' => $this->task->first()->project_task_id,
-            'subtaskId' => $this->subtask->first()->project_task_subtask_id,
-            'subtaskStatusId' => $this->subtaskStatus->first()->project_task_subtask_status_id
-        ]));
-
-        $response->assertStatus(200)
-            ->assertJsonStructure([
-                'message',
-                'data' => [
-                    'project_task_subtask_status_id',
-                    'project_task_subtask_id',
-                    'project_task_subtask_status',
-                    'project_task_subtask_status_media_file',
-                    'created_at',
-                    'updated_at',
-                    'deleted_at',
-                ]
-            ]);
-    }
-
-    public function test_cannot_retrieve_nonexistent_subtask_status()
-    {
-        $response = $this->getJson(route('projects.tasks.subtasks.statuses.show', [
-            'projectId' => $this->project->project_id,
-            'taskId' => $this->task->first()->project_task_id,
-            'subtaskId' => $this->subtask->first()->project_task_subtask_id,
-            'subtaskStatusId' => 99999
-        ]));
-
-        $response->assertStatus(404)
-            ->assertJson([
-                'message' => 'Subtask status not found.'
-            ]);
-    }
-
-    public function test_cannot_retrieve_subtask_status_if_not_authorized()
-    {
-        $unauthorizedUser = User::factory()->create();
-        Sanctum::actingAs($unauthorizedUser);
-
-        $response = $this->getJson(route('projects.tasks.subtasks.statuses.show', [
-            'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
             'subtaskId' => $this->subtask->project_task_subtask_id,
-            'subtaskStatusId' => $this->subtaskStatus->project_task_subtask_status_id
+            'subtaskStatusId' => $this->subtaskStatus->project_task_subtask_status_id,
         ]));
 
-        $response->assertStatus(403)
-            ->assertJson([
-                'message' => 'Forbidden.'
-            ]);
+        $response->assertStatus(200);
+        $response->assertJson(['message' => 'Subtask status deleted successfully.']);
+        $this->assertSoftDeleted('project_task_subtask_statuses', [
+            'project_task_subtask_status_id' => $this->subtaskStatus->project_task_subtask_status_id
+        ]);
+    }
+
+    public function test_unauthorized_deletion()
+    {
+        // Change user to one without authorization
+        Sanctum::actingAs(User::factory()->create());
+
+        $response = $this->deleteJson(route('projects.tasks.subtasks.statuses.destroy', [
+            'projectId' => $this->project->project_id,
+            'taskId' => $this->task->first()->project_task_id,
+            'subtaskId' => $this->subtask->first()->project_task_subtask_id,
+            'subtaskStatusId' => $this->subtaskStatus->project_task_subtask_status_id,
+        ]));
+
+        $response->assertStatus(403);
+        $response->assertJson(['message' => 'Forbidden.']);
+    }
+
+    public function test_deletion_of_non_existent_status()
+    {
+        $response = $this->deleteJson(route('projects.tasks.subtasks.statuses.destroy', [
+            'projectId' => $this->project->project_id,
+            'taskId' => $this->task->first()->project_task_id,
+            'subtaskId' => $this->subtask->project_task_subtask_id,
+            'subtaskStatusId' => 99999,
+        ]));
+
+        $response->assertStatus(404);
+        $response->assertJson(['message' => 'Subtask status not found.']);
     }
 }

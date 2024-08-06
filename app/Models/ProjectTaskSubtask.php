@@ -29,6 +29,6 @@ class ProjectTaskSubtask extends Model
 
     public function statuses()
     {
-        return $this->hasMany(ProjectTaskSubtaskStatus::class, 'project_task_id', 'project_task_id');
+        return $this->hasMany(ProjectTaskSubtaskStatus::class, 'project_task_subtask_id', 'project_task_subtask_id');
     }
 }

@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
-class CreateStatusTest extends TestCase
+class CreateSubtaskStatusTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -59,13 +59,13 @@ class CreateStatusTest extends TestCase
             ->assertJson([
                 'message' => 'Subtask status created successfully.',
                 'data' => [
-                    'project_task_subtask_id' => $this->subtask->project_task_subtask_id,
+                    'project_task_subtask_id' => $this->subtask->first()->project_task_subtask_id,
                     'project_task_subtask_status' => 'In Progress',
                 ]
             ]);
 
         $this->assertDatabaseHas('project_task_subtask_statuses', [
-            'project_task_subtask_id' => $this->subtask->project_task_subtask_id,
+            'project_task_subtask_id' => $this->subtask->first()->project_task_subtask_id,
             'project_task_subtask_status' => 'In Progress',
         ]);
     }
