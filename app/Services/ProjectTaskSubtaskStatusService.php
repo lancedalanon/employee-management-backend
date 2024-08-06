@@ -226,7 +226,7 @@ class ProjectTaskSubtaskStatusService
 
             if (!$subtaskStatus) {
                 return Response::json([
-                    'message' => 'Status not found.',
+                    'message' => 'Subtask status not found.',
                 ], 404);
             }
 
