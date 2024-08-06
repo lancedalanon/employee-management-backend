@@ -78,10 +78,10 @@ Route::middleware('auth:sanctum')->group(function () {
                 // Routes for managing sub task statuses
                 Route::prefix('{subtaskId}/statuses')->name('statuses.')->group(function () {
                     Route::get('/', [ProjectTaskSubtaskStatusController::class, 'index'])->name('index');
-                    Route::get('{statusId}', [ProjectTaskSubtaskStatusController::class, 'show'])->name('show');
+                    Route::get('{subtaskStatusId}', [ProjectTaskSubtaskStatusController::class, 'show'])->name('show');
                     Route::post('/', [ProjectTaskSubtaskStatusController::class, 'store'])->name('store');
-                    Route::put('{statusId}', [ProjectTaskSubtaskStatusController::class, 'update'])->name('update');
-                    Route::delete('{statusId}', [ProjectTaskSubtaskStatusController::class, 'destroy'])->name('destroy');
+                    Route::put('{subtaskStatusId}', [ProjectTaskSubtaskStatusController::class, 'update'])->name('update');
+                    Route::delete('{subtaskStatusId}', [ProjectTaskSubtaskStatusController::class, 'destroy'])->name('destroy');
                 });
             });
         });
