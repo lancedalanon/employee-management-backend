@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class WeeklyReportController extends Controller
 {
-    protected $basePrompt = 'Process the following data into a JSON structure with two options:
+    protected $basePrompt = 'Process the following data into a JSON structure with two options, here is only an example:
         Data:
         [
         {
