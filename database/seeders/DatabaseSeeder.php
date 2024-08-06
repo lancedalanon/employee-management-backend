@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
         $superRole = Role::create(['name' => 'super']);
         $adminRole = Role::create(['name' => 'admin']);
         $employeeRole = Role::create(['name' => 'employee']);
-        $studentRole = Role::create(['name' => 'student']);
+        $internRole = Role::create(['name' => 'intern']);
         $fullTimeRole = Role::create(['name' => 'full-time']);
         $partTimeRole = Role::create(['name' => 'part-time']);
         $dayShiftRole = Role::create(['name' => 'day-shift']);
@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
             shuffle($jobTypeRoles);
             $student->assignRole($jobTypeRoles[0]);
 
-            $student->assignRole($studentRole);
+            $student->assignRole($internRole);
         }
 
         // Create a sample admin user and assign the roles
