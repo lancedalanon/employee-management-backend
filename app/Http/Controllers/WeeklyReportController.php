@@ -2,56 +2,69 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Dtr;
+use App\Models\EndOfTheDayReportImage;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class WeeklyReportController extends Controller
 {
-    protected $basePrompt = 'Process the following data into a JSON structure with two options, here is only an example:
-        Data:
-        [
-        {
-            dtr_id: 1,
-            end_of_the_day_report: "I did a text report today regarding the project."
-        },
-        {
-            dtr_id: 2,
-            end_of_the_day_report: "I did a programming course that elevated my skills further and written a text report for today\'s progress."
-        }
-        ]
-        
-        Desired output format using this JSON schema:
-    
-        { "type": "object",
-            "properties": {
-            option1: "Summary of activities without repetition",
-            option2: "Summary of goals achieved"
+    protected $user;
+    protected $geminiUrl;
+    protected $basePrompt;
+
+    public function __construct()
+    {
+        $this->user = Auth::user();
+        $this->geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={$this->user->api_key}";
+        $this->basePrompt = 'Process the data into a JSON structure with two options, here is only an example:
+            Data:
+            [
+            {
+                end_of_the_day_report: "I did a text report today regarding the project."
+            },
+            {
+                end_of_the_day_report: "I did a programming course that elevated my skills further and written a text report for today\'s progress."
             }
-        }
+            ]
+            
+            Desired output format using this JSON schema:
         
-        Focus on extracting key activities and goals from the daily reports. 
-        Combine similar activities into a single option. 
-        Highlight achieved goals. 
-        Avoid repetition in all options.
-        
-        Do these with the data below:';
+            { "type": "object",
+                "properties": {
+                option1: "Project report text has been completed.",
+                option2: "Studied programming which elevated skills.",
+                }
+            }
 
-    public function showUserEndOfTheDayReports(Request $request)
+            Please don`t mind the example above, the array should be empty like this:
+            { "type": "object",
+                "properties": {
+                }
+            }
+            
+            Focus on extracting key activities and goals from the daily reports. 
+            Combine similar activities into a single option. 
+            Highlight achieved goals. 
+            Avoid repetition in all options.
+            Please also keep each option to be one sentence only.
+            All activities must be separated by splitting them into options options not commas.
+            Make it into an objective view without first person view as a person of reference.
+            Refrain from using articles from the beginning (a, an, the, etc.).
+            You should start with the data:';
+    }
+
+    public function showOptions()
      {
-        // Validate the incoming request data to ensure 'prompt' is a string
-        $request->validate([
-            'prompt' => 'required|string',
-        ]);
+        $data = $this->showEndOfTheDayReports();
 
-        // Get authenticated user's API key
-        $user = Auth::user();
-
-        // Google Gemini API URL
-        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=' . $user->api_key;
-
-        // Retrieve the user-provided prompt from the request and ensure it's a string
-        $userPrompt = (string) $request->input('prompt');
+        if(!$data) {
+            return Response::json([
+                'message' => 'No end of the day report/s found.',
+            ], 404);
+        }
 
         // Create the payload with the corrected structure
         $payload = [
@@ -59,7 +72,7 @@ class WeeklyReportController extends Controller
                 [
                     'parts' => [
                         [
-                            'text' => $this->basePrompt . $userPrompt
+                            'text' => $this->basePrompt . $data
                         ]
                     ]
                 ]
@@ -94,7 +107,7 @@ class WeeklyReportController extends Controller
         $ch = curl_init();
 
         // Set cURL options
-        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_URL, $this->geminiUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonPayload);
@@ -134,5 +147,58 @@ class WeeklyReportController extends Controller
 
         // Return the decoded text content as JSON
         return Response::json(['data' =>  $decodedText], 200);
+    }
+
+    protected function showEndOfTheDayReports() 
+    {
+        // Get the current date
+        $now = Carbon::now();
+        
+        // Determine the start of the week (Sunday)
+        $startOfWeek = $now->startOfWeek(Carbon::SUNDAY)->toDateString();
+        
+        // Determine the end of the week (Saturday)
+        $endOfWeek = $now->endOfWeek(Carbon::SATURDAY)->toDateString();
+
+        // Fetch the end of the day reports for the current week
+        $endOfTheDayReports = Dtr::where('user_id', $this->user->user_id)
+            ->whereBetween('time_in', [$startOfWeek, $endOfWeek])
+            ->get(['end_of_the_day_report']);
+
+        if (!$endOfTheDayReports) {
+            return false;
+        }
+
+        return $endOfTheDayReports;
+    }
+
+    public function showEndOfTheDayReportImages() 
+    {
+        try {
+            // Get the current date
+            $now = Carbon::now();
+                    
+            // Determine the start of the week (Sunday)
+            $startOfWeek = $now->startOfWeek(Carbon::SUNDAY)->toDateString();
+
+            // Determine the end of the week (Saturday)
+            $endOfWeek = $now->endOfWeek(Carbon::SATURDAY)->toDateString();
+
+            // Fetch the end of the day reports for the current week
+            $endOfTheDayReportsImages = EndOfTheDayReportImage::
+                whereHas('dtr', function ($query) use ($startOfWeek, $endOfWeek) {
+                    $query->whereBetween('time_in', [$startOfWeek, $endOfWeek]);
+                })->get(['end_of_the_day_report_image']);
+
+            return Response::json([
+                'message' => 'End of the day report images retrieved successfully.',
+                'data' => $endOfTheDayReportsImages,
+            ], 200);
+        } catch (\Exception $e) {
+            // Return a JSON response indicating the error
+            return Response::json([
+                'message' => 'Failed to retrieve end of the day report images.',
+            ], 500);
+        }
     }
 }

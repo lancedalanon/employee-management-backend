@@ -75,7 +75,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Weekly report-related routes
     Route::prefix('weekly-reports')->name('weeklyReports.')->group(function () {
-        Route::post('/', [WeeklyReportController::class, 'showUserEndOfTheDayReports'])->name('showUserEndOfTheDayReports');
+        Route::get('options', [WeeklyReportController::class, 'showOptions'])->name('showOptions');
+        Route::get('images', [WeeklyReportController::class, 'showEndOfTheDayReportImages'])->name('showEndOfTheDayReportImages');
     });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
