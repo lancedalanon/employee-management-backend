@@ -13,47 +13,13 @@ class WeeklyReportController extends Controller
 {
     protected $user;
     protected $geminiUrl;
-    protected $basePrompt;
+    protected $weeklyReportOptions;
 
     public function __construct()
     {
         $this->user = Auth::user();
         $this->geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={$this->user->api_key}";
-        $this->basePrompt = 'Process the data into a JSON structure with two options, here is only an example:
-            Data:
-            [
-            {
-                end_of_the_day_report: "I did a text report today regarding the project."
-            },
-            {
-                end_of_the_day_report: "I did a programming course that elevated my skills further and written a text report for today\'s progress."
-            }
-            ]
-            
-            Desired output format using this JSON schema:
-        
-            { "type": "object",
-                "properties": {
-                option1: "Project report text has been completed.",
-                option2: "Studied programming which elevated skills.",
-                }
-            }
-
-            Please don`t mind the example above, the array should be empty like this:
-            { "type": "object",
-                "properties": {
-                }
-            }
-            
-            Focus on extracting key activities and goals from the daily reports. 
-            Combine similar activities into a single option. 
-            Highlight achieved goals. 
-            Avoid repetition in all options.
-            Please also keep each option to be one sentence only.
-            All activities must be separated by splitting them into options options not commas.
-            Make it into an objective view without first person view as a person of reference.
-            Refrain from using articles from the beginning (a, an, the, etc.).
-            You should start with the data:';
+        $this->weeklyReportOptions = config('prompts.weekly_report_options');
     }
 
     public function showOptions()
@@ -72,7 +38,7 @@ class WeeklyReportController extends Controller
                 [
                     'parts' => [
                         [
-                            'text' => $this->basePrompt . $data
+                            'text' => $this->weeklyReportOptions . $data
                         ]
                     ]
                 ]
@@ -149,29 +115,6 @@ class WeeklyReportController extends Controller
         return Response::json(['data' =>  $decodedText], 200);
     }
 
-    protected function showEndOfTheDayReports() 
-    {
-        // Get the current date
-        $now = Carbon::now();
-        
-        // Determine the start of the week (Sunday)
-        $startOfWeek = $now->startOfWeek(Carbon::SUNDAY)->toDateString();
-        
-        // Determine the end of the week (Saturday)
-        $endOfWeek = $now->endOfWeek(Carbon::SATURDAY)->toDateString();
-
-        // Fetch the end of the day reports for the current week
-        $endOfTheDayReports = Dtr::where('user_id', $this->user->user_id)
-            ->whereBetween('time_in', [$startOfWeek, $endOfWeek])
-            ->get(['end_of_the_day_report']);
-
-        if (!$endOfTheDayReports) {
-            return false;
-        }
-
-        return $endOfTheDayReports;
-    }
-
     public function showEndOfTheDayReportImages() 
     {
         try {
@@ -200,5 +143,28 @@ class WeeklyReportController extends Controller
                 'message' => 'Failed to retrieve end of the day report images.',
             ], 500);
         }
+    }
+
+    protected function showEndOfTheDayReports() 
+    {
+        // Get the current date
+        $now = Carbon::now();
+        
+        // Determine the start of the week (Sunday)
+        $startOfWeek = $now->startOfWeek(Carbon::SUNDAY)->toDateString();
+        
+        // Determine the end of the week (Saturday)
+        $endOfWeek = $now->endOfWeek(Carbon::SATURDAY)->toDateString();
+
+        // Fetch the end of the day reports for the current week
+        $endOfTheDayReports = Dtr::where('user_id', $this->user->user_id)
+            ->whereBetween('time_in', [$startOfWeek, $endOfWeek])
+            ->get(['end_of_the_day_report']);
+
+        if (!$endOfTheDayReports) {
+            return false;
+        }
+
+        return $endOfTheDayReports;
     }
 }
