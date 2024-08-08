@@ -76,26 +76,19 @@ class DtrService
 
             // Retrieve the DTR for the authenticated user
             $dtr = $this->cacheService->rememberForever($cacheKey, function () use ($dtrId, $userId) {
-                $dtr = Dtr::where('dtr_id', $dtrId)
+                return Dtr::where('dtr_id', $dtrId)
                     ->where('user_id', $userId)
                     ->whereNull('absence_date')
                     ->whereNull('absence_reason')
                     ->whereNull('absence_approved_at')
                     ->first();
-
-                // Check if the DTR was found
-                if (!$dtr) {
-                    return Response::json([
-                        'message' => 'DTR not found.'
-                    ], 404);
-                }
-
-                return $dtr;
             });
 
-            // Check if the DTR is a JSON response
-            if (is_a($dtr, 'Illuminate\Http\JsonResponse')) {
-                return $dtr;
+            // Check if the DTR was found
+            if (!$dtr) {
+                return Response::json([
+                    'message' => 'DTR not found.'
+                ], 404);
             }
 
             // Return the success response with the DTR data
@@ -116,6 +109,20 @@ class DtrService
         try {
             // Get the authenticated user's ID
             $user = Auth::user();
+
+            // Check if user is absent today
+            $isAbsentToday = Dtr::where('user_id', $user->user_id)
+                ->where('absence_date', Carbon::now())
+                ->whereNotNull('absence_reason')
+                ->whereNotNull('absence_approved_at')
+                ->exists();
+
+            // Send a response to the user who is absent today
+            if ($isAbsentToday) {
+                return Response::json([
+                   'message' => 'You cannot time in again today due to being absent.'
+                ], 400);
+            }
 
             // Check if there are any previous DTR records with null time_out for the authenticated user
             $existingDtr = Dtr::where('user_id', $user->user_id)
@@ -160,12 +167,26 @@ class DtrService
     {
         try {
             // Get the authenticated user's ID
-            $userId = Auth::id();
+            $user = Auth::user();
+
+            // Check if user is absent today
+            $isAbsentToday = Dtr::where('user_id', $user->user_id)
+                ->where('absence_date', Carbon::now())
+                ->whereNotNull('absence_reason')
+                ->whereNotNull('absence_approved_at')
+                ->exists();
+
+            // Send a response to the user who is absent today
+            if ($isAbsentToday) {
+                return Response::json([
+                   'message' => 'You cannot time in again today due to being absent.'
+                ], 400);
+            }
 
             // Find the DTR record
             $dtr = Dtr::with(['breaks'])
                 ->where('dtr_id', $dtrId)
-                ->where('user_id', $userId)
+                ->where('user_id', $user->user_id)
                 ->where('time_out', null)
                 ->whereNull('absence_date')
                 ->whereNull('absence_reason')
@@ -213,12 +234,26 @@ class DtrService
     {
         try {
             // Get the authenticated user's ID
-            $userId = Auth::id();
+            $user = Auth::user();
+
+            // Check if user is absent today
+            $isAbsentToday = Dtr::where('user_id', $user->user_id)
+                ->where('absence_date', Carbon::now())
+                ->whereNotNull('absence_reason')
+                ->whereNotNull('absence_approved_at')
+                ->exists();
+
+            // Send a response to the user who is absent today
+            if ($isAbsentToday) {
+                return Response::json([
+                   'message' => 'You cannot time in again today due to being absent.'
+                ], 400);
+            }
 
             // Find the DTR record
             $dtr = Dtr::with(['breaks'])
                 ->where('dtr_id', $dtrId)
-                ->where('user_id', $userId)
+                ->where('user_id', $user->user_id)
                 ->where('time_out', null)
                 ->whereNull('absence_date')
                 ->whereNull('absence_reason')
@@ -267,6 +302,20 @@ class DtrService
         try {
             // Get the authenticated user's ID
             $user = Auth::user();
+
+            // Check if user is absent today
+            $isAbsentToday = Dtr::where('user_id', $user->user_id)
+                ->where('absence_date', Carbon::now())
+                ->whereNotNull('absence_reason')
+                ->whereNotNull('absence_approved_at')
+                ->exists();
+
+            // Send a response to the user who is absent today
+            if ($isAbsentToday) {
+                return Response::json([
+                   'message' => 'You cannot time in again today due to being absent.'
+                ], 400);
+            }
 
             // Find the DTR record
             $dtr = Dtr::where('user_id', $user->user_id)
