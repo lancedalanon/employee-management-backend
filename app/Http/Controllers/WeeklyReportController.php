@@ -4,22 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Models\Dtr;
 use App\Models\EndOfTheDayReportImage;
+use App\Services\AiPromptService;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Response;
 
 class WeeklyReportController extends Controller
 {
+    protected $aiPromptService;
     protected $user;
-    protected $geminiUrl;
-    protected $weeklyReportOptions;
+    protected $prompt;
 
-    public function __construct()
+    public function __construct(AiPromptService $aiPromptService)
     {
-        $this->user = Auth::user();
-        $this->geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={$this->user->api_key}";
-        $this->weeklyReportOptions = config('prompts.weekly_report_options');
+        $this->aiPromptService = $aiPromptService;
+        $this->prompt = config('prompts.weekly_report_options');
+        $this->user= Auth::user();
     }
 
     public function showOptions()
@@ -32,87 +32,8 @@ class WeeklyReportController extends Controller
             ], 404);
         }
 
-        // Create the payload with the corrected structure
-        $payload = [
-            'contents' => [
-                [
-                    'parts' => [
-                        [
-                            'text' => $this->weeklyReportOptions . $data
-                        ]
-                    ]
-                ]
-            ],
-            'safetySettings' => [
-                [
-                    'category' => 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-                    'threshold' => 'BLOCK_NONE',
-                ],
-                [
-                    'category' => 'HARM_CATEGORY_HATE_SPEECH',
-                    'threshold' => 'BLOCK_NONE',
-                ],
-                [
-                    'category' => 'HARM_CATEGORY_HARASSMENT',
-                    'threshold' => 'BLOCK_NONE',
-                ],
-                [
-                    'category' => 'HARM_CATEGORY_DANGEROUS_CONTENT',
-                    'threshold' => 'BLOCK_NONE',
-                ],
-            ],
-            'generation_config' => [
-                'response_mime_type' => 'application/json',
-            ],
-        ];
-
-        // Convert payload to JSON
-        $jsonPayload = json_encode($payload);
-
-        // Initialize cURL session
-        $ch = curl_init();
-
-        // Set cURL options
-        curl_setopt($ch, CURLOPT_URL, $this->geminiUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonPayload);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Content-Length: ' . strlen($jsonPayload),
-        ]);
-
-        // Execute cURL request
-        $response = curl_exec($ch);
-
-        // Check for errors
-        if ($response === false) {
-            return Response::json(['error' => curl_error($ch)], 500);
-        }
-
-        // Close cURL session
-        curl_close($ch);
-
-        // Decode JSON response
-        $data = json_decode($response, true);
-
-        // Check for safety concerns
-        if (isset($data['candidates'][0]['finishReason']) && $data['candidates'][0]['finishReason'] === 'SAFETY') {
-            return Response::json([
-                'error' => 'The content was flagged due to safety concerns.',
-                'safetyRatings' => $data['candidates'][0]['safetyRatings']
-            ], 400);
-        }
-
-        // Extract the text content from response and decode it
-        $textContent = '';
-        if (isset($data['candidates'][0]['content']['parts'][0]['text'])) {
-            $textContent = $data['candidates'][0]['content']['parts'][0]['text'];
-            $decodedText = json_decode($textContent, true); // Decode the JSON string
-        }
-
-        // Return the decoded text content as JSON
-        return Response::json(['data' =>  $decodedText], 200);
+        $response = $this->aiPromptService->generateResponse($this->prompt, $data);
+        return $response;
     }
 
     public function showEndOfTheDayReportImages() 
@@ -145,7 +66,7 @@ class WeeklyReportController extends Controller
         }
     }
 
-    protected function showEndOfTheDayReports() 
+    private function showEndOfTheDayReports() 
     {
         // Get the current date
         $now = Carbon::now();
