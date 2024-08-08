@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
 
 class Dtr extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $primaryKey = 'dtr_id';
 
@@ -18,8 +19,9 @@ class Dtr extends Model
         'time_out',
         'end_of_the_day_report',
         'is_overtime',
-        'absence_datetime',
+        'absence_date',
         'absence_reason',
+        'absence_approved_at',
     ];
 
     protected $dates = [

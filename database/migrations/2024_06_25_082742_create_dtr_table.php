@@ -19,8 +19,10 @@ return new class extends Migration
             $table->dateTime('time_out')->nullable();
             $table->text('end_of_the_day_report')->nullable();
             $table->boolean('is_overtime')->default(0);
-            $table->timestamp('absence_datetime')->nullable();
+            $table->date('absence_date')->nullable();
             $table->string('absence_reason')->nullable();
+            $table->timestamp('absence_approved_at')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

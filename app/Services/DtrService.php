@@ -33,8 +33,9 @@ class DtrService
             // Retrieve paginated DTR for the authenticated user
             $dtrs = $this->cacheService->rememberForever($cacheKey, function () use ($perPage, $page, $userId) {
                 return Dtr::where('user_id', $userId)
-                    ->whereNull('absence_datetime')
+                    ->whereNull('absence_date')
                     ->whereNull('absence_reason')
+                    ->whereNull('absence_approved_at')
                     ->orderBy('time_in', 'desc')
                     ->paginate($perPage, ['*'], 'page', $page);
             });
@@ -77,8 +78,9 @@ class DtrService
             $dtr = $this->cacheService->rememberForever($cacheKey, function () use ($dtrId, $userId) {
                 $dtr = Dtr::where('dtr_id', $dtrId)
                     ->where('user_id', $userId)
-                    ->whereNull('absence_datetime')
+                    ->whereNull('absence_date')
                     ->whereNull('absence_reason')
+                    ->whereNull('absence_approved_at')
                     ->first();
 
                 // Check if the DTR was found
@@ -118,8 +120,9 @@ class DtrService
             // Check if there are any previous DTR records with null time_out for the authenticated user
             $existingDtr = Dtr::where('user_id', $user->user_id)
                 ->whereNull('time_out')
-                ->whereNull('absence_datetime')
+                ->whereNull('absence_date')
                 ->whereNull('absence_reason')
+                ->whereNull('absence_approved_at')
                 ->exists();
 
             if ($existingDtr) {
@@ -164,8 +167,9 @@ class DtrService
                 ->where('dtr_id', $dtrId)
                 ->where('user_id', $userId)
                 ->where('time_out', null)
-                ->whereNull('absence_datetime')
+                ->whereNull('absence_date')
                 ->whereNull('absence_reason')
+                ->whereNull('absence_approved_at')
                 ->first();
 
             // Handle DTR record not found
@@ -216,8 +220,9 @@ class DtrService
                 ->where('dtr_id', $dtrId)
                 ->where('user_id', $userId)
                 ->where('time_out', null)
-                ->whereNull('absence_datetime')
+                ->whereNull('absence_date')
                 ->whereNull('absence_reason')
+                ->whereNull('absence_approved_at')
                 ->first();
 
             // Handle DTR record not found
@@ -266,8 +271,9 @@ class DtrService
             // Find the DTR record
             $dtr = Dtr::where('user_id', $user->user_id)
                 ->where('dtr_id', $dtrId)
-                ->whereNull('absence_datetime')
+                ->whereNull('absence_date')
                 ->whereNull('absence_reason')
+                ->whereNull('absence_approved_at')
                 ->first();
 
             // Handle DTR record not found
