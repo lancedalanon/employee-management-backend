@@ -18,7 +18,8 @@ class Dtr extends Model
         'time_out',
         'end_of_the_day_report',
         'is_overtime',
-        'is_absent'
+        'is_absent',
+        'reason_of_absence',
     ];
 
     protected $dates = [

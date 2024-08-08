@@ -114,6 +114,7 @@ class DtrService
             // Check if there are any previous DTR records with null time_out for the authenticated user
             $existingDtr = Dtr::where('user_id', $user->user_id)
                 ->whereNull('time_out')
+                ->where('is_absent', 0)
                 ->exists();
 
             if ($existingDtr) {
@@ -158,6 +159,7 @@ class DtrService
                 ->where('dtr_id', $dtrId)
                 ->where('user_id', $userId)
                 ->where('time_out', null)
+                ->where('is_absent', 0)
                 ->first();
 
             // Handle DTR record not found
@@ -208,6 +210,7 @@ class DtrService
                 ->where('dtr_id', $dtrId)
                 ->where('user_id', $userId)
                 ->where('time_out', null)
+                ->where('is_absent', 0)
                 ->first();
 
             // Handle DTR record not found
@@ -256,6 +259,7 @@ class DtrService
             // Find the DTR record
             $dtr = Dtr::where('user_id', $user->user_id)
                 ->where('dtr_id', $dtrId)
+                ->where('is_absent', 0)
                 ->first();
 
             // Handle DTR record not found
