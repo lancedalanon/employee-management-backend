@@ -92,7 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/', [LeaveRequestController::class, 'indexAdmin'])->name('indexAdmin');
             Route::get('{leaveRequestId}', [LeaveRequestController::class, 'showAdmin'])->name('showAdmin');
             Route::put('{leaveRequestId}', [LeaveRequestController::class, 'update'])->name('update');
-            Route::put('/', [LeaveRequestController::class, 'bulkUpdate'])->name('bulkUpdate');
+            Route::patch('/', [LeaveRequestController::class, 'bulkUpdate'])->name('bulkUpdate');
             Route::delete('{leaveRequestId}', [LeaveRequestController::class, 'destroy'])->name('destroy');
             Route::delete('/', [LeaveRequestController::class, 'bulkDestroy'])->name('bulkDestroy');
         });

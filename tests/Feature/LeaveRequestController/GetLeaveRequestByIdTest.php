@@ -36,6 +36,11 @@ class GetLeaveRequestByIdTest extends TestCase
         Sanctum::actingAs($this->user);
     }
 
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+    }
+
     public function test_successful_retrieval_of_leave_request(): void
     {
         $response = $this->getJson(route('leaveRequests.show', ['leaveRequestId' => $this->leaveRequests->first()->dtr_id]));

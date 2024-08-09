@@ -22,6 +22,11 @@ class BulkCreateLeaveRequestTest extends TestCase
         Sanctum::actingAs($this->user);
     }
 
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+    }
+
     public function test_successful_bulk_store(): void
     {
         $startDate = Carbon::now()->addDay()->format('Y-m-d');
