@@ -215,7 +215,7 @@ class LeaveRequestService
             });
 
             return Response::json([
-                'message' => 'DTRs updated successfully',
+                'message' => 'Leave requests updated successfully',
             ], 200);
         } catch (\Exception $e) {
             return Response::json([
