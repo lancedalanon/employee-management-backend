@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DtrController;
+use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectTaskController;
@@ -35,6 +36,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('{dtrId}/break', [DtrController::class, 'storeBreak'])->name('storeBreak');
         Route::post('{dtrId}/resume', [DtrController::class, 'storeResume'])->name('storeResume');
         Route::post('{dtrId}/time-out', [DtrController::class, 'storeTimeOut'])->name('storeTimeOut');
+    });
+
+    Route::prefix('leave-requests')->name('leaveRequests.')->group(function () {
+        Route::get('/', [LeaveRequestController::class, 'index'])->name('index');
+        Route::get('{leaveRequestId}', [LeaveRequestController::class, 'show'])->name('show');
+        Route::post('/', [LeaveRequestController::class, 'bulkStore'])->name('bulkStore');
     });
 
     // Project-related routes
@@ -80,6 +87,16 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        // Admin routes for managing user's leave requests
+        Route::prefix('leave-requests')->name('leaveRequests.')->group(function () {
+            Route::get('/', [LeaveRequestController::class, 'indexAdmin'])->name('indexAdmin');
+            Route::get('{leaveRequestId}', [LeaveRequestController::class, 'showAdmin'])->name('showAdmin');
+            Route::put('{leaveRequestId}', [LeaveRequestController::class, 'update'])->name('update');
+            Route::put('/', [LeaveRequestController::class, 'bulkUpdate'])->name('bulkUpdate');
+            Route::delete('{leaveRequestId}', [LeaveRequestController::class, 'destroy'])->name('destroy');
+            Route::delete('/', [LeaveRequestController::class, 'bulkDestroy'])->name('bulkDestroy');
+        });
+
         // Admin routes for managing projects
         Route::prefix('projects')->name('projects.')->group(function () {
             Route::post('/', [ProjectController::class, 'store'])->name('store');
