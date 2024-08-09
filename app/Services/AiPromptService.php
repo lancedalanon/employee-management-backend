@@ -18,6 +18,11 @@ class AiPromptService
 
     public function generateResponse(string $prompt, string $data) 
     {
+        // Check if API key is provided
+        if (is_null($this->user->api_key)) {
+            return $this->response('API key is missing. Operation aborted.', 400);
+        }
+
         // Create the payload with the corrected structure
         $payload = [
             'contents' => [
