@@ -8,8 +8,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Database\Factories\LeaveRequestFactory;
 use Laravel\Sanctum\Sanctum;
+use Spatie\Permission\Models\Role;
 
-class GetLeaveRequestsTest extends TestCase
+class GetLeaveRequestsAdminTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -27,6 +28,8 @@ class GetLeaveRequestsTest extends TestCase
 
         // Create a user
         $this->user = User::factory()->create();
+        $adminRole = Role::create(['name' => 'admin']);
+        $this->user->assignRole($adminRole);
 
         // Use the LeaveRequestFactory's dateRange method to create leave requests for the user
         LeaveRequestFactory::dateRange($startDate, $endDate, $this->user->user_id);
@@ -43,7 +46,7 @@ class GetLeaveRequestsTest extends TestCase
     public function test_leave_requests_pagination(): void
     {
         // Send GET request to the leave requests index route with pagination
-        $response = $this->getJson(route('leaveRequests.index'));
+        $response = $this->getJson(route('admin.leaveRequests.indexAdmin'));
 
         // Assert the response status
         $response->assertStatus(200);

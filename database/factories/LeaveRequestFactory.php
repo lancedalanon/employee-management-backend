@@ -6,6 +6,7 @@ use App\Models\Dtr;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Dtr>
@@ -39,9 +40,9 @@ class LeaveRequestFactory extends Factory
      * @param string $startDate
      * @param string $endDate
      * @param int $userId
-     * @return array
+     * @return \Illuminate\Database\Eloquent\Collection
      */
-    public static function dateRange(string $startDate, string $endDate, int $userId): array
+    public static function dateRange(string $startDate, string $endDate, int $userId): Collection
     {
         $startDate = Carbon::parse($startDate);
         $endDate = Carbon::parse($endDate);
@@ -51,14 +52,16 @@ class LeaveRequestFactory extends Factory
             throw new \InvalidArgumentException('Start date must be before or equal to end date.');
         }
 
-        $dtrs = [];
+        // Initialize a collection to store the created Dtr models
+        $dtrs = new Collection();
+
         // Loop through the date range and create an entry for each date
         for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
-            $dtrs[] = self::new()->create([
+            $dtrs->push(self::new()->create([
                 'user_id' => $userId,
                 'absence_date' => $date->format('Y-m-d'),
                 'absence_reason' => self::new()->make()->absence_reason,
-            ]);
+            ]));
         }
 
         return $dtrs;
