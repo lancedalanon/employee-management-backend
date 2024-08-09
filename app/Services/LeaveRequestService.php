@@ -53,6 +53,7 @@ class LeaveRequestService
             ], 500);
         }
     }
+    
     public function show(int $leaveRequestId) 
     {
         try {
