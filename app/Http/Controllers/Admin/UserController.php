@@ -20,8 +20,9 @@ class UserController extends Controller
         $users = User::with(['roles'])
             ->role(['intern', 'employee']) // Ensure we're querying users with 'intern' or 'employee' roles
             ->whereDoesntHave('roles', function ($query) {
-                // Exclude users who have the 'admin' role
-                $query->where('name', 'admin');
+                // Exclude users who have the 'admin' and 'super' role
+                $query->where('name', 'admin')
+                ->whereOr('name', 'super');
             })
             ->paginate($perPage, ['*'], 'page', $page);
 
@@ -67,8 +68,9 @@ class UserController extends Controller
         $user = User::with(['roles'])
             ->role(['intern', 'employee']) 
             ->whereDoesntHave('roles', function ($query) {
-                // Exclude users who have the 'admin' role
-                $query->where('name', 'admin');
+                // Exclude users who have the 'admin' and 'super' role
+                $query->where('name', 'admin')
+                ->whereOr('name', 'super');
             })
             ->where('user_id', $userId)
             ->first();
@@ -175,8 +177,9 @@ class UserController extends Controller
         // Find the user by ID
         $user = User::role(['intern', 'employee']) 
             ->whereDoesntHave('roles', function ($query) {
-                // Exclude users who have the 'admin' role
-                $query->where('name', 'admin');
+                // Exclude users who have the 'admin' and 'super' role
+                $query->where('name', 'admin')
+                ->whereOr('name', 'super');
             })
             ->where('user_id', $userId)
             ->first();
@@ -229,8 +232,9 @@ class UserController extends Controller
         // Find the user by ID
         $user = User::role(['intern', 'employee']) 
             ->whereDoesntHave('roles', function ($query) {
-                // Exclude users who have the 'admin' role
-                $query->where('name', 'admin');
+                // Exclude users who have the 'admin' and 'super' role
+                $query->where('name', 'admin')
+                ->whereOr('name', 'super');
             })
             ->where('user_id', $userId)
             ->first();
