@@ -105,7 +105,7 @@ class User extends Authenticatable implements JWTSubject
         return trim($full_name);
     }
 
-    public function dtr()
+    public function dtrs()
     {
         return $this->hasMany(Dtr::class, 'user_id', 'user_id');
     }

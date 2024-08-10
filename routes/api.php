@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DtrController;
 use App\Http\Controllers\LeaveRequestController;
@@ -119,12 +120,40 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::delete('{postId}', [PostController::class, 'destroy'])->name('destroy');
         });
 
+        // Admin routes for managing users
         Route::prefix('users')->name('users.')->group(function () {
             Route::get('/', [AdminUserController::class, 'index'])->name('index');
             Route::get('{userId}', [AdminUserController::class, 'show'])->name('show');
             Route::post('/', [AdminUserController::class, 'store'])->name('store');
             Route::put('{userId}', [AdminUserController::class, 'update'])->name('update');
             Route::delete('{userId}', [AdminUserController::class, 'destroy'])->name('destroy');
+        });
+
+        // Admin routes for managing attendances
+        Route::prefix('attendances')->name('attendances.')->group(function () {
+            // Full-Time Interns
+            Route::prefix('interns/full-time')->group(function () {
+                Route::get('/', [AdminAttendanceController::class, 'indexInternFullTime'])->name('interns.full-time.index');
+                Route::get('{userId}', [AdminAttendanceController::class, 'showInternFullTime'])->name('interns.full-time.show');
+            });
+        
+            // Part-Time Interns
+            Route::prefix('interns/part-time')->group(function () {
+                Route::get('/', [AdminAttendanceController::class, 'indexInternPartTime'])->name('interns.part-time.index');
+                Route::get('{userId}', [AdminAttendanceController::class, 'showInternPartTime'])->name('interns.part-time.show');
+            });
+        
+            // Full-Time Employees
+            Route::prefix('employees/full-time')->group(function () {
+                Route::get('/', [AdminAttendanceController::class, 'indexEmployeeFullTime'])->name('employees.full-time.index');
+                Route::get('{userId}', [AdminAttendanceController::class, 'showEmployeeFullTime'])->name('employees.full-time.show');
+            });
+        
+            // Part-Time Employees
+            Route::prefix('employees/part-time')->group(function () {
+                Route::get('/', [AdminAttendanceController::class, 'indexEmployeePartTime'])->name('employees.part-time.index');
+                Route::get('{userId}', [AdminAttendanceController::class, 'showEmployeePartTime'])->name('employees.part-time.show');
+            });
         });
     });
 });
