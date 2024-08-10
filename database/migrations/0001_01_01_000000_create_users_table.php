@@ -31,6 +31,7 @@ return new class extends Migration
             $table->string('api_key')->nullable();
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
