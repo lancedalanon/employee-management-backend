@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DtrController;
 use App\Http\Controllers\LeaveRequestController;
@@ -116,6 +117,14 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/', [PostController::class, 'store'])->name('store');
             Route::put('{postId}', [PostController::class, 'update'])->name('update');
             Route::delete('{postId}', [PostController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::get('/', [AdminUserController::class, 'index'])->name('index');
+            Route::get('{userId}', [AdminUserController::class, 'show'])->name('show');
+            Route::post('/', [AdminUserController::class, 'store'])->name('store');
+            Route::put('{userId}', [AdminUserController::class, 'update'])->name('update');
+            Route::delete('{userId}', [AdminUserController::class, 'destroy'])->name('destroy');
         });
     });
 });
