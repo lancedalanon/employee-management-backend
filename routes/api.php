@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
+use App\Http\Controllers\Admin\ProjectCompletionController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DtrController;
 use App\Http\Controllers\LeaveRequestController;
@@ -131,6 +132,20 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Admin routes for managing attendances
         Route::prefix('attendances')->name('attendances.')->group(function () {
+            Route::prefix('employees')->name('employees.')->group(function () {
+                // Full-Time Employees
+                Route::prefix('full-time')->name('full-time.')->group(function () {
+                    Route::get('/', [AdminAttendanceController::class, 'indexEmployeeFullTime'])->name('index');
+                    Route::get('{userId}', [AdminAttendanceController::class, 'showEmployeeFullTime'])->name('show');
+                });
+            
+                // Part-Time Employees
+                Route::prefix('part-time')->name('part-time.')->group(function () {
+                    Route::get('/', [AdminAttendanceController::class, 'indexEmployeePartTime'])->name('index');
+                    Route::get('{userId}', [AdminAttendanceController::class, 'showEmployeePartTime'])->name('show');
+                });
+            });
+
             Route::prefix('interns')->name('interns.')->group(function () {
                 // Full-Time Interns
                 Route::prefix('full-time')->name('full-time.')->group(function () {
@@ -144,18 +159,34 @@ Route::middleware('auth:sanctum')->group(function () {
                     Route::get('{userId}', [AdminAttendanceController::class, 'showInternPartTime'])->name('show');
                 });
             });
-        
+        });
+
+        Route::prefix('project-completion')->name('project-completion')->group(function () {
             Route::prefix('employees')->name('employees.')->group(function () {
                 // Full-Time Employees
                 Route::prefix('full-time')->name('full-time.')->group(function () {
-                    Route::get('/', [AdminAttendanceController::class, 'indexEmployeeFullTime'])->name('index');
-                    Route::get('{userId}', [AdminAttendanceController::class, 'showEmployeeFullTime'])->name('show');
+                    Route::get('/', [ProjectCompletionController::class, 'indexEmployeeFullTime'])->name('index');
+                    Route::get('{userId}', [ProjectCompletionController::class, 'showEmployeeFullTime'])->name('show');
                 });
             
                 // Part-Time Employees
                 Route::prefix('part-time')->name('part-time.')->group(function () {
-                    Route::get('/', [AdminAttendanceController::class, 'indexEmployeePartTime'])->name('index');
-                    Route::get('{userId}', [AdminAttendanceController::class, 'showEmployeePartTime'])->name('show');
+                    Route::get('/', [ProjectCompletionController::class, 'indexEmployeePartTime'])->name('index');
+                    Route::get('{userId}', [ProjectCompletionController::class, 'showEmployeePartTime'])->name('show');
+                });
+            });
+
+            Route::prefix('interns')->name('interns.')->group(function () {
+                // Full-Time Interns
+                Route::prefix('full-time')->name('full-time.')->group(function () {
+                    Route::get('/', [ProjectCompletionController::class, 'indexInternFullTime'])->name('index');
+                    Route::get('{userId}', [ProjectCompletionController::class, 'showInternFullTime'])->name('show');
+                });
+            
+                // Part-Time Interns
+                Route::prefix('part-time')->name('part-time.')->group(function () {
+                    Route::get('/', [ProjectCompletionController::class, 'indexInternPartTime'])->name('index');
+                    Route::get('{userId}', [ProjectCompletionController::class, 'showInternPartTime'])->name('show');
                 });
             });
         });
