@@ -17,7 +17,7 @@ class ProjectCompletionController extends Controller
         $roles = ['employee', 'full-time'];
         $excludedRoles = ['admin', 'super', 'intern'];
 
-        $projectTasksCompletion = User::with(['roles', 'projects', 'projects.tasks', 'projects.tasks.subtasks'])
+        $projectTasksCompletion = User::with(['projects.tasks.subtasks'])
             ->role($roles)
             ->whereDoesntHave('roles', function ($query) use ($excludedRoles) {
                 $query->whereIn('name', $excludedRoles);

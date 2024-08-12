@@ -81,6 +81,11 @@ class ProjectTask extends Model
 
     public function subtasks()
     {
-        return $this->hasMany(ProjectTask::class, 'project_task_id', 'project_task_id');
+        return $this->hasMany(ProjectTaskSubtask::class, 'project_task_id', 'project_task_id');
+    }
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'user_id', 'user_id');
     }
 }
