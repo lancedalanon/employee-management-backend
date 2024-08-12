@@ -73,6 +73,11 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::post('/', [ProjectTaskSubtaskController::class, 'store'])->name('store');
                 Route::put('{subtaskId}', [ProjectTaskSubtaskController::class, 'update'])->name('update');
                 Route::delete('{subtaskId}', [ProjectTaskSubtaskController::class, 'destroy'])->name('destroy');
+
+                Route::prefix('{subtaskId}/users')->name('users.')->group(function () {
+                    Route::post('{userId}/add', [ProjectTaskSubtaskController::class, 'addUser'])->name('addUser');
+                    Route::post('{userId}/remove', [ProjectTaskSubtaskController::class, 'removeUser'])->name('removeUser');
+                });
             });
 
             Route::prefix('{taskId}/users')->name('users.')->group(function () {

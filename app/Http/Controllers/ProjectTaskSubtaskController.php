@@ -49,4 +49,16 @@ class ProjectTaskSubtaskController extends Controller
         $response = $this->projectTaskSubtaskService->destroy($projectId, $taskId, $subtaskId);
         return $response;
     }
+
+    public function addUser(int $projectId, int $taskId, int $subtaskId, int $userId)
+    {
+        $response = $this->projectTaskSubtaskService->addUser($projectId, $taskId, $subtaskId, $userId);
+        return $response;
+    }
+
+    public function removeUser(int $projectId, int $taskId, int $subtaskId, int $userId)
+    {
+        $response = $this->projectTaskSubtaskService->removeUser($projectId, $taskId, $subtaskId, $userId);
+        return $response;
+    }
 }

@@ -287,9 +287,9 @@ class ProjectTaskService
             }
 
             $task = ProjectTask::where('project_id', $projectId)
-            ->where('project_task_id', $taskId)
-            ->where('user_id', $userId)
-            ->first();
+                    ->where('project_task_id', $taskId)
+                    ->where('user_id', $userId)
+                    ->first();
 
             if (!$task) {
                 return Response::json([
@@ -314,11 +314,9 @@ class ProjectTaskService
 
     protected function isProjectAdmin(int $projectId) 
     {
-        $isAdmin = ProjectUser::where('project_id', $projectId)
-                    ->where('user_id', $this->userId)
-                    ->where('project_role', 'project_admin')
-                    ->exists();
-
-        return $isAdmin;
+        return ProjectUser::where('project_id', $projectId)
+                ->where('user_id', $this->userId)
+                ->where('project_role', 'project_admin')
+                ->exists();
     }
 }
