@@ -4,10 +4,12 @@ namespace App\Services;
 
 use App\Models\Project;
 use App\Models\ProjectTask;
+use App\Models\ProjectUser;
 use App\Models\User;
 use Illuminate\Support\Facades\Response;
 use App\Services\CacheService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ProjectTaskService
 {
@@ -209,5 +211,114 @@ class ProjectTaskService
                 'message' => 'Failed to delete task.',
             ], 500);
         }
+    }
+
+    public function addUser(int $projectId, int $taskId, int $userId)
+    {
+        try {
+            if (!$this->isProjectAdmin($projectId) || !Auth::user()->hasRole('admin')) {
+                return Response::json([
+                   'message' => 'Forbidden.',
+                ], 403);
+            }
+
+            $user = User::where('user_id', $userId)
+                    ->whereHas('projects', function ($query) use ($projectId) {
+                        $query->where('projects.project_id', $projectId);
+                    })
+                    ->whereHas('projects.tasks', function ($query) use ($taskId) {
+                        $query->where('project_task_id', $taskId);
+                    })
+                    ->first();
+
+            if (!$user) {
+                return Response::json([
+                   'message' => 'User not found or not associated with the project.',
+                ], 404);
+            }
+
+            $task = ProjectTask::where('project_id', $projectId)
+                    ->where('project_task_id', $taskId)
+                    ->first();
+
+            if (!$task) {
+                return Response::json([
+                   'message' => 'Task not found.',
+                ], 404);
+            }
+
+            $task->user_id = $userId;
+            $task->save();
+
+            // Return a JSON response indicating success
+            return Response::json([
+               'message' => 'User assigned to task successfully.',
+            ], 200);
+        } catch (\Exception $e) {
+            // Return a JSON response indicating the error
+            return Response::json([
+                'message' => 'Failed to assign user to task.',
+            ], 500);
+        }
+    }
+
+    public function removeUser(int $projectId, int $taskId, int $userId)
+    {
+        try {
+            if (!$this->isProjectAdmin($projectId) || !Auth::user()->hasRole('admin')) {
+                return Response::json([
+                   'message' => 'Forbidden.',
+                ], 403);
+            }
+
+            $user = User::where('user_id', $userId)
+                    ->whereHas('projects', function ($query) use ($projectId) {
+                        $query->where('projects.project_id', $projectId);
+                    })
+                    ->whereHas('projects.tasks', function ($query) use ($taskId) {
+                        $query->where('project_task_id', $taskId);
+                    })
+                    ->first();
+
+            if (!$user) {
+                return Response::json([
+                    'message' => 'User not found or not associated with the project.',
+                ], 404);
+            }
+
+            $task = ProjectTask::where('project_id', $projectId)
+            ->where('project_task_id', $taskId)
+            ->where('user_id', $userId)
+            ->first();
+
+            if (!$task) {
+                return Response::json([
+                'message' => 'Task not found.',
+                ], 404);
+            }
+
+            $task->user_id = null;
+            $task->save();
+
+            // Return a JSON response indicating success
+            return Response::json([
+                'message' => 'User removed from task successfully.',
+            ], 200);
+        } catch (\Exception $e) {
+            // Return a JSON response indicating the error
+            return Response::json([
+                'message' => 'Failed to remove user from task.',
+            ], 500);
+        }
+    }
+
+    protected function isProjectAdmin(int $projectId) 
+    {
+        $isAdmin = ProjectUser::where('project_id', $projectId)
+                    ->where('user_id', $this->userId)
+                    ->where('project_role', 'project_admin')
+                    ->exists();
+
+        return $isAdmin;
     }
 }

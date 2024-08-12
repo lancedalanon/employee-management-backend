@@ -21,6 +21,7 @@ class ProjectTask extends Model
         'project_id',
         'project_task_progress',
         'project_task_priority_level',
+        'user_id',
     ];
 
     protected static function boot()
@@ -84,8 +85,8 @@ class ProjectTask extends Model
         return $this->hasMany(ProjectTaskSubtask::class, 'project_task_id', 'project_task_id');
     }
 
-    public function users()
+    public function user()
     {
-        return $this->hasMany(User::class, 'user_id', 'user_id');
+        return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
 }

@@ -49,4 +49,16 @@ class ProjectTaskController extends Controller
         $response = $this->projectTaskService->destroy($projectId, $taskId);
         return $response;
     }
+
+    public function addUser(int $projectId, int $taskId, int $userId)
+    {
+        $response = $this->projectTaskService->addUser($projectId, $taskId, $userId);
+        return $response;
+    }
+
+    public function removeUser(int $projectId, int $taskId, int $userId)
+    {
+        $response = $this->projectTaskService->removeUser($projectId, $taskId, $userId);
+        return $response;
+    }
 }

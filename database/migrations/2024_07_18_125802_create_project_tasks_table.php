@@ -18,9 +18,11 @@ return new class extends Migration
             $table->unsignedBigInteger('project_id');
             $table->string('project_task_progress');
             $table->string('project_task_priority_level');
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
             $table->foreign('project_id')->references('project_id')->on('projects')->onDelete('cascade');
         });
     }

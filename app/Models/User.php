@@ -121,4 +121,14 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Post::class, 'user_id', 'user_id');
     }
+
+    public function task()
+    {
+        return $this->hasOne(ProjectTask::class, 'user_id', 'user_id');
+    }
+
+    public function subtask()
+    {
+        return $this->hasOne(ProjectTaskSubtask::class, 'user_id', 'user_id');
+    }
 }

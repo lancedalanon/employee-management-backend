@@ -17,10 +17,12 @@ return new class extends Migration
             $table->text('project_task_subtask_description');
             $table->string('project_task_subtask_progress');
             $table->string('project_task_subtask_priority_level');
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('project_task_id');
             $table->timestamps();
             $table->softDeletes();
 
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
             $table->foreign('project_task_id')->references('project_task_id')->on('project_tasks')->onDelete('cascade');
         });
     }

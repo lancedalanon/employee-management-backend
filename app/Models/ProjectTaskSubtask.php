@@ -20,10 +20,16 @@ class ProjectTaskSubtask extends Model
         'project_task_subtask_description',
         'project_task_subtask_progress',
         'project_task_subtask_priority_level',
+        'user_id',
     ];
 
     public function task()
     {
         return $this->belongsTo(ProjectTask::class, 'project_task_id', 'project_task_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
 }
