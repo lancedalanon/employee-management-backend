@@ -216,18 +216,16 @@ class ProjectTaskService
     public function addUser(int $projectId, int $taskId, int $userId)
     {
         try {
-            if (!$this->isProjectAdmin($projectId) || !Auth::user()->hasRole('admin')) {
+            if (!$this->isProjectAdmin($projectId) && !Auth::user()->hasRole('admin')) {
                 return Response::json([
                    'message' => 'Forbidden.',
                 ], 403);
             }
 
             $user = User::where('user_id', $userId)
-                    ->whereHas('projects', function ($query) use ($projectId) {
-                        $query->where('projects.project_id', $projectId);
-                    })
-                    ->whereHas('projects.tasks', function ($query) use ($taskId) {
-                        $query->where('project_task_id', $taskId);
+                    ->whereHas('projects.tasks', function ($query) use ($projectId, $taskId) {
+                        $query->where('project_id', $projectId)
+                            ->where('project_task_id', $taskId);
                     })
                     ->first();
 
@@ -241,10 +239,10 @@ class ProjectTaskService
                     ->where('project_task_id', $taskId)
                     ->first();
 
-            if (!$task) {
+            if ($task->user_id === $userId)  {
                 return Response::json([
-                   'message' => 'Task not found.',
-                ], 404);
+                   'message' => 'User is already assigned to the task.',
+                ], 409);
             }
 
             $task->user_id = $userId;
@@ -265,18 +263,16 @@ class ProjectTaskService
     public function removeUser(int $projectId, int $taskId, int $userId)
     {
         try {
-            if (!$this->isProjectAdmin($projectId) || !Auth::user()->hasRole('admin')) {
+            if (!$this->isProjectAdmin($projectId) && !Auth::user()->hasRole('admin')) {
                 return Response::json([
                    'message' => 'Forbidden.',
                 ], 403);
             }
 
             $user = User::where('user_id', $userId)
-                    ->whereHas('projects', function ($query) use ($projectId) {
-                        $query->where('projects.project_id', $projectId);
-                    })
-                    ->whereHas('projects.tasks', function ($query) use ($taskId) {
-                        $query->where('project_task_id', $taskId);
+                    ->whereHas('projects.tasks', function ($query) use ($projectId, $taskId) {
+                        $query->where('project_id', $projectId)
+                            ->where('project_task_id', $taskId);
                     })
                     ->first();
 
@@ -288,13 +284,12 @@ class ProjectTaskService
 
             $task = ProjectTask::where('project_id', $projectId)
                     ->where('project_task_id', $taskId)
-                    ->where('user_id', $userId)
                     ->first();
 
-            if (!$task) {
+            if ($task->user_id === null || $task->user_id !== $userId)  {
                 return Response::json([
-                'message' => 'Task not found.',
-                ], 404);
+                    'message' => 'User is not assigned to this task.',
+                ], 409);
             }
 
             $task->user_id = null;
@@ -316,7 +311,7 @@ class ProjectTaskService
     {
         return ProjectUser::where('project_id', $projectId)
                 ->where('user_id', $this->userId)
-                ->where('project_role', 'project_admin')
+                ->where('project_role', 'project-admin')
                 ->exists();
     }
 }

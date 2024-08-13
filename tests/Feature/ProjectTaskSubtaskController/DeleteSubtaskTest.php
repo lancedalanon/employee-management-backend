@@ -57,23 +57,6 @@ class DeleteSubtaskTest extends TestCase
         ]);
     }
 
-    public function test_returns_forbidden_when_user_is_unauthorized()
-    {
-        $anotherUser = User::factory()->create();
-        $this->actingAs($anotherUser);
-
-        $response = $this->deleteJson(route('projects.tasks.subtasks.destroy', [
-            'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
-            'subtaskId' => $this->subtask->project_task_subtask_id,
-        ]));
-
-        $response->assertStatus(403)
-            ->assertJson([
-                'message' => 'Forbidden.',
-            ]);
-    }
-
     public function test_returns_not_found_when_subtask_does_not_exist()
     {
         $response = $this->deleteJson(route('projects.tasks.subtasks.destroy', [

@@ -208,7 +208,7 @@ class ProjectTaskSubtaskService
     public function addUser(int $projectId, int $taskId, int $subtaskId, int $userId)
     {
         try {
-            if (!$this->isProjectAdmin($projectId) || !Auth::user()->hasRole('admin')) {
+            if (!$this->isProjectAdmin($projectId) && !Auth::user()->hasRole('admin')) {
                 return Response::json([
                    'message' => 'Forbidden.',
                 ], 403);
@@ -235,10 +235,10 @@ class ProjectTaskSubtaskService
                 })
                 ->first();
 
-            if (!$subtask) {
+            if ($subtask->user_id === $userId)  {
                 return Response::json([
-                   'message' => 'Subtask not found.',
-                ], 404);
+                   'message' => 'User is already assigned to the subtask.',
+                ], 409);
             }
 
             $subtask->user_id = $userId;
@@ -259,7 +259,7 @@ class ProjectTaskSubtaskService
     public function removeUser(int $projectId, int $taskId, int $subtaskId, int $userId)
     {
         try {
-            if (!$this->isProjectAdmin($projectId) || !Auth::user()->hasRole('admin')) {
+            if (!$this->isProjectAdmin($projectId) && !Auth::user()->hasRole('admin')) {
                 return Response::json([
                    'message' => 'Forbidden.',
                 ], 403);
@@ -286,10 +286,10 @@ class ProjectTaskSubtaskService
                 })
                 ->first();
 
-            if (!$subtask) {
+            if ($subtask->user_id === null || $subtask->user_id !== $userId) {
                 return Response::json([
-                   'message' => 'Subtask not found.',
-                ], 404);
+                    'message' => 'User is not assigned to this subtask.',
+                ], 409);
             }
 
             $subtask->user_id = null;
@@ -311,7 +311,7 @@ class ProjectTaskSubtaskService
     {
         return ProjectUser::where('project_id', $projectId)
                 ->where('user_id', $this->userId)
-                ->where('project_role', 'project_admin')
+                ->where('project_role', 'project-admin')
                 ->exists();
     }
 }

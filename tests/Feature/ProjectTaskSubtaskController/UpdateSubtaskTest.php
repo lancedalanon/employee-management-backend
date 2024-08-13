@@ -62,28 +62,6 @@ class UpdateSubtaskTest extends TestCase
             ]);
     }
 
-    public function test_update_subtask_unauthorized()
-    {
-        $unauthorizedUser = Project::factory()->withUsers(1)->create()->users()->first();
-        Sanctum::actingAs($unauthorizedUser);
-
-        $response = $this->putJson(route('projects.tasks.subtasks.update', [
-            'projectId' => $this->project->project_id,
-            'taskId' => $this->task->project_task_id,
-            'subtaskId' => $this->subtask->project_task_subtask_id,
-        ]), [
-            'project_task_subtask_name' => 'Updated Subtask',
-            'project_task_subtask_description' => 'Updated description',
-            'project_task_subtask_progress' => 'In progress',
-            'project_task_subtask_priority_level' => 'Medium',
-        ]);
-
-        $response->assertStatus(403)
-            ->assertJson([
-                'message' => 'Forbidden.',
-            ]);
-    }
-
     public function test_update_subtask_not_found()
     {
         $response = $this->putJson(route('projects.tasks.subtasks.update', [

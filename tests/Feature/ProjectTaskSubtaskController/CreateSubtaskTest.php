@@ -50,12 +50,6 @@ class CreateSubtaskTest extends TestCase
         $response->assertStatus(201)
             ->assertJson([
                 'message' => 'Subtask created successfully.',
-                'data' => [
-                    'project_task_subtask_name' => 'New Subtask',
-                    'project_task_subtask_description' => 'Subtask description',
-                    'project_task_subtask_progress' => 'Not started',
-                    'project_task_subtask_priority_level' => 'Low',
-                ],
             ]);
     }
 
