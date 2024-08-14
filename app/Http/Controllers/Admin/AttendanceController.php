@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Attendace\IndexAttendanceRequest;
+use App\Http\Requests\Admin\Attendace\ShowAttendanceRequest;
 use App\Services\Admin\AttendanceService;
 use Illuminate\Http\Request;
 
@@ -15,59 +17,34 @@ class AttendanceController extends Controller
         $this->attendanceService = $attendanceService;
     }
 
-    public function indexEmployeeFullTime(Request $request)
+    public function index(IndexAttendanceRequest $request)
     {
+        // Retrieve validated data
+        $validatedData = $request->validated();
+        
+        // Get the validated query parameters for filtering
+        $employmentStatus = $validatedData['employment_status']; // e.g., 'full-time' or 'part-time'
+        $personnel = $validatedData['personnel']; // e.g., 'employee' or 'intern'
+        
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
-        $response = $this->attendanceService->indexEmployeeFullTime($perPage, $page);
+
+        // Call the appropriate service method based on the parameters
+        $response = $this->attendanceService->index($employmentStatus, $personnel, $perPage, $page);
         return $response;
     }
     
-    public function showEmployeeFullTime(int $userId) 
+    public function show(ShowAttendanceRequest $request, int $userId)
     {
-        $response = $this->attendanceService->showEmployeeFullTime($userId);
-        return $response;
-    }  
-
-    public function indexEmployeePartTime(Request $request)
-    {
-        $perPage = $request->input('per_page', 10);
-        $page = $request->input('page', 1);
-        $response = $this->attendanceService->indexEmployeePartTime($perPage, $page);
-        return $response;
-    }
-
-    public function showEmployeePartTime(int $userId) 
-    {
-        $response = $this->attendanceService->showEmployeePartTime($userId);
-        return $response;
-    }
-
-    public function indexInternFullTime(Request $request)
-    {
-        $perPage = $request->input('per_page', 10);
-        $page = $request->input('page', 1);
-        $response = $this->attendanceService->indexInternFullTime($perPage, $page);
-        return $response;
-    }
+        // Retrieve validated data
+        $validatedData = $request->validated();
+        
+        // Get the validated query parameters for filtering
+        $employmentStatus = $validatedData['employment_status']; // e.g., 'full-time' or 'part-time'
+        $personnel = $validatedData['personnel']; // e.g., 'employee' or 'intern'
     
-    public function showInternFullTime(int $userId) 
-    {
-        $response = $this->attendanceService->showInternFullTime($userId);
+        // Call the appropriate service method based on the parameters
+        $response = $this->attendanceService->show($employmentStatus, $personnel, $userId);
         return $response;
-    }
-
-    public function indexInternPartTime(Request $request)
-    {
-        $perPage = $request->input('per_page', 10);
-        $page = $request->input('page', 1);
-        $response = $this->attendanceService->indexInternPartTime($perPage, $page);
-        return $response;
-    }
-
-    public function showInternPartTime(int $userId) 
-    {
-        $response = $this->attendanceService->showInternPartTime($userId);
-        return $response;
-    }
+    }    
 }

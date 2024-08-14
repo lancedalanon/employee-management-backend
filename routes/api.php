@@ -142,33 +142,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Admin routes for managing attendances
         Route::prefix('attendances')->name('attendances.')->group(function () {
-            Route::prefix('employees')->name('employees.')->group(function () {
-                // Full-Time Employees
-                Route::prefix('full-time')->name('full-time.')->group(function () {
-                    Route::get('/', [AdminAttendanceController::class, 'indexEmployeeFullTime'])->name('index');
-                    Route::get('{userId}', [AdminAttendanceController::class, 'showEmployeeFullTime'])->name('show');
-                });
-            
-                // Part-Time Employees
-                Route::prefix('part-time')->name('part-time.')->group(function () {
-                    Route::get('/', [AdminAttendanceController::class, 'indexEmployeePartTime'])->name('index');
-                    Route::get('{userId}', [AdminAttendanceController::class, 'showEmployeePartTime'])->name('show');
-                });
-            });
-
-            Route::prefix('interns')->name('interns.')->group(function () {
-                // Full-Time Interns
-                Route::prefix('full-time')->name('full-time.')->group(function () {
-                    Route::get('/', [AdminAttendanceController::class, 'indexInternFullTime'])->name('index');
-                    Route::get('{userId}', [AdminAttendanceController::class, 'showInternFullTime'])->name('show');
-                });
-            
-                // Part-Time Interns
-                Route::prefix('part-time')->name('part-time.')->group(function () {
-                    Route::get('/', [AdminAttendanceController::class, 'indexInternPartTime'])->name('index');
-                    Route::get('{userId}', [AdminAttendanceController::class, 'showInternPartTime'])->name('show');
-                });
-            });
+            Route::get('/', [AdminAttendanceController::class, 'index'])->name('index');
+            Route::get('{userId}', [AdminAttendanceController::class, 'show'])->name('show');
         });
 
         Route::prefix('project-completion')->name('project-completion')->group(function () {

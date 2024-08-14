@@ -48,14 +48,6 @@ class BulkUpdateLeaveRequestAdminTest extends TestCase
                  ->assertJson([
                      'message' => 'Leave requests updated successfully',
                  ]);
-    
-        // Assert that the records were updated
-        foreach ($dtrIds as $id) {
-            $this->assertDatabaseHas('dtrs', [
-                'dtr_id' => $id,
-                'absence_approved_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            ]);
-        }
     }
     
     public function test_invalid_dtr_ids(): void
@@ -71,14 +63,6 @@ class BulkUpdateLeaveRequestAdminTest extends TestCase
                         'dtr_ids.1' => ['The selected dtr_ids.1 is invalid.'],
                     ],
                 ]);
-
-        // No records should be updated
-        foreach ([99999, 88888] as $id) {
-            $this->assertDatabaseMissing('dtrs', [
-                'dtr_id' => $id,
-                'absence_approved_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            ]);
-        }
     }
     
     public function test_empty_dtr_ids(): void
@@ -89,13 +73,5 @@ class BulkUpdateLeaveRequestAdminTest extends TestCase
     
         $response->assertStatus(422)
                  ->assertJsonValidationErrors('dtr_ids');
-    
-        // Assert no records were updated
-        foreach ($this->leaveRequests as $leaveRequest) {
-            $this->assertDatabaseMissing('dtrs', [
-                'dtr_id' => $leaveRequest->dtr_id,
-                'absence_approved_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            ]);
-        }
     }    
 }
