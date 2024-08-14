@@ -24,6 +24,8 @@ class ShowAttendanceRequest extends FormRequest
         return [
             'employment_status' =>'required|in:full-time,part-time',
             'personnel' => 'required|in:employee,intern',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
         ];
     }
 }

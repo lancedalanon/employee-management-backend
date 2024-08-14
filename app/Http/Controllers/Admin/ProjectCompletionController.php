@@ -37,16 +37,18 @@ class ProjectCompletionController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        // Ensure the date range is within the current year
-        $startOfYear = Carbon::now()->startOfYear()->format('Y-m-d');
-        $endOfYear = Carbon::now()->endOfYear()->format('Y-m-d');
+        // Ensure the date range is within the current month
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
 
-        $startDate = $startDate ? Carbon::parse($startDate)->startOfDay()->format('Y-m-d') : $startOfYear;
-        $endDate = $endDate ? Carbon::parse($endDate)->endOfDay()->format('Y-m-d') : $endOfYear;
+        // Parse the start and end dates, defaulting to the start and end of the month
+        $startDate = $startDate ? Carbon::parse($startDate)->startOfDay() : $startOfMonth;
+        $endDate = $endDate ? Carbon::parse($endDate)->endOfDay() : $endOfMonth;
 
-        if ($startDate < $startOfYear || $endDate > $endOfYear) {
+        // Validate that the date range is within the current month
+        if ($startDate->lt($startOfMonth) || $endDate->gt($endOfMonth)) {
             return Response::json([
-                'message' => 'Date range must be within the current year.',
+                'message' => 'Date range must be within the current month.',
             ], 400);
         }
 
@@ -155,16 +157,18 @@ class ProjectCompletionController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        // Ensure the date range is within the current year
-        $startOfYear = Carbon::now()->startOfYear();
-        $endOfYear = Carbon::now()->endOfYear();
+        // Ensure the date range is within the current month
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
 
-        $startDate = $startDate ? Carbon::parse($startDate)->startOfDay() : $startOfYear;
-        $endDate = $endDate ? Carbon::parse($endDate)->endOfDay() : $endOfYear;
+        // Parse the start and end dates, defaulting to the start and end of the month
+        $startDate = $startDate ? Carbon::parse($startDate)->startOfDay() : $startOfMonth;
+        $endDate = $endDate ? Carbon::parse($endDate)->endOfDay() : $endOfMonth;
 
-        if ($startDate->lt($startOfYear) || $endDate->gt($endOfYear)) {
+        // Validate that the date range is within the current month
+        if ($startDate->lt($startOfMonth) || $endDate->gt($endOfMonth)) {
             return Response::json([
-                'message' => 'Date range must be within the current year.',
+                'message' => 'Date range must be within the current month.',
             ], 400);
         }
 

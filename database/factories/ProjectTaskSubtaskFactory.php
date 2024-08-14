@@ -32,6 +32,9 @@ class ProjectTaskSubtaskFactory extends Factory
             'project_task_id' => function () {
                 return \App\Models\ProjectTask::factory()->create()->project_task_id;
             },
+            'user_id' => function () {
+                return \App\Models\User::factory()->create()->user_id;
+            },
         ];
     }
 }

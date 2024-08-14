@@ -29,6 +29,9 @@ class ProjectTaskFactory extends Factory
             'project_id' => function () {
                 return \App\Models\Project::factory()->create()->project_id;
             },
+            'user_id' => function () {
+                return \App\Models\User::factory()->create()->user_id;
+            },
         ];
     }
 }
