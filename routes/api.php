@@ -146,34 +146,9 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('{userId}', [AdminAttendanceController::class, 'show'])->name('show');
         });
 
-        Route::prefix('project-completion')->name('project-completion')->group(function () {
-            Route::prefix('employees')->name('employees.')->group(function () {
-                // Full-Time Employees
-                Route::prefix('full-time')->name('full-time.')->group(function () {
-                    Route::get('/', [ProjectCompletionController::class, 'indexEmployeeFullTime'])->name('index');
-                    Route::get('{userId}', [ProjectCompletionController::class, 'showEmployeeFullTime'])->name('show');
-                });
-            
-                // Part-Time Employees
-                Route::prefix('part-time')->name('part-time.')->group(function () {
-                    Route::get('/', [ProjectCompletionController::class, 'indexEmployeePartTime'])->name('index');
-                    Route::get('{userId}', [ProjectCompletionController::class, 'showEmployeePartTime'])->name('show');
-                });
-            });
-
-            Route::prefix('interns')->name('interns.')->group(function () {
-                // Full-Time Interns
-                Route::prefix('full-time')->name('full-time.')->group(function () {
-                    Route::get('/', [ProjectCompletionController::class, 'indexInternFullTime'])->name('index');
-                    Route::get('{userId}', [ProjectCompletionController::class, 'showInternFullTime'])->name('show');
-                });
-            
-                // Part-Time Interns
-                Route::prefix('part-time')->name('part-time.')->group(function () {
-                    Route::get('/', [ProjectCompletionController::class, 'indexInternPartTime'])->name('index');
-                    Route::get('{userId}', [ProjectCompletionController::class, 'showInternPartTime'])->name('show');
-                });
-            });
+        Route::prefix('project-completions')->name('projectCompletions.')->group(function () {
+            Route::get('/', [ProjectCompletionController::class, 'index'])->name('index');
+            Route::get('{userId}', [ProjectCompletionController::class, 'show'])->name('show');
         });
     });
 });
