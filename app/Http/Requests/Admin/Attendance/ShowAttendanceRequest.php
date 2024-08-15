@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Admin\Attendace;
+namespace App\Http\Requests\Admin\Attendance;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class IndexAttendanceRequest extends FormRequest
+class ShowAttendanceRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

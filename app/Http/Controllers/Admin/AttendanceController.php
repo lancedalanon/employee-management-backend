@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\Attendace\IndexAttendanceRequest;
-use App\Http\Requests\Admin\Attendace\ShowAttendanceRequest;
+use App\Http\Requests\Admin\Attendance\IndexAttendanceRequest;
+use App\Http\Requests\Admin\Attendance\ShowAttendanceRequest;
 use App\Services\Admin\AttendanceService;
 
 class AttendanceController extends Controller
