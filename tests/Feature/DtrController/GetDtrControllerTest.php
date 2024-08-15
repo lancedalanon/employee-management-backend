@@ -11,7 +11,8 @@ use Tests\TestCase;
 
 class GetDtrControllerTest extends TestCase
 {
-    use DtrTestingTrait, RefreshDatabase;
+    use DtrTestingTrait;
+    use RefreshDatabase;
 
     /**
      * Setup method to create a user, Dtr, and DtrBreak.

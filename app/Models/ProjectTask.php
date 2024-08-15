@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Cache;
 
 class ProjectTask extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $primaryKey = 'project_task_id';
 

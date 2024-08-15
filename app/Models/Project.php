@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Cache;
 
 class Project extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $primaryKey = 'project_id';
 

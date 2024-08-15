@@ -9,7 +9,8 @@ use Tests\TestCase;
 
 class DeleteProjectTest extends TestCase
 {
-    use ProjectTestingTrait, RefreshDatabase;
+    use ProjectTestingTrait;
+    use RefreshDatabase;
 
     protected $project;
 

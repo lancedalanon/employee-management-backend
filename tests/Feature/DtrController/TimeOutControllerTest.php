@@ -16,7 +16,8 @@ use Tests\TestCase;
 
 class TimeOutControllerTest extends TestCase
 {
-    use DtrTestingTrait, RefreshDatabase;
+    use DtrTestingTrait;
+    use RefreshDatabase;
 
     /**
      * Setup method to create a user, Dtr, and DtrBreak.

@@ -14,7 +14,8 @@ use Tests\TestCase;
 
 class ProjectUserControllerTest extends TestCase
 {
-    use ProjectTestingTrait, RefreshDatabase;
+    use ProjectTestingTrait;
+    use RefreshDatabase;
 
     protected $user;
 

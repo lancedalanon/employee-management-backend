@@ -12,7 +12,8 @@ use Tests\TestCase;
 
 class TimeInControllerTest extends TestCase
 {
-    use DtrTestingTrait, RefreshDatabase;
+    use DtrTestingTrait;
+    use RefreshDatabase;
 
     /**
      * Setup method to create a user, Dtr, and DtrBreak.

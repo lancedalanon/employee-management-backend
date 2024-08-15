@@ -11,7 +11,8 @@ use Tests\TestCase;
 
 class GetProjectsTest extends TestCase
 {
-    use ProjectTestingTrait, RefreshDatabase;
+    use ProjectTestingTrait;
+    use RefreshDatabase;
 
     protected $project;
 

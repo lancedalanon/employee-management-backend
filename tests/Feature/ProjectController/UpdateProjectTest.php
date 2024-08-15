@@ -10,7 +10,9 @@ use Tests\TestCase;
 
 class UpdateProjectTest extends TestCase
 {
-    use ProjectTestingTrait, RefreshDatabase, WithFaker;
+    use ProjectTestingTrait;
+    use RefreshDatabase;
+    use WithFaker;
 
     protected $project;
 

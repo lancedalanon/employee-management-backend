@@ -10,7 +10,8 @@ use Tests\TestCase;
 
 class GetProjectByIdTest extends TestCase
 {
-    use ProjectTestingTrait, RefreshDatabase;
+    use ProjectTestingTrait;
+    use RefreshDatabase;
 
     protected $project;
 

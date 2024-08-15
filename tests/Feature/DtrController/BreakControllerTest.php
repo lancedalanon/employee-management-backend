@@ -13,7 +13,8 @@ use Tests\TestCase;
 
 class BreakControllerTest extends TestCase
 {
-    use DtrTestingTrait, RefreshDatabase;
+    use DtrTestingTrait;
+    use RefreshDatabase;
 
     /**
      * Setup method to create a user, Dtr, and DtrBreak.

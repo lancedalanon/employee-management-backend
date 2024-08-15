@@ -11,7 +11,8 @@ use Tests\TestCase;
 
 class UserControllerTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase;
+    use WithFaker;
 
     protected $user;
 
