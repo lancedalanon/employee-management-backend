@@ -49,6 +49,7 @@ class User extends Authenticatable implements JWTSubject
         'emergency_contact_number',
         'password',
         'api_key',
+        'company_id',
     ];
 
     /**
@@ -107,6 +108,11 @@ class User extends Authenticatable implements JWTSubject
         }
 
         return trim($full_name);
+    }
+
+    public function company()
+    {
+        return $this->hasOne(Company::class, 'user_id', 'user_id');
     }
 
     public function dtrs()
