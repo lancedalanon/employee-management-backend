@@ -12,7 +12,9 @@ use Spatie\Permission\Models\Role;
 trait DtrTestingTrait
 {
     protected $user;
+
     protected $dtr;
+
     protected $dtrBreak;
 
     public function setUpUserDtrDtrBreak(): void

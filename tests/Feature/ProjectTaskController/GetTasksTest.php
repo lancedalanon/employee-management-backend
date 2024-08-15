@@ -4,11 +4,8 @@ namespace Tests\Feature\ProjectTaskController;
 
 use App\Models\Project;
 use App\Models\ProjectTask;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Sanctum\Sanctum;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class GetTasksTest extends TestCase
@@ -16,6 +13,7 @@ class GetTasksTest extends TestCase
     use RefreshDatabase;
 
     protected $project;
+
     protected $user;
 
     protected function setUp(): void
@@ -50,7 +48,7 @@ class GetTasksTest extends TestCase
                         'project_task_description',
                         'project_task_progress',
                         'project_task_priority_level',
-                    ]
+                    ],
                 ],
                 'first_page_url',
                 'from',
@@ -60,15 +58,15 @@ class GetTasksTest extends TestCase
                     '*' => [
                         'url',
                         'label',
-                        'active'
-                    ]
+                        'active',
+                    ],
                 ],
                 'next_page_url',
                 'path',
                 'per_page',
                 'prev_page_url',
                 'to',
-                'total'
+                'total',
             ]);
     }
 }

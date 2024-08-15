@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'weekly_report_options' => <<<EOT
+    'weekly_report_options' => <<<'EOT'
         Process the following data into a JSON structure with two options, here is only an example:
         Data:
         [

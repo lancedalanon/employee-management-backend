@@ -6,7 +6,6 @@ use App\Models\Project;
 use App\Models\ProjectTask;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -15,10 +14,13 @@ class RemoveUserTaskTest extends TestCase
     use RefreshDatabase;
 
     protected $project;
+
     protected $task;
+
     protected $admin;
+
     protected $user;
-    
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -53,11 +55,11 @@ class RemoveUserTaskTest extends TestCase
         ]));
 
         $response->assertStatus(200)
-                 ->assertJson(['message' => 'User removed from task successfully.']);
+            ->assertJson(['message' => 'User removed from task successfully.']);
 
         $this->assertDatabaseMissing('project_tasks', [
             'project_task_id' => $this->task->project_task_id,
-            'user_id' => $this->user->user_id
+            'user_id' => $this->user->user_id,
         ]);
     }
 
@@ -74,7 +76,7 @@ class RemoveUserTaskTest extends TestCase
         ]));
 
         $response->assertStatus(403)
-                 ->assertJson(['message' => 'Forbidden.']);
+            ->assertJson(['message' => 'Forbidden.']);
     }
 
     public function test_remove_user_from_task_user_not_assigned()
@@ -90,7 +92,7 @@ class RemoveUserTaskTest extends TestCase
         ]));
 
         $response->assertStatus(409)
-                 ->assertJson(['message' => 'User is not assigned to this task.']);
+            ->assertJson(['message' => 'User is not assigned to this task.']);
     }
 
     public function test_remove_user_from_task_user_not_part_of_project()
@@ -105,6 +107,6 @@ class RemoveUserTaskTest extends TestCase
         ]));
 
         $response->assertStatus(404)
-                 ->assertJson(['message' => 'User not found or not associated with the project.']);
+            ->assertJson(['message' => 'User not found or not associated with the project.']);
     }
 }

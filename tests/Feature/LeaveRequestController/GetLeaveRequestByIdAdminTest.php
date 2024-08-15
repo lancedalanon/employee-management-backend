@@ -15,6 +15,7 @@ class GetLeaveRequestByIdAdminTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
+
     protected $leaveRequests;
 
     protected function setUp(): void
@@ -67,7 +68,7 @@ class GetLeaveRequestByIdAdminTest extends TestCase
 
         $response->assertStatus(404)
             ->assertJson([
-                'message' => 'Leave request not found.'
+                'message' => 'Leave request not found.',
             ]);
     }
 }

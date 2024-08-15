@@ -17,7 +17,7 @@ class Project extends Model
 
     protected $fillable = [
         'project_name',
-        'project_description'
+        'project_description',
     ];
 
     protected static function boot()
@@ -55,7 +55,7 @@ class Project extends Model
     /**
      * Remember a cache key.
      *
-     * @param string $key
+     * @param  string  $key
      */
     public static function rememberCacheKey($key)
     {
@@ -63,7 +63,7 @@ class Project extends Model
         $cacheKeys = Cache::get('project_cache_keys', []);
 
         // Add the new key to the list if not already present
-        if (!in_array($key, $cacheKeys)) {
+        if (! in_array($key, $cacheKeys)) {
             $cacheKeys[] = $key;
         }
 

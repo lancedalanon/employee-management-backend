@@ -5,12 +5,11 @@ namespace Tests\Feature\ProjectController;
 use App\Models\Project;
 use App\Testing\ProjectTestingTrait;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class DeleteProjectTest extends TestCase
 {
-    use RefreshDatabase, ProjectTestingTrait;
+    use ProjectTestingTrait, RefreshDatabase;
 
     protected $project;
 
@@ -72,7 +71,7 @@ class DeleteProjectTest extends TestCase
 
         // Assert that the JSON response contains the error message
         $response->assertJson([
-            'message' => 'Project not found.'
+            'message' => 'Project not found.',
         ]);
     }
 }

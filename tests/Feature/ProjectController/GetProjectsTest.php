@@ -5,17 +5,16 @@ namespace Tests\Feature;
 use App\Models\Project;
 use App\Models\User;
 use App\Testing\ProjectTestingTrait;
-use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class GetProjectsTest extends TestCase
 {
-    use RefreshDatabase, ProjectTestingTrait;
+    use ProjectTestingTrait, RefreshDatabase;
 
     protected $project;
+
     protected $user;
 
     /**
@@ -63,7 +62,7 @@ class GetProjectsTest extends TestCase
                     'created_at',
                     'updated_at',
                     'deleted_at',
-                ]
+                ],
             ],
             'first_page_url',
             'from',
@@ -73,15 +72,15 @@ class GetProjectsTest extends TestCase
                 '*' => [
                     'url',
                     'label',
-                    'active'
-                ]
+                    'active',
+                ],
             ],
             'next_page_url',
             'path',
             'per_page',
             'prev_page_url',
             'to',
-            'total'
+            'total',
         ]);
     }
 }

@@ -5,9 +5,7 @@ namespace Tests\Feature\PostController;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Sanctum\Sanctum;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class GetPostByIdTest extends TestCase
@@ -27,7 +25,7 @@ class GetPostByIdTest extends TestCase
         $post = Post::factory()->create();
         $post->tags()->createMany([
             ['post_tag' => 'tag1'],
-            ['post_tag' => 'tag2']
+            ['post_tag' => 'tag2'],
         ]);
 
         // Call the show method
@@ -45,7 +43,7 @@ class GetPostByIdTest extends TestCase
                 'created_at',
                 'updated_at',
                 'tags' => [
-                    '*' => ['post_tag']
+                    '*' => ['post_tag'],
                 ],
             ],
         ]);

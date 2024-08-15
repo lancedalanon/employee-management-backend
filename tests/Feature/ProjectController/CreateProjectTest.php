@@ -4,12 +4,11 @@ namespace Tests\Feature\ProjectController;
 
 use App\Testing\ProjectTestingTrait;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class CreateProjectTest extends TestCase
 {
-    use RefreshDatabase, ProjectTestingTrait;
+    use ProjectTestingTrait, RefreshDatabase;
 
     protected $project;
 

@@ -5,7 +5,6 @@ namespace Tests\Feature\PostController;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -72,7 +71,7 @@ class CreatePostTest extends TestCase
 
         // Assert the post content contains the URLs of the uploaded media files
         foreach ($mediaFiles as $mediaFile) {
-            $url = Storage::disk('public')->url('post_media_files/' . $mediaFile->hashName());
+            $url = Storage::disk('public')->url('post_media_files/'.$mediaFile->hashName());
             $this->assertStringContainsString($url, $post->post_content);
         }
 
@@ -86,8 +85,8 @@ class CreatePostTest extends TestCase
         // Assert the media files are created
         $this->assertCount(2, $post->media);
         foreach ($mediaFiles as $mediaFile) {
-            Storage::disk('public')->assertExists('post_media_files/' . $mediaFile->hashName());
-            $this->assertTrue($post->media->pluck('post_media')->contains('post_media_files/' . $mediaFile->hashName()));
+            Storage::disk('public')->assertExists('post_media_files/'.$mediaFile->hashName());
+            $this->assertTrue($post->media->pluck('post_media')->contains('post_media_files/'.$mediaFile->hashName()));
         }
     }
 

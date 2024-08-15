@@ -2,17 +2,18 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Spatie\Permission\Models\Role;
-use Laravel\Sanctum\Sanctum;
-use Tests\TestCase;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
+use Spatie\Permission\Models\Role;
+use Tests\TestCase;
 
 class DeleteUserTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $adminUser;
+
     protected $user;
 
     protected function setUp(): void

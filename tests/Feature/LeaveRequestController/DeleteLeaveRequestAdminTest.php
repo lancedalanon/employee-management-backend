@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\LeaveRequestController;
 
-use App\Models\Dtr;
 use App\Models\User;
 use Carbon\Carbon;
 use Database\Factories\LeaveRequestFactory;
@@ -16,6 +15,7 @@ class DeleteLeaveRequestAdminTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
+
     protected $leaveRequest;
 
     protected function setUp(): void
@@ -43,9 +43,9 @@ class DeleteLeaveRequestAdminTest extends TestCase
         $response = $this->deleteJson(route('admin.leaveRequests.destroy', $this->leaveRequest->first()->dtr_id));
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'message' => 'Leave request was successfully rejected.',
-                 ]);
+            ->assertJson([
+                'message' => 'Leave request was successfully rejected.',
+            ]);
 
         // Assert that the record was soft-deleted
         $this->assertSoftDeleted('dtrs', [
@@ -58,8 +58,8 @@ class DeleteLeaveRequestAdminTest extends TestCase
         $response = $this->deleteJson(route('admin.leaveRequests.destroy', 99999)); // Non-existent ID
 
         $response->assertStatus(404)
-                 ->assertJson([
-                     'message' => 'Failed to retrieve leave request.',
-                 ]);
+            ->assertJson([
+                'message' => 'Failed to retrieve leave request.',
+            ]);
     }
 }

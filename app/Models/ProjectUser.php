@@ -18,7 +18,7 @@ class ProjectUser extends Model
     protected $fillable = [
         'project_id',
         'user_id',
-        'project_role'
+        'project_role',
     ];
 
     protected static function boot()
@@ -56,7 +56,7 @@ class ProjectUser extends Model
     /**
      * Remember a cache key.
      *
-     * @param string $key
+     * @param  string  $key
      */
     public static function rememberCacheKey($key)
     {
@@ -64,7 +64,7 @@ class ProjectUser extends Model
         $cacheKeys = Cache::get('project_user_cache_keys', []);
 
         // Add the new key to the list if not already present
-        if (!in_array($key, $cacheKeys)) {
+        if (! in_array($key, $cacheKeys)) {
             $cacheKeys[] = $key;
         }
 
@@ -82,7 +82,7 @@ class ProjectUser extends Model
     {
         $validRoles = config('constants.project_roles');
 
-        if (!in_array($value, $validRoles)) {
+        if (! in_array($value, $validRoles)) {
             throw new \InvalidArgumentException("Invalid project role: $value");
         }
 

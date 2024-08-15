@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Dtr;
 use App\Models\DtrBreak;
-use App\Models\EndOfTheDayReportImage;
 use App\Models\User;
 use App\Testing\DtrTestingTrait;
 use Carbon\Carbon;
@@ -17,7 +16,7 @@ use Tests\TestCase;
 
 class TimeOutControllerTest extends TestCase
 {
-    use RefreshDatabase, DtrTestingTrait;
+    use DtrTestingTrait, RefreshDatabase;
 
     /**
      * Setup method to create a user, Dtr, and DtrBreak.
@@ -40,7 +39,7 @@ class TimeOutControllerTest extends TestCase
     /**
      * A local helper that creates a new user and assigns roles to them.
      *
-     * This function creates a new user using Laravel's User factory, 
+     * This function creates a new user using Laravel's User factory,
      * assigns the user to the 'student', 'full-time', and 'day-shift' roles,
      * and then authenticates the user using Laravel Sanctum.
      *
@@ -85,7 +84,7 @@ class TimeOutControllerTest extends TestCase
         $image = UploadedFile::fake()->image('test_png.png');
 
         // Perform the POST request
-        $response = $this->postJson('/api/dtrs/' . $dtr->dtr_id . '/time-out/', [
+        $response = $this->postJson('/api/dtrs/'.$dtr->dtr_id.'/time-out/', [
             'end_of_the_day_report' => 'This is the end of the day report.',
             'end_of_the_day_report_images' => [$image],
         ]);
@@ -93,15 +92,15 @@ class TimeOutControllerTest extends TestCase
         // Assert the response status and structure
         $response->assertStatus(200)
             ->assertJson([
-                'message' => 'Time out recorded successfully.'
+                'message' => 'Time out recorded successfully.',
             ]);
 
         // Assert that the file was stored
-        Storage::disk('public')->assertExists('end_of_the_day_report_images/' . $image->hashName());
+        Storage::disk('public')->assertExists('end_of_the_day_report_images/'.$image->hashName());
 
         // Assert that the image record was created
         $this->assertDatabaseHas('end_of_the_day_report_images', [
-            'end_of_the_day_report_image' => 'end_of_the_day_report_images/' . $image->hashName()
+            'end_of_the_day_report_image' => 'end_of_the_day_report_images/'.$image->hashName(),
         ]);
     }
 
@@ -123,7 +122,7 @@ class TimeOutControllerTest extends TestCase
 
         $response->assertStatus(404)
             ->assertJson([
-                'message' => 'DTR record not found.'
+                'message' => 'DTR record not found.',
             ]);
     }
 
@@ -145,14 +144,14 @@ class TimeOutControllerTest extends TestCase
 
         $image = UploadedFile::fake()->image('report1.jpg');
 
-        $response = $this->postJson('/api/dtrs/' . $dtr->dtr_id . '/time-out/', [
+        $response = $this->postJson('/api/dtrs/'.$dtr->dtr_id.'/time-out/', [
             'end_of_the_day_report' => 'This is the end of the day report.',
             'end_of_the_day_report_images' => [$image],
         ]);
 
         $response->assertStatus(400)
             ->assertJson([
-                'message' => 'Failed to time-out. Record has already been timed out.'
+                'message' => 'Failed to time-out. Record has already been timed out.',
             ]);
     }
 
@@ -177,14 +176,14 @@ class TimeOutControllerTest extends TestCase
 
         $image = UploadedFile::fake()->image('report1.jpg');
 
-        $response = $this->postJson('/api/dtrs/' . $dtr->dtr_id . '/time-out/', [
+        $response = $this->postJson('/api/dtrs/'.$dtr->dtr_id.'/time-out/', [
             'end_of_the_day_report' => 'This is the end of the day report.',
             'end_of_the_day_report_images' => [$image],
         ]);
 
         $response->assertStatus(400)
             ->assertJson([
-                'message' => 'You have an open break that needs to be resumed before timing out.'
+                'message' => 'You have an open break that needs to be resumed before timing out.',
             ]);
     }
 
@@ -233,10 +232,10 @@ class TimeOutControllerTest extends TestCase
 
         $images = [
             UploadedFile::fake()->image('report1.jpg'),
-            UploadedFile::fake()->image('report2.jpg')
+            UploadedFile::fake()->image('report2.jpg'),
         ];
 
-        $response = $this->postJson('/api/dtrs/' . $dtr->dtr_id . '/time-out/', [
+        $response = $this->postJson('/api/dtrs/'.$dtr->dtr_id.'/time-out/', [
             'end_of_the_day_report_images' => $images,
         ]);
 
@@ -259,7 +258,7 @@ class TimeOutControllerTest extends TestCase
             'user_id' => $user->user_id,
         ]);
 
-        $response = $this->postJson('/api/dtrs/' . $dtr->dtr_id . '/time-out/', [
+        $response = $this->postJson('/api/dtrs/'.$dtr->dtr_id.'/time-out/', [
             'end_of_the_day_report' => 'This is the end of the day report.',
         ]);
 
@@ -287,10 +286,10 @@ class TimeOutControllerTest extends TestCase
             UploadedFile::fake()->image('report2.jpg'),
             UploadedFile::fake()->image('report3.jpg'),
             UploadedFile::fake()->image('report4.jpg'),
-            UploadedFile::fake()->image('report5.jpg')
+            UploadedFile::fake()->image('report5.jpg'),
         ];
 
-        $response = $this->postJson('/api/dtrs/' . $dtr->dtr_id . '/time-out/', [
+        $response = $this->postJson('/api/dtrs/'.$dtr->dtr_id.'/time-out/', [
             'end_of_the_day_report' => 'This is the end of the day report.',
             'end_of_the_day_report_images' => $images,
         ]);

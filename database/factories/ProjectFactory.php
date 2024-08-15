@@ -34,7 +34,7 @@ class ProjectFactory extends Factory
     /**
      * Configure the User relationship for the project.
      *
-     * @param int $userCount
+     * @param  int  $userCount
      * @return $this
      */
     public function withUsers($userCount = 10)

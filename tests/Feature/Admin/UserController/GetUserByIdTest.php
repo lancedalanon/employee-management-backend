@@ -13,9 +13,13 @@ class GetUserByIdTest extends TestCase
     use RefreshDatabase;
 
     protected $adminUser;
+
     protected $internUser;
+
     protected $employeeUser;
+
     protected $superUser;
+
     protected $adminUser2;
 
     protected function setUp(): void
@@ -66,7 +70,7 @@ class GetUserByIdTest extends TestCase
             'data' => [
                 'user_id',
                 'first_name',
-                'middle_name' ,
+                'middle_name',
                 'last_name',
                 'place_of_birth',
                 'date_of_birth',
@@ -96,7 +100,7 @@ class GetUserByIdTest extends TestCase
             'data' => [
                 'user_id',
                 'first_name',
-                'middle_name' ,
+                'middle_name',
                 'last_name',
                 'place_of_birth',
                 'date_of_birth',

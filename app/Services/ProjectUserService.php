@@ -5,11 +5,11 @@ namespace App\Services;
 use App\Models\Project;
 use App\Models\ProjectUser;
 use Illuminate\Support\Facades\Response;
-use App\Services\CacheService;
 
 class ProjectUserService
 {
     protected $defaultProjectRole;
+
     protected $cacheService;
 
     public function __construct(CacheService $cacheService)
@@ -28,7 +28,7 @@ class ProjectUserService
                 ->first();
 
             // Handle project not found
-            if (!$project) {
+            if (! $project) {
                 return Response::json([
                     'message' => 'Project not found.',
                 ], 404);
@@ -82,7 +82,7 @@ class ProjectUserService
             });
 
             // Handle project user not found
-            if (!$projectUser) {
+            if (! $projectUser) {
                 return Response::json([
                     'message' => 'Project user not found.',
                 ], 404);
@@ -112,7 +112,7 @@ class ProjectUserService
                 ->first();
 
             // Handle project entry not found
-            if (!$project) {
+            if (! $project) {
                 return Response::json([
                     'message' => 'Project entry not found.',
                 ], 404);
@@ -125,6 +125,7 @@ class ProjectUserService
             // Handle already existing users
             if (count($usersToAdd) < count($userIds)) {
                 $alreadyInProjectIds = array_diff($userIds, $usersToAdd);
+
                 return Response::json([
                     'message' => 'Some users are already in the project.',
                     'data' => $alreadyInProjectIds,
@@ -164,7 +165,7 @@ class ProjectUserService
                 ->where('user_id', $userId)
                 ->first();
 
-            if (!$projectUser) {
+            if (! $projectUser) {
                 return response()->json([
                     'message' => 'User is not part of the project.',
                 ], 400);
@@ -195,7 +196,7 @@ class ProjectUserService
             $project = Project::where('project_id', $projectId)->first();
 
             // Handle project not found
-            if (!$project) {
+            if (! $project) {
                 return Response::json([
                     'message' => 'Project not found.',
                 ], 404);

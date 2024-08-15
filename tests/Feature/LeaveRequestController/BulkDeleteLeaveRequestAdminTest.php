@@ -15,6 +15,7 @@ class BulkDeleteLeaveRequestAdminTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
+
     protected $leaveRequests;
 
     protected function setUp(): void
@@ -40,9 +41,9 @@ class BulkDeleteLeaveRequestAdminTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'message' => 'Leave requests rejected successfully.',
-                 ]);
+            ->assertJson([
+                'message' => 'Leave requests rejected successfully.',
+            ]);
 
         // Assert that the records were soft-deleted
         foreach ($dtrIds as $id) {
@@ -60,12 +61,12 @@ class BulkDeleteLeaveRequestAdminTest extends TestCase
         ]);
 
         $response->assertStatus(422)
-                 ->assertJson([
-                     'errors' => [
-                         'dtr_ids.0' => ['The selected dtr_ids.0 is invalid.'],
-                         'dtr_ids.1' => ['The selected dtr_ids.1 is invalid.'],
-                     ],
-                 ]);
+            ->assertJson([
+                'errors' => [
+                    'dtr_ids.0' => ['The selected dtr_ids.0 is invalid.'],
+                    'dtr_ids.1' => ['The selected dtr_ids.1 is invalid.'],
+                ],
+            ]);
 
         // No records should be soft-deleted
         foreach ([99999, 88888] as $id) {
@@ -83,8 +84,8 @@ class BulkDeleteLeaveRequestAdminTest extends TestCase
         ]);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors('dtr_ids');
-    
+            ->assertJsonValidationErrors('dtr_ids');
+
         // Assert no records were updated
         foreach ($this->leaveRequests as $leaveRequest) {
             $this->assertDatabaseMissing('dtrs', [

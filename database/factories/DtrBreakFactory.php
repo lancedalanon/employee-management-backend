@@ -33,7 +33,6 @@ class DtrBreakFactory extends Factory
     /**
      * Set the break_time value.
      *
-     * @param Carbon $breakTime
      * @return \Illuminate\Database\Eloquent\Factories\Factory
      */
     public function withBreakTime(Carbon $breakTime)
@@ -46,7 +45,6 @@ class DtrBreakFactory extends Factory
     /**
      * Set the resume_time value.
      *
-     * @param Carbon $resumeTime
      * @return \Illuminate\Database\Eloquent\Factories\Factory
      */
     public function withResumeTime(Carbon $resumeTime)

@@ -42,14 +42,14 @@ class UpdateUserRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('users', 'username')->ignore($this->userId, 'user_id')
+                Rule::unique('users', 'username')->ignore($this->userId, 'user_id'),
             ],
             'email' => [
                 'required',
                 'string',
                 'email',
                 'max:255',
-                Rule::unique('users', 'email')->ignore($this->userId, 'user_id')
+                Rule::unique('users', 'email')->ignore($this->userId, 'user_id'),
             ],
             'password' => 'nullable|string|min:8|confirmed', // Password is optional for update
             'role' => 'nullable|string|in:employee,intern', // Ensure only 'employee' or 'intern'

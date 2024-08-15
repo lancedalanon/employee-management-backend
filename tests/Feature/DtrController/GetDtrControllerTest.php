@@ -6,14 +6,12 @@ use App\Models\Dtr;
 use App\Models\DtrBreak;
 use App\Models\User;
 use App\Testing\DtrTestingTrait;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class GetDtrControllerTest extends TestCase
 {
-    use RefreshDatabase, DtrTestingTrait;
+    use DtrTestingTrait, RefreshDatabase;
 
     /**
      * Setup method to create a user, Dtr, and DtrBreak.

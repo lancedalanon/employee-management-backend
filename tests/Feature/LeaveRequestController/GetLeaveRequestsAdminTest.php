@@ -4,22 +4,22 @@ namespace Tests\Feature\LeaveRequestController;
 
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use Database\Factories\LeaveRequestFactory;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Role;
+use Tests\TestCase;
 
 class GetLeaveRequestsAdminTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $user;
-    
+
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Set start date to tomorrow
         $startDate = Carbon::now()->addDay()->format('Y-m-d');
 

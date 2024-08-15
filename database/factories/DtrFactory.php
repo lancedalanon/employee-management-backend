@@ -33,7 +33,6 @@ class DtrFactory extends Factory
     /**
      * Set the time_in value.
      *
-     * @param Carbon $timeIn
      * @return \Illuminate\Database\Eloquent\Factories\Factory
      */
     public function withTimeIn(Carbon $timeIn)
@@ -46,7 +45,6 @@ class DtrFactory extends Factory
     /**
      * Set the time_out value.
      *
-     * @param Carbon $timeOut
      * @return \Illuminate\Database\Eloquent\Factories\Factory
      */
     public function withTimeOut(Carbon $timeOut)

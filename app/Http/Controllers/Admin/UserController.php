@@ -5,28 +5,31 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\User\StoreUserRequest;
 use App\Http\Requests\Admin\User\UpdateUserRequest;
-use Illuminate\Http\Request;
 use App\Services\Admin\UserService;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
     protected $userService;
 
-    public function __construct(UserService $userService) 
+    public function __construct(UserService $userService)
     {
         $this->userService = $userService;
     }
 
-    public function index(Request $request) 
+    public function index(Request $request)
     {
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
         $response = $this->userService->index($perPage, $page);
+
         return $response;
     }
-    public function show(int $userId) 
+
+    public function show(int $userId)
     {
         $response = $this->userService->show($userId);
+
         return $response;
     }
 
@@ -34,6 +37,7 @@ class UserController extends Controller
     {
         $validatedData = $request->validated();
         $response = $this->userService->store($validatedData);
+
         return $response;
     }
 
@@ -41,12 +45,14 @@ class UserController extends Controller
     {
         $validatedData = $request->validated();
         $response = $this->userService->update($validatedData, $userId);
+
         return $response;
     }
 
     public function destroy(int $userId)
     {
         $response = $this->userService->destroy($userId);
+
         return $response;
-    } 
+    }
 }

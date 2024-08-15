@@ -4,9 +4,9 @@ namespace Database\Factories;
 
 use App\Models\Dtr;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
-use Illuminate\Database\Eloquent\Collection;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Dtr>
@@ -36,11 +36,6 @@ class LeaveRequestFactory extends Factory
 
     /**
      * Create multiple entries within a given date range.
-     *
-     * @param string $startDate
-     * @param string $endDate
-     * @param int $userId
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public static function dateRange(string $startDate, string $endDate, int $userId): Collection
     {

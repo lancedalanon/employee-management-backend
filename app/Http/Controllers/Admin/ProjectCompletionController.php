@@ -7,12 +7,12 @@ use App\Http\Requests\Admin\ProjectCompletion\IndexProjectCompletionRequest;
 use App\Http\Requests\Admin\ProjectCompletion\ShowProjectCompletionRequest;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
 class ProjectCompletionController extends Controller
 {
     protected $excludedRoles;
+
     protected $roles;
 
     public function __construct()
@@ -25,11 +25,11 @@ class ProjectCompletionController extends Controller
     {
         // Retrieve validated data
         $validatedData = $request->validated();
-        
+
         // Get the validated query parameters for filtering
         $employmentStatus = $validatedData['employment_status']; // e.g., 'full-time' or 'part-time'
         $personnel = $validatedData['personnel']; // e.g., 'employee' or 'intern'
-        
+
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
 
@@ -87,15 +87,15 @@ class ProjectCompletionController extends Controller
                     ->whereBetween('created_at', [$startDate, $endDate]);
             },
         ])
-        ->role($employmentStatus)
-        ->role($personnel)
-        ->whereDoesntHave('roles', function ($query) {
-            $query->whereIn('name', $this->excludedRoles);
-        })  
-        ->paginate($perPage, ['*'], 'page', $page);
-        
+            ->role($employmentStatus)
+            ->role($personnel)
+            ->whereDoesntHave('roles', function ($query) {
+                $query->whereIn('name', $this->excludedRoles);
+            })
+            ->paginate($perPage, ['*'], 'page', $page);
+
         // Prepare the data for the response
-        $data = $userProjectCompletion->map(function($user) {
+        $data = $userProjectCompletion->map(function ($user) {
             return [
                 'user_id' => $user->user_id,
                 'first_name' => $user->first_name,
@@ -124,7 +124,7 @@ class ProjectCompletionController extends Controller
                 'subtasks_reviewing_count' => $user->subtasks_reviewing_count,
                 'subtasks_completed_count' => $user->subtasks_completed_count,
             ];
-        });   
+        });
 
         return Response::json([
             'message' => 'User attendances retrieved successfully.',
@@ -141,9 +141,9 @@ class ProjectCompletionController extends Controller
             'prev_page_url' => $userProjectCompletion->previousPageUrl(),
             'to' => $userProjectCompletion->lastItem(),
             'total' => $userProjectCompletion->total(),
-        ], 200);      
+        ], 200);
     }
-    
+
     public function show(ShowProjectCompletionRequest $request, int $userId)
     {
         // Retrieve validated data
@@ -207,15 +207,15 @@ class ProjectCompletionController extends Controller
                     ->whereBetween('created_at', [$startDate, $endDate]);
             },
         ])
-        ->where('user_id', $userId)
-        ->role([$employmentStatus, $personnel])
-        ->whereDoesntHave('roles', function ($query) {
-            $query->whereIn('name', $this->excludedRoles);
-        })
-        ->first();
+            ->where('user_id', $userId)
+            ->role([$employmentStatus, $personnel])
+            ->whereDoesntHave('roles', function ($query) {
+                $query->whereIn('name', $this->excludedRoles);
+            })
+            ->first();
 
         // Handle the case where the user is not found
-        if (!$user) {
+        if (! $user) {
             return Response::json([
                 'message' => 'User not found or does not meet the criteria.',
             ], 404);

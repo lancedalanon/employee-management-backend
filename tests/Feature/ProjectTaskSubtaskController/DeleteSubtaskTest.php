@@ -5,9 +5,7 @@ namespace Tests\Feature\ProjectTaskSubtaskController;
 use App\Models\Project;
 use App\Models\ProjectTask;
 use App\Models\ProjectTaskSubtask;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -16,8 +14,11 @@ class DeleteSubtaskTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
+
     protected $project;
+
     protected $task;
+
     protected $subtask;
 
     protected function setUp(): void

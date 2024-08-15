@@ -7,12 +7,12 @@ use App\Models\ProjectTaskSubtask;
 use App\Models\ProjectUser;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 
 class ProjectTaskSubtaskService
 {
     protected $cacheService;
+
     protected $userId;
 
     public function __construct(CacheService $cacheService)
@@ -30,23 +30,23 @@ class ProjectTaskSubtaskService
                         ->where('users.user_id', $this->userId);
                 })
                 ->paginate($perPage, ['*'], 'page', $page);
-        
+
             // Return the ProjectTaskSubtask as a JSON response
             return Response::json([
                 'message' => 'Subtasks retrieved successfully.',
-                'current_page' =>  $subtasks->currentPage(),
-                'data' =>  $subtasks->items(),
-                'first_page_url' =>  $subtasks->url(1),
-                'from' =>  $subtasks->firstItem(),
-                'last_page' =>  $subtasks->lastPage(),
-                'last_page_url' =>  $subtasks->url($subtasks->lastPage()),
-                'links' =>  $subtasks->linkCollection()->toArray(),
-                'next_page_url' =>  $subtasks->nextPageUrl(),
-                'path' =>  $subtasks->path(),
-                'per_page' =>  $subtasks->perPage(),
-                'prev_page_url' =>  $subtasks->previousPageUrl(),
-                'to' =>  $subtasks->lastItem(),
-                'total' =>  $subtasks->total(),
+                'current_page' => $subtasks->currentPage(),
+                'data' => $subtasks->items(),
+                'first_page_url' => $subtasks->url(1),
+                'from' => $subtasks->firstItem(),
+                'last_page' => $subtasks->lastPage(),
+                'last_page_url' => $subtasks->url($subtasks->lastPage()),
+                'links' => $subtasks->linkCollection()->toArray(),
+                'next_page_url' => $subtasks->nextPageUrl(),
+                'path' => $subtasks->path(),
+                'per_page' => $subtasks->perPage(),
+                'prev_page_url' => $subtasks->previousPageUrl(),
+                'to' => $subtasks->lastItem(),
+                'total' => $subtasks->total(),
             ], 200);
         } catch (\Exception $e) {
             // Return a JSON response indicating the error
@@ -61,24 +61,24 @@ class ProjectTaskSubtaskService
         try {
             // Retrieve the specific task for the given project ID and task ID
             $subtask = ProjectTaskSubtask::where('project_task_subtask_id', $subtaskId)
-                    ->where('project_task_id', $taskId)
-                    ->whereHas('task.project.users', function ($query) use ($projectId) {
-                        $query->where('project_id', $projectId)
-                            ->where('users.user_id', $this->userId);
-                    })
-                    ->first();
+                ->where('project_task_id', $taskId)
+                ->whereHas('task.project.users', function ($query) use ($projectId) {
+                    $query->where('project_id', $projectId)
+                        ->where('users.user_id', $this->userId);
+                })
+                ->first();
 
             // Check if the project task was found
-            if (!$subtask) {
+            if (! $subtask) {
                 return Response::json([
-                    'message' => 'Subtask not found.'
+                    'message' => 'Subtask not found.',
                 ], 404);
             }
 
             // Return the specific ProjectTaskSubtask as a JSON response
             return Response::json([
                 'message' => 'Subtask retrieved successfully.',
-                'data' => $subtask
+                'data' => $subtask,
             ], 200);
         } catch (\Exception $e) {
             // Return a JSON response indicating the error
@@ -100,7 +100,7 @@ class ProjectTaskSubtaskService
                 ->first();
 
             // Handle case where task is not found
-            if (!$task) {
+            if (! $task) {
                 return Response::json([
                     'message' => 'Task not found.',
                 ], 404);
@@ -143,7 +143,7 @@ class ProjectTaskSubtaskService
                 ->first();
 
             // Handle case where subtask is not found
-            if (!$subtask) {
+            if (! $subtask) {
                 return Response::json([
                     'message' => 'Subtask not found.',
                 ], 404);
@@ -161,7 +161,7 @@ class ProjectTaskSubtaskService
             // Return the updated ProjectTaskSubtask as a JSON response
             return Response::json([
                 'message' => 'Subtask updated successfully.',
-                'data' => $subtask
+                'data' => $subtask,
             ], 200);
         } catch (\Exception $e) {
             // Return a JSON response indicating the error
@@ -184,7 +184,7 @@ class ProjectTaskSubtaskService
                 ->first();
 
             // Handle case where subtask is not found
-            if (!$subtask) {
+            if (! $subtask) {
                 return Response::json([
                     'message' => 'Subtask not found.',
                 ], 404);
@@ -208,9 +208,9 @@ class ProjectTaskSubtaskService
     public function addUser(int $projectId, int $taskId, int $subtaskId, int $userId)
     {
         try {
-            if (!$this->isProjectAdmin($projectId) && !Auth::user()->hasRole('admin')) {
+            if (! $this->isProjectAdmin($projectId) && ! Auth::user()->hasRole('admin')) {
                 return Response::json([
-                   'message' => 'Forbidden.',
+                    'message' => 'Forbidden.',
                 ], 403);
             }
 
@@ -220,11 +220,11 @@ class ProjectTaskSubtaskService
                         ->where('project_task_id', $taskId)
                         ->where('project_task_subtask_id', $subtaskId);
                 })
-                ->first();  
-                
-            if (!$user) {
+                ->first();
+
+            if (! $user) {
                 return Response::json([
-                   'message' => 'User not found or not associated with the project.',
+                    'message' => 'User not found or not associated with the project.',
                 ], 404);
             }
 
@@ -235,9 +235,9 @@ class ProjectTaskSubtaskService
                 })
                 ->first();
 
-            if ($subtask->user_id === $userId)  {
+            if ($subtask->user_id === $userId) {
                 return Response::json([
-                   'message' => 'User is already assigned to the subtask.',
+                    'message' => 'User is already assigned to the subtask.',
                 ], 409);
             }
 
@@ -246,7 +246,7 @@ class ProjectTaskSubtaskService
 
             // Return a JSON response indicating success
             return Response::json([
-               'message' => 'User assigned to subtask successfully.',
+                'message' => 'User assigned to subtask successfully.',
             ], 200);
         } catch (\Exception $e) {
             // Return a JSON response indicating the error
@@ -259,9 +259,9 @@ class ProjectTaskSubtaskService
     public function removeUser(int $projectId, int $taskId, int $subtaskId, int $userId)
     {
         try {
-            if (!$this->isProjectAdmin($projectId) && !Auth::user()->hasRole('admin')) {
+            if (! $this->isProjectAdmin($projectId) && ! Auth::user()->hasRole('admin')) {
                 return Response::json([
-                   'message' => 'Forbidden.',
+                    'message' => 'Forbidden.',
                 ], 403);
             }
 
@@ -271,11 +271,11 @@ class ProjectTaskSubtaskService
                         ->where('project_task_id', $taskId)
                         ->where('project_task_subtask_id', $subtaskId);
                 })
-                ->first();  
-                
-            if (!$user) {
+                ->first();
+
+            if (! $user) {
                 return Response::json([
-                   'message' => 'User not found or not associated with the project.',
+                    'message' => 'User not found or not associated with the project.',
                 ], 404);
             }
 
@@ -297,7 +297,7 @@ class ProjectTaskSubtaskService
 
             // Return a JSON response indicating success
             return Response::json([
-               'message' => 'User removed from subtask successfully.',
+                'message' => 'User removed from subtask successfully.',
             ], 200);
         } catch (\Exception $e) {
             // Return a JSON response indicating the error
@@ -307,11 +307,11 @@ class ProjectTaskSubtaskService
         }
     }
 
-    protected function isProjectAdmin(int $projectId) 
+    protected function isProjectAdmin(int $projectId)
     {
         return ProjectUser::where('project_id', $projectId)
-                ->where('user_id', $this->userId)
-                ->where('project_role', 'project-admin')
-                ->exists();
+            ->where('user_id', $this->userId)
+            ->where('project_role', 'project-admin')
+            ->exists();
     }
 }

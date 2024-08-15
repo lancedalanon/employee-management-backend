@@ -3,11 +3,9 @@
 namespace Tests\Feature\ProjectTaskController;
 
 use App\Models\Project;
-use App\Models\ProjectTask;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class CreateTaskTest extends TestCase
@@ -15,6 +13,7 @@ class CreateTaskTest extends TestCase
     use RefreshDatabase;
 
     protected $project;
+
     protected $user;
 
     protected function setUp(): void

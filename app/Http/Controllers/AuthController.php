@@ -5,17 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Password;
-use App\Notifications\ResetPasswordNotification;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
     /**
      * Attempt to authenticate the user and generate a Sanctum token.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
+     *
      * @throws \Illuminate\Validation\ValidationException
      */
     public function login(Request $request)
@@ -56,7 +55,6 @@ class AuthController extends Controller
     /**
      * Revoke the current user's token, effectively logging them out.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function logout(Request $request)
@@ -73,8 +71,8 @@ class AuthController extends Controller
     /**
      * Send a reset link to the given user.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
+     *
      * @throws \Illuminate\Validation\ValidationException
      */
     public function sendResetLinkEmail(Request $request)
@@ -90,7 +88,7 @@ class AuthController extends Controller
         // Check if the password reset link was sent successfully
         if ($response === Password::RESET_LINK_SENT) {
             return response()->json([
-                'message' => 'Password reset link sent successfully.'
+                'message' => 'Password reset link sent successfully.',
             ], 200);
         }
 
@@ -103,8 +101,8 @@ class AuthController extends Controller
     /**
      * Reset the given user's password.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
+     *
      * @throws \Illuminate\Validation\ValidationException
      */
     public function reset(Request $request)

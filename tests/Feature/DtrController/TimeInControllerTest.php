@@ -8,12 +8,11 @@ use App\Models\User;
 use App\Testing\DtrTestingTrait;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class TimeInControllerTest extends TestCase
 {
-    use RefreshDatabase, DtrTestingTrait;
+    use DtrTestingTrait, RefreshDatabase;
 
     /**
      * Setup method to create a user, Dtr, and DtrBreak.
@@ -55,7 +54,7 @@ class TimeInControllerTest extends TestCase
 
         $this->assertDatabaseHas('dtrs', [
             'user_id' => $this->user->user_id,
-            'time_out' => null
+            'time_out' => null,
         ]);
     }
 
@@ -68,14 +67,14 @@ class TimeInControllerTest extends TestCase
         Dtr::factory()->create([
             'user_id' => $this->user->user_id,
             'time_in' => Carbon::now()->subHours(2),
-            'time_out' => null
+            'time_out' => null,
         ]);
 
         $response = $this->postJson(route('dtrs.storeTimeIn'));
 
         $response->assertStatus(400)
             ->assertJson([
-                'message' => 'You have an open time record that needs to be closed before timing in again.'
+                'message' => 'You have an open time record that needs to be closed before timing in again.',
             ]);
     }
 }

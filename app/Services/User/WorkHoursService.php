@@ -82,12 +82,13 @@ class WorkHoursService
     protected function adjustTimeForShift($currentDate, $expectedTime, $expectedStartRange, $expectedEndRange)
     {
         // Define expected start and end times
-        $startTime = Carbon::createFromFormat('Y-m-d H:i:s', $currentDate . ' ' . $expectedStartRange);
-        $endTime = Carbon::createFromFormat('Y-m-d H:i:s', $currentDate . ' ' . $expectedEndRange);
+        $startTime = Carbon::createFromFormat('Y-m-d H:i:s', $currentDate.' '.$expectedStartRange);
+        $endTime = Carbon::createFromFormat('Y-m-d H:i:s', $currentDate.' '.$expectedEndRange);
 
         // Check if timeIn is within the expected range minus 1 hour
         $adjustedTime = $startTime->copy()->addHour();
-        return $adjustedTime->between($startTime, $endTime) ? Carbon::createFromFormat('Y-m-d H:i:s', $currentDate . ' ' . $expectedTime) : $startTime;
+
+        return $adjustedTime->between($startTime, $endTime) ? Carbon::createFromFormat('Y-m-d H:i:s', $currentDate.' '.$expectedTime) : $startTime;
     }
 
     public function findTimeInTimeOutDifference($user, $dtr, $timeIn, $timeOut)

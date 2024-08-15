@@ -21,12 +21,14 @@ class PostController extends Controller
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
         $response = $this->postService->index($perPage, $page);
+
         return $response;
     }
 
     public function show(int $postId)
     {
         $response = $this->postService->show($postId);
+
         return $response;
     }
 
@@ -34,6 +36,7 @@ class PostController extends Controller
     {
         $validatedData = $request->validated();
         $response = $this->postService->store($validatedData, $request->file('post_media'));
+
         return $response;
     }
 
@@ -41,12 +44,14 @@ class PostController extends Controller
     {
         $validatedData = $request->validated();
         $response = $this->postService->update($validatedData, $postId, $request->file('post_media'));
+
         return $response;
     }
 
     public function destroy(int $postId)
     {
         $response = $this->postService->destroy($postId);
+
         return $response;
     }
 }

@@ -4,7 +4,6 @@ namespace Tests\Feature\LeaveRequestController;
 
 use App\Models\Dtr;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Role;
@@ -15,6 +14,7 @@ class BulkUpdateLeaveRequestAdminTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
+
     protected $leaveRequests;
 
     protected function setUp(): void
@@ -39,17 +39,17 @@ class BulkUpdateLeaveRequestAdminTest extends TestCase
     public function test_successful_bulk_update(): void
     {
         $dtrIds = $this->leaveRequests->pluck('dtr_id')->toArray();
-    
+
         $response = $this->patchJson(route('admin.leaveRequests.bulkUpdate'), [
             'dtr_ids' => $dtrIds,
         ]);
-    
+
         $response->assertStatus(200)
-                 ->assertJson([
-                     'message' => 'Leave requests updated successfully',
-                 ]);
+            ->assertJson([
+                'message' => 'Leave requests updated successfully',
+            ]);
     }
-    
+
     public function test_invalid_dtr_ids(): void
     {
         $response = $this->patchJson(route('admin.leaveRequests.bulkUpdate'), [
@@ -57,21 +57,21 @@ class BulkUpdateLeaveRequestAdminTest extends TestCase
         ]);
 
         $response->assertStatus(422)
-                ->assertJson([
-                    'errors' => [
-                        'dtr_ids.0' => ['The selected dtr_ids.0 is invalid.'],
-                        'dtr_ids.1' => ['The selected dtr_ids.1 is invalid.'],
-                    ],
-                ]);
+            ->assertJson([
+                'errors' => [
+                    'dtr_ids.0' => ['The selected dtr_ids.0 is invalid.'],
+                    'dtr_ids.1' => ['The selected dtr_ids.1 is invalid.'],
+                ],
+            ]);
     }
-    
+
     public function test_empty_dtr_ids(): void
     {
         $response = $this->patchJson(route('admin.leaveRequests.bulkUpdate'), [
             'dtr_ids' => [],
         ]);
-    
+
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors('dtr_ids');
-    }    
+            ->assertJsonValidationErrors('dtr_ids');
+    }
 }

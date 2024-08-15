@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Dtr\StoreTimeOutRequest;
-use Illuminate\Http\Request;
 use App\Services\DtrService;
+use Illuminate\Http\Request;
 
 class DtrController extends Controller
 {
@@ -20,30 +20,35 @@ class DtrController extends Controller
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
         $response = $this->dtrService->index($perPage, $page);
+
         return $response;
     }
 
     public function show(int $dtrId)
     {
         $response = $this->dtrService->show($dtrId);
+
         return $response;
     }
 
     public function storeTimeIn()
     {
         $response = $this->dtrService->storeTimeIn();
+
         return $response;
     }
 
     public function storeBreak(int $dtrId)
     {
         $response = $this->dtrService->storeBreak($dtrId);
+
         return $response;
     }
 
     public function storeResume(int $dtrId)
     {
         $response = $this->dtrService->storeResume($dtrId);
+
         return $response;
     }
 

@@ -4,15 +4,15 @@ namespace App\Services;
 
 use App\Models\Dtr;
 use App\Models\DtrBreak;
-use Illuminate\Support\Facades\Auth;
 use App\Services\User\WorkHoursService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
-use App\Services\CacheService;
 
 class DtrService
 {
     protected $workHoursService;
+
     protected $cacheService;
 
     public function __construct(WorkHoursService $workHoursService, CacheService $cacheService)
@@ -85,16 +85,16 @@ class DtrService
             });
 
             // Check if the DTR was found
-            if (!$dtr) {
+            if (! $dtr) {
                 return Response::json([
-                    'message' => 'DTR not found.'
+                    'message' => 'DTR not found.',
                 ], 404);
             }
 
             // Return the success response with the DTR data
             return Response::json([
                 'message' => 'DTR retrieved successfully.',
-                'data' => $dtr
+                'data' => $dtr,
             ], 200);
         } catch (\Exception $e) {
             // Return a generic error response
@@ -120,7 +120,7 @@ class DtrService
             // Send a response to the user who is absent today
             if ($isAbsentToday) {
                 return Response::json([
-                   'message' => 'You cannot time in again today due to being absent.'
+                    'message' => 'You cannot time in again today due to being absent.',
                 ], 400);
             }
 
@@ -134,7 +134,7 @@ class DtrService
 
             if ($existingDtr) {
                 return Response::json([
-                    'message' => 'You have an open time record that needs to be closed before timing in again.'
+                    'message' => 'You have an open time record that needs to be closed before timing in again.',
                 ], 400);
             }
 
@@ -179,7 +179,7 @@ class DtrService
             // Send a response to the user who is absent today
             if ($isAbsentToday) {
                 return Response::json([
-                   'message' => 'You cannot time in again today due to being absent.'
+                    'message' => 'You cannot time in again today due to being absent.',
                 ], 400);
             }
 
@@ -194,7 +194,7 @@ class DtrService
                 ->first();
 
             // Handle DTR record not found
-            if (!$dtr) {
+            if (! $dtr) {
                 return Response::json([
                     'message' => 'DTR record not found.',
                 ], 404);
@@ -204,7 +204,7 @@ class DtrService
             $hasOpenBreak = $dtr->breaks->whereNull('resume_time')->isNotEmpty();
             if ($hasOpenBreak) {
                 return Response::json([
-                    'message' => 'Failed to start break. You have an open break session.'
+                    'message' => 'Failed to start break. You have an open break session.',
                 ], 400);
             }
 
@@ -246,7 +246,7 @@ class DtrService
             // Send a response to the user who is absent today
             if ($isAbsentToday) {
                 return Response::json([
-                   'message' => 'You cannot time in again today due to being absent.'
+                    'message' => 'You cannot time in again today due to being absent.',
                 ], 400);
             }
 
@@ -261,7 +261,7 @@ class DtrService
                 ->first();
 
             // Handle DTR record not found
-            if (!$dtr) {
+            if (! $dtr) {
                 return Response::json([
                     'message' => 'DTR record not found.',
                 ], 404);
@@ -271,9 +271,9 @@ class DtrService
             $dtrBreak = $dtr->breaks()->whereNull('resume_time')->latest()->first();
 
             // Check if the break is found
-            if (!$dtrBreak) {
+            if (! $dtrBreak) {
                 return Response::json([
-                    'message' => 'Failed to resume break. No open break session found.'
+                    'message' => 'Failed to resume break. No open break session found.',
                 ], 400);
             }
 
@@ -313,7 +313,7 @@ class DtrService
             // Send a response to the user who is absent today
             if ($isAbsentToday) {
                 return Response::json([
-                   'message' => 'You cannot time in again today due to being absent.'
+                    'message' => 'You cannot time in again today due to being absent.',
                 ], 400);
             }
 
@@ -326,7 +326,7 @@ class DtrService
                 ->first();
 
             // Handle DTR record not found
-            if (!$dtr) {
+            if (! $dtr) {
                 return Response::json([
                     'message' => 'DTR record not found.',
                 ], 404);
@@ -335,14 +335,14 @@ class DtrService
             // Check if the DTR record is found and if it's not already timed out
             if ($dtr->time_out) {
                 return Response::json([
-                    'message' => 'Failed to time-out. Record has already been timed out.'
+                    'message' => 'Failed to time-out. Record has already been timed out.',
                 ], 400);
             }
 
             // Check for any open breaks
             if ($dtr->breaks()->whereNull('resume_time')->exists()) {
                 return Response::json([
-                    'message' => 'You have an open break that needs to be resumed before timing out.'
+                    'message' => 'You have an open break that needs to be resumed before timing out.',
                 ], 400);
             }
 
@@ -351,9 +351,9 @@ class DtrService
             $timeIn = Carbon::parse($dtr->time_in);
 
             // Check if the user has enough worked hours to time out
-            if (!$this->workHoursService->findTimeInTimeOutDifference($user, $dtr, $timeIn, $timeOut)) {
+            if (! $this->workHoursService->findTimeInTimeOutDifference($user, $dtr, $timeIn, $timeOut)) {
                 return Response::json([
-                    'message' => 'Insufficient worked hours. You need to work at least 8 hours before timing out for full-time or 4 hours for part-time.'
+                    'message' => 'Insufficient worked hours. You need to work at least 8 hours before timing out for full-time or 4 hours for part-time.',
                 ], 400);
             }
 
@@ -367,7 +367,7 @@ class DtrService
 
             if ($uploadedImagesPaths === false) {
                 return Response::json([
-                    'message' => 'You can only upload up to 4 images.'
+                    'message' => 'You can only upload up to 4 images.',
                 ], 400);
             }
 
@@ -375,7 +375,7 @@ class DtrService
             foreach ($uploadedImagesPaths as $uploadedImagePath) {
                 // Create a new EndOfTheDayReportImage instance for each path
                 $dtr->endOfTheDayReportImages()->create([
-                    'end_of_the_day_report_image' => $uploadedImagePath
+                    'end_of_the_day_report_image' => $uploadedImagePath,
                 ]);
             }
 

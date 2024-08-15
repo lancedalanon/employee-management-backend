@@ -13,7 +13,9 @@ class CreateSubtaskTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
+
     protected $project;
+
     protected $task;
 
     protected function setUp(): void

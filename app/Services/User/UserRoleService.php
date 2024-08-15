@@ -3,15 +3,11 @@
 namespace App\Services\User;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 
 class UserRoleService
 {
     /**
      * Get the user's full/part-time role.
-     *
-     * @param User $user
-     * @return string|null
      */
     public function getUserEmploymentRole(User $user): ?string
     {
@@ -29,9 +25,6 @@ class UserRoleService
 
     /**
      * Get the user's shift role.
-     *
-     * @param User $user
-     * @return string|null
      */
     public function getUserShiftRole(User $user): ?string
     {

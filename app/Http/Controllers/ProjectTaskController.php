@@ -21,12 +21,14 @@ class ProjectTaskController extends Controller
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
         $response = $this->projectTaskService->index($perPage, $page, $projectId);
+
         return $response;
     }
 
     public function show(int $projectId, int $taskId)
     {
         $response = $this->projectTaskService->show($projectId, $taskId);
+
         return $response;
     }
 
@@ -34,6 +36,7 @@ class ProjectTaskController extends Controller
     {
         $validatedData = $request->validated();
         $response = $this->projectTaskService->store($validatedData, $projectId);
+
         return $response;
     }
 
@@ -41,24 +44,28 @@ class ProjectTaskController extends Controller
     {
         $validatedData = $request->validated();
         $response = $this->projectTaskService->update($validatedData, $projectId, $taskId);
+
         return $response;
     }
 
     public function destroy(int $projectId, int $taskId)
     {
         $response = $this->projectTaskService->destroy($projectId, $taskId);
+
         return $response;
     }
 
     public function addUser(int $projectId, int $taskId, int $userId)
     {
         $response = $this->projectTaskService->addUser($projectId, $taskId, $userId);
+
         return $response;
     }
 
     public function removeUser(int $projectId, int $taskId, int $userId)
     {
         $response = $this->projectTaskService->removeUser($projectId, $taskId, $userId);
+
         return $response;
     }
 }

@@ -8,19 +8,18 @@ use App\Models\User;
 use App\Testing\ProjectTestingTrait;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Response;
-use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class ProjectUserControllerTest extends TestCase
 {
-    use RefreshDatabase, ProjectTestingTrait;
+    use ProjectTestingTrait, RefreshDatabase;
 
     protected $user;
+
     protected $project;
+
     protected $projectUser;
 
     /**
@@ -41,7 +40,7 @@ class ProjectUserControllerTest extends TestCase
         $this->projectUser = ProjectUser::create([
             'project_id' => $this->project->project_id,
             'user_id' => $this->user->user_id,
-            'project_role' => 'project-user'
+            'project_role' => 'project-user',
         ]);
     }
 
@@ -149,7 +148,7 @@ class ProjectUserControllerTest extends TestCase
 
         // Act: Send a POST request to add users to the project
         $response = $this->postJson(route('admin.projects.users.storeUser', ['projectId' => $project->project_id]), [
-            'user_ids' => $userIds
+            'user_ids' => $userIds,
         ]);
 
         // Assert: Check that the users were added successfully
@@ -182,7 +181,7 @@ class ProjectUserControllerTest extends TestCase
 
         // Act: Send a POST request to add users to the project
         $response = $this->postJson(route('admin.projects.users.storeUser', ['projectId' => $nonExistentProjectId]), [
-            'user_ids' => $userIds
+            'user_ids' => $userIds,
         ]);
 
         // Assert: Check that the response indicates project not found (404)
@@ -249,7 +248,7 @@ class ProjectUserControllerTest extends TestCase
 
         // Act: Send a POST request to remove users from the project
         $response = $this->postJson(route('admin.projects.users.destroyUser', ['projectId' => $project->project_id]), [
-            'user_ids' => $userIds
+            'user_ids' => $userIds,
         ]);
 
         // Assert: Check that the users were removed successfully
@@ -366,9 +365,9 @@ class ProjectUserControllerTest extends TestCase
                 'message' => 'The selected project role is invalid.',
                 'errors' => [
                     'project_role' => [
-                        'The selected project role is invalid.'
-                    ]
-                ]
+                        'The selected project role is invalid.',
+                    ],
+                ],
             ]);
     }
 
@@ -389,9 +388,9 @@ class ProjectUserControllerTest extends TestCase
                 'message' => 'The selected user id is invalid.',
                 'errors' => [
                     'user_id' => [
-                        'The selected user id is invalid.'
-                    ]
-                ]
+                        'The selected user id is invalid.',
+                    ],
+                ],
             ]);
     }
 
@@ -429,10 +428,10 @@ class ProjectUserControllerTest extends TestCase
                 'message' => 'The user id field is required. (and 1 more error)',
                 'errors' => [
                     'user_id' => [
-                        'The user id field is required.'
+                        'The user id field is required.',
                     ],
                     'project_role' => [
-                        'The project role field is required.'
+                        'The project role field is required.',
                     ],
                 ],
             ]);

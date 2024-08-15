@@ -22,14 +22,13 @@ class UserController extends Controller
         // Return the user's information as a JSON response
         return response()->json([
             'message' => 'Personal information retrieved successfully',
-            'data' => $user
+            'data' => $user,
         ], 200);
     }
 
     /**
      * Update the specified user's personal information in the database.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function updatePersonalInformation(Request $request)
@@ -43,9 +42,9 @@ class UserController extends Controller
                 'place_of_birth' => 'nullable|string|max:255',
                 'date_of_birth' => 'nullable|date',
                 'gender' => 'nullable|in:Male,Female',
-                'email' => 'nullable|string|max:255|email|unique:users,email,' . Auth::id() . ',user_id',
-                'username' => 'nullable|string|max:255|unique:users,username,' . Auth::id() . ',user_id',
-                'recovery_email' => 'nullable|string|max:255|email|unique:users,recovery_email,' . Auth::id() . ',user_id',
+                'email' => 'nullable|string|max:255|email|unique:users,email,'.Auth::id().',user_id',
+                'username' => 'nullable|string|max:255|unique:users,username,'.Auth::id().',user_id',
+                'recovery_email' => 'nullable|string|max:255|email|unique:users,recovery_email,'.Auth::id().',user_id',
                 'phone_number' => 'nullable|string|max:13',
                 'emergency_contact_name' => 'nullable|string|max:255',
                 'emergency_contact_number' => 'nullable|string|max:13',
@@ -84,7 +83,7 @@ class UserController extends Controller
             // Return a success response with the updated user data
             return response()->json([
                 'message' => 'Personal information updated successfully',
-                'data' => $user
+                'data' => $user,
             ], 200);
         } catch (\Exception $e) {
             // Return an error response
@@ -97,7 +96,6 @@ class UserController extends Controller
     /**
      * Change the password for the authenticated user.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function updatePassword(Request $request)
@@ -113,9 +111,9 @@ class UserController extends Controller
             $user = Auth::user();
 
             // Check if the old password matches the current password
-            if (!Hash::check($request->input('old_password'), $user->password)) {
+            if (! Hash::check($request->input('old_password'), $user->password)) {
                 return response()->json([
-                    'message' => 'The old password does not match our records.'
+                    'message' => 'The old password does not match our records.',
                 ], 422);
             }
 
@@ -125,12 +123,12 @@ class UserController extends Controller
 
             // Return a success response
             return response()->json([
-                'message' => 'Password changed successfully.'
+                'message' => 'Password changed successfully.',
             ], 200);
         } catch (Exception $e) {
             // Return an error response in case of an exception
             return response()->json([
-                'message' => 'An error occurred while changing the password. Please try again.'
+                'message' => 'An error occurred while changing the password. Please try again.',
             ], 500);
         }
     }

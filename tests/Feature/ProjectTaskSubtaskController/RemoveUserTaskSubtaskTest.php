@@ -7,7 +7,6 @@ use App\Models\ProjectTask;
 use App\Models\ProjectTaskSubtask;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -16,9 +15,13 @@ class RemoveUserTaskSubtaskTest extends TestCase
     use RefreshDatabase;
 
     protected $project;
+
     protected $task;
+
     protected $subtask;
+
     protected $admin;
+
     protected $user;
 
     protected function setUp(): void
@@ -59,11 +62,11 @@ class RemoveUserTaskSubtaskTest extends TestCase
         ]));
 
         $response->assertStatus(200)
-                 ->assertJson(['message' => 'User removed from subtask successfully.']);
+            ->assertJson(['message' => 'User removed from subtask successfully.']);
 
         $this->assertDatabaseHas('project_task_subtasks', [
             'project_task_subtask_id' => $this->subtask->project_task_subtask_id,
-            'user_id' => null
+            'user_id' => null,
         ]);
     }
 
@@ -82,7 +85,7 @@ class RemoveUserTaskSubtaskTest extends TestCase
         ]));
 
         $response->assertStatus(403)
-                 ->assertJson(['message' => 'Forbidden.']);
+            ->assertJson(['message' => 'Forbidden.']);
     }
 
     public function test_remove_user_from_subtask_user_not_part_of_project()
@@ -98,7 +101,7 @@ class RemoveUserTaskSubtaskTest extends TestCase
         ]));
 
         $response->assertStatus(404)
-                 ->assertJson(['message' => 'User not found or not associated with the project.']);
+            ->assertJson(['message' => 'User not found or not associated with the project.']);
     }
 
     public function test_remove_user_from_subtask_not_assigned()
@@ -115,6 +118,6 @@ class RemoveUserTaskSubtaskTest extends TestCase
         ]));
 
         $response->assertStatus(409)
-                 ->assertJson(['message' => 'User is not assigned to this subtask.']);
+            ->assertJson(['message' => 'User is not assigned to this subtask.']);
     }
 }

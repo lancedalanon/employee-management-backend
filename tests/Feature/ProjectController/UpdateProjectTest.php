@@ -6,12 +6,11 @@ use App\Models\Project;
 use App\Testing\ProjectTestingTrait;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class UpdateProjectTest extends TestCase
 {
-    use RefreshDatabase, WithFaker, ProjectTestingTrait;
+    use ProjectTestingTrait, RefreshDatabase, WithFaker;
 
     protected $project;
 

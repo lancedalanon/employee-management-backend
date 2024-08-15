@@ -5,7 +5,6 @@ namespace Tests\Feature\LeaveRequestController;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -38,9 +37,9 @@ class BulkCreateLeaveRequestTest extends TestCase
         ]);
 
         $response->assertStatus(201)
-                 ->assertJson([
-                     'message' => 'Leave requests stored successfully',
-                 ]);
+            ->assertJson([
+                'message' => 'Leave requests stored successfully',
+            ]);
     }
 
     public function test_missing_absence_start_date(): void
@@ -52,7 +51,7 @@ class BulkCreateLeaveRequestTest extends TestCase
         ]);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors('absence_start_date');
+            ->assertJsonValidationErrors('absence_start_date');
     }
 
     public function test_missing_absence_end_date(): void
@@ -63,7 +62,7 @@ class BulkCreateLeaveRequestTest extends TestCase
         ]);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors('absence_end_date');
+            ->assertJsonValidationErrors('absence_end_date');
     }
 
     public function test_absence_end_date_before_start_date(): void
@@ -75,7 +74,7 @@ class BulkCreateLeaveRequestTest extends TestCase
         ]);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors('absence_end_date');
+            ->assertJsonValidationErrors('absence_end_date');
     }
 
     public function test_invalid_absence_start_date_format(): void
@@ -87,7 +86,7 @@ class BulkCreateLeaveRequestTest extends TestCase
         ]);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors('absence_start_date');
+            ->assertJsonValidationErrors('absence_start_date');
     }
 
     public function test_invalid_absence_end_date_format(): void
@@ -99,7 +98,7 @@ class BulkCreateLeaveRequestTest extends TestCase
         ]);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors('absence_end_date');
+            ->assertJsonValidationErrors('absence_end_date');
     }
 
     public function test_absence_reason_too_long(): void
@@ -111,6 +110,6 @@ class BulkCreateLeaveRequestTest extends TestCase
         ]);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors('absence_reason');
+            ->assertJsonValidationErrors('absence_reason');
     }
 }

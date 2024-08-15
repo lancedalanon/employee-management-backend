@@ -6,12 +6,10 @@ use App\Models\Post;
 use App\Models\PostMedia;
 use App\Models\PostTag;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
-use App\Services\CacheService;
 
 class PostService
 {
@@ -68,7 +66,7 @@ class PostService
             $post = $this->cacheService->rememberForever($cacheKey, function () use ($postId) {
                 $post = Post::with(['tags'])->where('post_id', $postId)->first();
 
-                if (!$post) {
+                if (! $post) {
                     return Response::json([
                         'message' => 'Post not found.',
                     ], 404);
@@ -164,7 +162,7 @@ class PostService
                 ->first();
 
             // Return a 404 Not Found response
-            if (!$post) {
+            if (! $post) {
                 return Response::json([
                     'message' => 'Post not found.',
                 ], 404);
@@ -244,7 +242,7 @@ class PostService
                 ->first();
 
             // Return a 404 Not Found response
-            if (!$post) {
+            if (! $post) {
                 return Response::json([
                     'message' => 'Post not found.',
                 ], 404);

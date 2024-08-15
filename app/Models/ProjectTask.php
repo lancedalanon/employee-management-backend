@@ -59,7 +59,7 @@ class ProjectTask extends Model
     /**
      * Remember a cache key.
      *
-     * @param string $key
+     * @param  string  $key
      */
     public static function rememberCacheKey($key)
     {
@@ -67,7 +67,7 @@ class ProjectTask extends Model
         $cacheKeys = Cache::get('project_task_cache_keys', []);
 
         // Add the new key to the list if not already present
-        if (!in_array($key, $cacheKeys)) {
+        if (! in_array($key, $cacheKeys)) {
             $cacheKeys[] = $key;
         }
 

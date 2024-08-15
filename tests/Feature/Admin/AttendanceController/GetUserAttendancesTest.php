@@ -6,20 +6,24 @@ use App\Models\Dtr;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class GetUserAttendancesTest extends TestCase
 {
-    use RefreshDatabase; 
+    use RefreshDatabase;
 
     protected $admin;
+
     protected $user;
+
     protected $dtr;
+
     protected $adminRole;
+
     protected $fullTimeRole;
+
     protected $employeeRole;
 
     protected function setUp(): void
@@ -93,7 +97,7 @@ class GetUserAttendancesTest extends TestCase
                     'updated_at',
                     'deleted_at',
                     'dtr_attendance_count',
-                ]
+                ],
             ],
             'first_page_url',
             'last_page',

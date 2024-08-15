@@ -2,20 +2,20 @@
 
 namespace Tests\Feature\LeaveRequestController;
 
-use App\Models\Dtr;
 use App\Models\User;
 use Carbon\Carbon;
 use Database\Factories\LeaveRequestFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
-use Tests\TestCase;
 use Spatie\Permission\Models\Role;
+use Tests\TestCase;
 
 class UpdateLeaveRequestAdminTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $user;
+
     protected $leaveRequests;
 
     protected function setUp(): void
@@ -45,9 +45,9 @@ class UpdateLeaveRequestAdminTest extends TestCase
         $response = $this->putJson(route('admin.leaveRequests.update', $leaveRequest->dtr_id));
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'message' => 'Leave request was successfully approved.',
-                 ]);
+            ->assertJson([
+                'message' => 'Leave request was successfully approved.',
+            ]);
 
         // Assert that the `absence_approved_at` field was updated
         $this->assertDatabaseHas('dtrs', [
@@ -61,9 +61,9 @@ class UpdateLeaveRequestAdminTest extends TestCase
         $response = $this->putJson(route('admin.leaveRequests.update', 99999)); // Non-existent ID
 
         $response->assertStatus(404)
-                 ->assertJson([
-                     'message' => 'Failed to retrieve leave request.',
-                 ]);
+            ->assertJson([
+                'message' => 'Failed to retrieve leave request.',
+            ]);
     }
 
     public function test_update_with_existing_approval(): void
@@ -78,8 +78,8 @@ class UpdateLeaveRequestAdminTest extends TestCase
         $response = $this->putJson(route('admin.leaveRequests.update', $leaveRequest->dtr_id));
 
         $response->assertStatus(404)
-                 ->assertJson([
-                     'message' => 'Failed to retrieve leave request.',
-                 ]);
+            ->assertJson([
+                'message' => 'Failed to retrieve leave request.',
+            ]);
     }
 }

@@ -10,6 +10,7 @@ use Spatie\Permission\Models\Role;
 trait ProjectTestingTrait
 {
     protected $admin;
+
     protected $project;
 
     /**

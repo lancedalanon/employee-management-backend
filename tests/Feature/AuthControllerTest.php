@@ -3,11 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 use Tests\TestCase;
 
@@ -16,6 +14,7 @@ class AuthControllerTest extends TestCase
     use RefreshDatabase, WithFaker;
 
     protected $user;
+
     protected $password;
 
     /**
@@ -111,7 +110,7 @@ class AuthControllerTest extends TestCase
         $token = $this->user->createToken('auth_token')->plainTextToken;
 
         // Make a POST request to the logout endpoint with the token
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->postJson('/api/logout');
 
         // Assert that the response is successful

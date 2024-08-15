@@ -6,9 +6,7 @@ use App\Models\Project;
 use App\Models\ProjectTask;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Sanctum\Sanctum;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class DeleteTaskTest extends TestCase
@@ -16,7 +14,9 @@ class DeleteTaskTest extends TestCase
     use RefreshDatabase;
 
     protected $project;
+
     protected $user;
+
     protected $task;
 
     protected function setUp(): void

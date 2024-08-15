@@ -4,7 +4,6 @@ namespace Tests\Feature\Admin\UserController;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -58,7 +57,7 @@ class GetUsersTest extends TestCase
                 '*' => [
                     'user_id',
                     'first_name',
-                    'middle_name' ,
+                    'middle_name',
                     'last_name',
                     'place_of_birth',
                     'date_of_birth',
@@ -116,7 +115,7 @@ class GetUsersTest extends TestCase
                 '*' => [
                     'user_id',
                     'first_name',
-                    'middle_name' ,
+                    'middle_name',
                     'last_name',
                     'place_of_birth',
                     'date_of_birth',

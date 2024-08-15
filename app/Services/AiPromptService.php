@@ -8,15 +8,16 @@ use Illuminate\Support\Facades\Response;
 class AiPromptService
 {
     protected $user;
+
     protected $geminiUrl;
-    
+
     public function __construct()
     {
         $this->user = Auth::user();
         $this->geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={$this->user->api_key}";
     }
 
-    public function generateResponse(string $prompt, string $data) 
+    public function generateResponse(string $prompt, string $data)
     {
         // Check if API key is provided
         if (is_null($this->user->api_key)) {
@@ -29,10 +30,10 @@ class AiPromptService
                 [
                     'parts' => [
                         [
-                            'text' => $prompt . $data
-                        ]
-                    ]
-                ]
+                            'text' => $prompt.$data,
+                        ],
+                    ],
+                ],
             ],
             'safetySettings' => [
                 [
@@ -70,7 +71,7 @@ class AiPromptService
         curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonPayload);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
-            'Content-Length: ' . strlen($jsonPayload),
+            'Content-Length: '.strlen($jsonPayload),
         ]);
 
         // Execute cURL request

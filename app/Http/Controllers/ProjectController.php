@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
-use App\Models\Project;
 use App\Services\ProjectService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class ProjectController extends Controller
 {
@@ -23,12 +21,14 @@ class ProjectController extends Controller
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
         $response = $this->projectService->index($perPage, $page);
+
         return $response;
     }
 
     public function show(int $projectId)
     {
         $response = $this->projectService->show($projectId);
+
         return $response;
     }
 
@@ -36,6 +36,7 @@ class ProjectController extends Controller
     {
         $validatedData = $request->validated();
         $response = $this->projectService->store($validatedData);
+
         return $response;
     }
 
@@ -43,12 +44,14 @@ class ProjectController extends Controller
     {
         $validatedData = $request->validated();
         $response = $this->projectService->update($validatedData, $projectId);
+
         return $response;
     }
 
     public function destroy(int $projectId)
     {
         $response = $this->projectService->destroy($projectId);
+
         return $response;
     }
 }

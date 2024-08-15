@@ -12,36 +12,39 @@ use Illuminate\Support\Facades\Response;
 class WeeklyReportController extends Controller
 {
     protected $aiPromptService;
+
     protected $user;
+
     protected $prompt;
 
     public function __construct(AiPromptService $aiPromptService)
     {
         $this->aiPromptService = $aiPromptService;
         $this->prompt = config('prompts.weekly_report_options');
-        $this->user= Auth::user();
+        $this->user = Auth::user();
     }
 
     public function showOptions()
-     {
+    {
         $data = $this->showEndOfTheDayReports();
 
-        if(!$data) {
+        if (! $data) {
             return Response::json([
                 'message' => 'No end of the day report/s found.',
             ], 404);
         }
 
         $response = $this->aiPromptService->generateResponse($this->prompt, $data);
+
         return $response;
     }
 
-    public function showEndOfTheDayReportImages() 
+    public function showEndOfTheDayReportImages()
     {
         try {
             // Get the current date
             $now = Carbon::now();
-                    
+
             // Determine the start of the week (Sunday)
             $startOfWeek = $now->startOfWeek(Carbon::SUNDAY)->toDateString();
 
@@ -49,10 +52,9 @@ class WeeklyReportController extends Controller
             $endOfWeek = $now->endOfWeek(Carbon::SATURDAY)->toDateString();
 
             // Fetch the end of the day reports for the current week
-            $endOfTheDayReportsImages = EndOfTheDayReportImage::
-                whereHas('dtr', function ($query) use ($startOfWeek, $endOfWeek) {
-                    $query->whereBetween('time_in', [$startOfWeek, $endOfWeek]);
-                })->get(['end_of_the_day_report_image']);
+            $endOfTheDayReportsImages = EndOfTheDayReportImage::whereHas('dtr', function ($query) use ($startOfWeek, $endOfWeek) {
+                $query->whereBetween('time_in', [$startOfWeek, $endOfWeek]);
+            })->get(['end_of_the_day_report_image']);
 
             return Response::json([
                 'message' => 'End of the day report images retrieved successfully.',
@@ -66,14 +68,14 @@ class WeeklyReportController extends Controller
         }
     }
 
-    private function showEndOfTheDayReports() 
+    private function showEndOfTheDayReports()
     {
         // Get the current date
         $now = Carbon::now();
-        
+
         // Determine the start of the week (Sunday)
         $startOfWeek = $now->startOfWeek(Carbon::SUNDAY)->toDateString();
-        
+
         // Determine the end of the week (Saturday)
         $endOfWeek = $now->endOfWeek(Carbon::SATURDAY)->toDateString();
 
@@ -82,7 +84,7 @@ class WeeklyReportController extends Controller
             ->whereBetween('time_in', [$startOfWeek, $endOfWeek])
             ->get(['end_of_the_day_report']);
 
-        if (!$endOfTheDayReports) {
+        if (! $endOfTheDayReports) {
             return false;
         }
 

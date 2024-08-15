@@ -3,13 +3,13 @@
 namespace App\Services;
 
 use App\Models\Project;
-use Illuminate\Support\Facades\Response;
-use App\Services\CacheService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Response;
 
 class ProjectService
 {
     protected $cacheService;
+
     protected $userId;
 
     public function __construct(CacheService $cacheService)
@@ -63,7 +63,7 @@ class ProjectService
             $cacheKey = "project_userId_{$this->userId}_{$projectId}";
 
             // Fetch the project by ID
-            $project =  $this->cacheService->rememberForever($cacheKey, function () use ($projectId) {
+            $project = $this->cacheService->rememberForever($cacheKey, function () use ($projectId) {
                 return Project::where('project_id', $projectId)
                     ->whereHas('users', function ($query) {
                         $query->where('users.user_id', $this->userId);
@@ -72,16 +72,16 @@ class ProjectService
             });
 
             // Check if the Project was found
-            if (!$project) {
+            if (! $project) {
                 return Response::json([
-                    'message' => 'Project not found.'
+                    'message' => 'Project not found.',
                 ], 404);
             }
 
             // Return the Project as a JSON response
             return Response::json([
                 'message' => 'Project retrieved successfully.',
-                'data' => $project
+                'data' => $project,
             ], 200);
         } catch (\Exception $e) {
             // Handle any other errors that occur during the process
@@ -117,16 +117,16 @@ class ProjectService
             $project = Project::where('project_id', $projectId)->first();
 
             // Check if the Project was found
-            if (!$project) {
+            if (! $project) {
                 return Response::json([
-                    'message' => 'Project not found.'
+                    'message' => 'Project not found.',
                 ], 404);
             }
 
-            if (!($validatedData['project_name'] !== $project->project_name)) {
+            if (! ($validatedData['project_name'] !== $project->project_name)) {
                 // Return a validation error response
                 return Response::json([
-                    'message' => 'Project name cannot be the same as the current name.'
+                    'message' => 'Project name cannot be the same as the current name.',
                 ], 422);
             }
 
@@ -155,9 +155,9 @@ class ProjectService
             $project = Project::where('project_id', $projectId)->first();
 
             // Check if the Project was found
-            if (!$project) {
+            if (! $project) {
                 return Response::json([
-                    'message' => 'Project not found.'
+                    'message' => 'Project not found.',
                 ], 404);
             }
 

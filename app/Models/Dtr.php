@@ -26,7 +26,7 @@ class Dtr extends Model
 
     protected $dates = [
         'time_in',
-        'time_out'
+        'time_out',
     ];
 
     protected static function boot()
@@ -64,7 +64,7 @@ class Dtr extends Model
     /**
      * Remember a cache key.
      *
-     * @param string $key
+     * @param  string  $key
      */
     public static function rememberCacheKey($key)
     {
@@ -72,7 +72,7 @@ class Dtr extends Model
         $cacheKeys = Cache::get('dtr_cache_keys', []);
 
         // Add the new key to the list if not already present
-        if (!in_array($key, $cacheKeys)) {
+        if (! in_array($key, $cacheKeys)) {
             $cacheKeys[] = $key;
         }
 

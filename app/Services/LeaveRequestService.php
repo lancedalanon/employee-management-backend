@@ -2,18 +2,16 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Auth;
-use App\Http\Requests\LeaveRequest\BulkDestroyRequest;
-use App\Http\Requests\LeaveRequest\BulkStoreRequest;
 use App\Models\Dtr;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 
 class LeaveRequestService
 {
     protected $cacheService;
+
     protected $user;
 
     public function __construct(CacheService $cacheService)
@@ -22,15 +20,15 @@ class LeaveRequestService
         $this->user = Auth::user();
     }
 
-    public function index(int $perPage, int $page) 
+    public function index(int $perPage, int $page)
     {
         try {
             $leaveRequests = Dtr::where('user_id', $this->user->user_id)
-                    ->whereNotNull('absence_date')
-                    ->whereNotNull('absence_reason')
-                    ->orderBy('created_at', 'desc')
-                    ->paginate($perPage, ['*'], 'page', $page);
-                    
+                ->whereNotNull('absence_date')
+                ->whereNotNull('absence_reason')
+                ->orderBy('created_at', 'desc')
+                ->paginate($perPage, ['*'], 'page', $page);
+
             return Response::json([
                 'message' => 'Leave requests retrieved successfully.',
                 'current_page' => $leaveRequests->currentPage(),
@@ -53,25 +51,25 @@ class LeaveRequestService
             ], 500);
         }
     }
-    
-    public function show(int $leaveRequestId) 
+
+    public function show(int $leaveRequestId)
     {
         try {
             $leaveRequest = Dtr::where('dtr_id', $leaveRequestId)
-                    ->where('user_id', $this->user->user_id)
-                    ->whereNotNull('absence_date')
-                    ->whereNotNull('absence_reason')
-                    ->first();
+                ->where('user_id', $this->user->user_id)
+                ->whereNotNull('absence_date')
+                ->whereNotNull('absence_reason')
+                ->first();
 
-            if (!$leaveRequest) {
+            if (! $leaveRequest) {
                 return Response::json([
-                    'message' => 'Leave request not found.'
+                    'message' => 'Leave request not found.',
                 ], 404);
             }
 
             return Response::json([
                 'message' => 'Leave request retrieved successfully.',
-                'data' => $leaveRequest
+                'data' => $leaveRequest,
             ], 200);
         } catch (\Exception $e) {
             return Response::json([
@@ -80,14 +78,14 @@ class LeaveRequestService
         }
     }
 
-    public function indexAdmin(int $perPage, int $page) 
+    public function indexAdmin(int $perPage, int $page)
     {
         try {
             $leaveRequests = Dtr::whereNotNull('absence_date')
-                    ->whereNotNull('absence_reason')
-                    ->orderBy('created_at', 'desc')
-                    ->paginate($perPage, ['*'], 'page', $page);
-                    
+                ->whereNotNull('absence_reason')
+                ->orderBy('created_at', 'desc')
+                ->paginate($perPage, ['*'], 'page', $page);
+
             return Response::json([
                 'message' => 'Leave requests retrieved successfully.',
                 'current_page' => $leaveRequests->currentPage(),
@@ -111,23 +109,23 @@ class LeaveRequestService
         }
     }
 
-    public function showAdmin(int $leaveRequestId) 
+    public function showAdmin(int $leaveRequestId)
     {
         try {
             $leaveRequest = Dtr::where('dtr_id', $leaveRequestId)
-                    ->whereNotNull('absence_date')
-                    ->whereNotNull('absence_reason')
-                    ->first();
+                ->whereNotNull('absence_date')
+                ->whereNotNull('absence_reason')
+                ->first();
 
-            if (!$leaveRequest) {
+            if (! $leaveRequest) {
                 return Response::json([
-                    'message' => 'Leave request not found.'
+                    'message' => 'Leave request not found.',
                 ], 404);
             }
 
             return Response::json([
                 'message' => 'Leave request retrieved successfully.',
-                'data' => $leaveRequest
+                'data' => $leaveRequest,
             ], 200);
         } catch (\Exception $e) {
             return Response::json([
@@ -155,7 +153,7 @@ class LeaveRequestService
                 ];
             }
 
-            $chunkSize = 500; 
+            $chunkSize = 500;
             DB::transaction(function () use ($data, $chunkSize) {
                 foreach (array_chunk($data, $chunkSize) as $chunk) {
                     DB::table('dtrs')->insert($chunk);
@@ -181,7 +179,7 @@ class LeaveRequestService
                 ->whereNull('absence_approved_at')
                 ->first();
 
-            if (!$leaveRequest) {
+            if (! $leaveRequest) {
                 return Response::json([
                     'message' => 'Failed to retrieve leave request.',
                 ], 404);
@@ -205,7 +203,7 @@ class LeaveRequestService
     {
         try {
             $dtrIds = $validatedData['dtr_ids'];
-                
+
             DB::transaction(function () use ($dtrIds) {
                 DB::table('dtrs')
                     ->whereIn('dtr_id', $dtrIds)
@@ -223,7 +221,7 @@ class LeaveRequestService
                 'message' => 'An error occurred while approving the leave requests.',
             ], 500);
         }
-    }       
+    }
 
     public function destroy(int $leaveRequestId)
     {
@@ -232,7 +230,7 @@ class LeaveRequestService
             ->whereNotNull('absence_reason')
             ->first();
 
-        if (!$leaveRequest) {
+        if (! $leaveRequest) {
             return Response::json([
                 'message' => 'Failed to retrieve leave request.',
             ], 404);
@@ -246,9 +244,9 @@ class LeaveRequestService
     }
 
     public function bulkDestroy(array $validatedData)
-    {    
+    {
         $dtrIds = $validatedData['dtr_ids'];
-    
+
         DB::transaction(function () use ($dtrIds) {
             DB::table('dtrs')
                 ->whereIn('dtr_id', $dtrIds)
@@ -257,9 +255,9 @@ class LeaveRequestService
                     'updated_at' => Carbon::now(),
                 ]);
         });
-    
+
         return Response::json([
             'message' => 'Leave requests rejected successfully.',
         ], 200);
-    }    
+    }
 }

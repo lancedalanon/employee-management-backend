@@ -6,14 +6,13 @@ use App\Models\Project;
 use App\Models\ProjectTask;
 use App\Models\ProjectUser;
 use App\Models\User;
-use Illuminate\Support\Facades\Response;
-use App\Services\CacheService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Response;
 
 class ProjectTaskService
 {
     protected $cacheService;
+
     protected $userId;
 
     public function __construct(CacheService $cacheService)
@@ -40,19 +39,19 @@ class ProjectTaskService
             // Return the ProjectTask as a JSON response
             return Response::json([
                 'message' => 'Task retrieved successfully.',
-                'current_page' =>  $tasks->currentPage(),
-                'data' =>  $tasks->items(),
-                'first_page_url' =>  $tasks->url(1),
-                'from' =>  $tasks->firstItem(),
-                'last_page' =>  $tasks->lastPage(),
-                'last_page_url' =>  $tasks->url($tasks->lastPage()),
-                'links' =>  $tasks->linkCollection()->toArray(),
-                'next_page_url' =>  $tasks->nextPageUrl(),
-                'path' =>  $tasks->path(),
-                'per_page' =>  $tasks->perPage(),
-                'prev_page_url' =>  $tasks->previousPageUrl(),
-                'to' =>  $tasks->lastItem(),
-                'total' =>  $tasks->total(),
+                'current_page' => $tasks->currentPage(),
+                'data' => $tasks->items(),
+                'first_page_url' => $tasks->url(1),
+                'from' => $tasks->firstItem(),
+                'last_page' => $tasks->lastPage(),
+                'last_page_url' => $tasks->url($tasks->lastPage()),
+                'links' => $tasks->linkCollection()->toArray(),
+                'next_page_url' => $tasks->nextPageUrl(),
+                'path' => $tasks->path(),
+                'per_page' => $tasks->perPage(),
+                'prev_page_url' => $tasks->previousPageUrl(),
+                'to' => $tasks->lastItem(),
+                'total' => $tasks->total(),
             ], 200);
         } catch (\Exception $e) {
             // Return a JSON response indicating the error
@@ -69,7 +68,7 @@ class ProjectTaskService
             $cacheKey = "project_task_userId_{$this->userId}_projectId_{$projectId}_taskId_{$taskId}";
 
             // Retrieve the specific task for the given project ID and task ID
-            $task = $this->cacheService->rememberForever($cacheKey, function () use ($projectId, $taskId,) {
+            $task = $this->cacheService->rememberForever($cacheKey, function () use ($projectId, $taskId) {
                 return ProjectTask::where('project_id', $projectId)
                     ->where('project_task_id', $taskId)
                     ->whereHas('project.users', function ($query) {
@@ -79,16 +78,16 @@ class ProjectTaskService
             });
 
             // Check if the project task was found
-            if (!$task) {
+            if (! $task) {
                 return Response::json([
-                    'message' => 'Task not found.'
+                    'message' => 'Task not found.',
                 ], 404);
             }
 
             // Return the specific ProjectTask as a JSON response
             return Response::json([
                 'message' => 'Task retrieved successfully.',
-                'data' => $task
+                'data' => $task,
             ], 200);
         } catch (\Exception $e) {
             // Return a JSON response indicating the error
@@ -109,7 +108,7 @@ class ProjectTaskService
                 ->first();
 
             // Handle case where project is not found
-            if (!$project) {
+            if (! $project) {
                 return Response::json([
                     'message' => 'Project not found.',
                 ], 404);
@@ -130,7 +129,7 @@ class ProjectTaskService
             // Return the newly created ProjectTask as a JSON response
             return Response::json([
                 'message' => 'Task created successfully.',
-                'data' => $task
+                'data' => $task,
             ], 201);
         } catch (\Exception $e) {
             // Return a JSON response indicating the error
@@ -152,7 +151,7 @@ class ProjectTaskService
                 ->first();
 
             // Handle case where task is not found
-            if (!$task) {
+            if (! $task) {
                 return Response::json([
                     'message' => 'Task not found.',
                 ], 404);
@@ -170,7 +169,7 @@ class ProjectTaskService
             // Return the updated ProjectTask as a JSON response
             return Response::json([
                 'message' => 'Task updated successfully.',
-                'data' => $task
+                'data' => $task,
             ], 200);
         } catch (\Exception $e) {
             // Return a JSON response indicating the error
@@ -192,7 +191,7 @@ class ProjectTaskService
                 ->first();
 
             // Handle case where task is not found
-            if (!$task) {
+            if (! $task) {
                 return Response::json([
                     'message' => 'Task not found.',
                 ], 404);
@@ -216,32 +215,32 @@ class ProjectTaskService
     public function addUser(int $projectId, int $taskId, int $userId)
     {
         try {
-            if (!$this->isProjectAdmin($projectId) && !Auth::user()->hasRole('admin')) {
+            if (! $this->isProjectAdmin($projectId) && ! Auth::user()->hasRole('admin')) {
                 return Response::json([
-                   'message' => 'Forbidden.',
+                    'message' => 'Forbidden.',
                 ], 403);
             }
 
             $user = User::where('user_id', $userId)
-                    ->whereHas('projects.tasks', function ($query) use ($projectId, $taskId) {
-                        $query->where('project_id', $projectId)
-                            ->where('project_task_id', $taskId);
-                    })
-                    ->first();
+                ->whereHas('projects.tasks', function ($query) use ($projectId, $taskId) {
+                    $query->where('project_id', $projectId)
+                        ->where('project_task_id', $taskId);
+                })
+                ->first();
 
-            if (!$user) {
+            if (! $user) {
                 return Response::json([
-                   'message' => 'User not found or not associated with the project.',
+                    'message' => 'User not found or not associated with the project.',
                 ], 404);
             }
 
             $task = ProjectTask::where('project_id', $projectId)
-                    ->where('project_task_id', $taskId)
-                    ->first();
+                ->where('project_task_id', $taskId)
+                ->first();
 
-            if ($task->user_id === $userId)  {
+            if ($task->user_id === $userId) {
                 return Response::json([
-                   'message' => 'User is already assigned to the task.',
+                    'message' => 'User is already assigned to the task.',
                 ], 409);
             }
 
@@ -250,7 +249,7 @@ class ProjectTaskService
 
             // Return a JSON response indicating success
             return Response::json([
-               'message' => 'User assigned to task successfully.',
+                'message' => 'User assigned to task successfully.',
             ], 200);
         } catch (\Exception $e) {
             // Return a JSON response indicating the error
@@ -263,30 +262,30 @@ class ProjectTaskService
     public function removeUser(int $projectId, int $taskId, int $userId)
     {
         try {
-            if (!$this->isProjectAdmin($projectId) && !Auth::user()->hasRole('admin')) {
+            if (! $this->isProjectAdmin($projectId) && ! Auth::user()->hasRole('admin')) {
                 return Response::json([
-                   'message' => 'Forbidden.',
+                    'message' => 'Forbidden.',
                 ], 403);
             }
 
             $user = User::where('user_id', $userId)
-                    ->whereHas('projects.tasks', function ($query) use ($projectId, $taskId) {
-                        $query->where('project_id', $projectId)
-                            ->where('project_task_id', $taskId);
-                    })
-                    ->first();
+                ->whereHas('projects.tasks', function ($query) use ($projectId, $taskId) {
+                    $query->where('project_id', $projectId)
+                        ->where('project_task_id', $taskId);
+                })
+                ->first();
 
-            if (!$user) {
+            if (! $user) {
                 return Response::json([
                     'message' => 'User not found or not associated with the project.',
                 ], 404);
             }
 
             $task = ProjectTask::where('project_id', $projectId)
-                    ->where('project_task_id', $taskId)
-                    ->first();
+                ->where('project_task_id', $taskId)
+                ->first();
 
-            if ($task->user_id === null || $task->user_id !== $userId)  {
+            if ($task->user_id === null || $task->user_id !== $userId) {
                 return Response::json([
                     'message' => 'User is not assigned to this task.',
                 ], 409);
@@ -307,11 +306,11 @@ class ProjectTaskService
         }
     }
 
-    protected function isProjectAdmin(int $projectId) 
+    protected function isProjectAdmin(int $projectId)
     {
         return ProjectUser::where('project_id', $projectId)
-                ->where('user_id', $this->userId)
-                ->where('project_role', 'project-admin')
-                ->exists();
+            ->where('user_id', $this->userId)
+            ->where('project_role', 'project-admin')
+            ->exists();
     }
 }

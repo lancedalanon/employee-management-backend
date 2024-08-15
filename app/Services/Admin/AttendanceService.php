@@ -2,14 +2,13 @@
 
 namespace App\Services\Admin;
 
-use App\Models\Dtr;
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 
 class AttendanceService
-{    
+{
     protected $excludedRoles;
+
     protected $roles;
 
     public function __construct()
@@ -47,7 +46,7 @@ class AttendanceService
                 'prev_page_url' => $userAttendances->previousPageUrl(),
                 'to' => $userAttendances->lastItem(),
                 'total' => $userAttendances->total(),
-            ], 200);  
+            ], 200);
         } catch (\Exception $e) {
             return Response::json([
                 'message' => 'An error occurred while retrieving attendances.',
@@ -59,20 +58,20 @@ class AttendanceService
     {
         try {
             $userAttendance = User::where('user_id', $userId)
-            ->role($employmentStatus)
-            ->role($personnel)
-            ->whereDoesntHave('roles', function ($query) {
-                $query->whereIn('name', $this->excludedRoles);
-            })
-            ->withCount(['dtrs as dtr_attendance_count' => function ($query) {
-                $query->whereNull('absence_date')
-                    ->whereNull('absence_reason');
-            }])
-            ->first();
+                ->role($employmentStatus)
+                ->role($personnel)
+                ->whereDoesntHave('roles', function ($query) {
+                    $query->whereIn('name', $this->excludedRoles);
+                })
+                ->withCount(['dtrs as dtr_attendance_count' => function ($query) {
+                    $query->whereNull('absence_date')
+                        ->whereNull('absence_reason');
+                }])
+                ->first();
 
-            if (!$userAttendance) {
+            if (! $userAttendance) {
                 return Response::json([
-                   'message' => 'User attendance not found.',
+                    'message' => 'User attendance not found.',
                 ], 404);
             }
 

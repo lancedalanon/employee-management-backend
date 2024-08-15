@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 class LeaveRequestController extends Controller
 {
     protected $user;
+
     protected $leaveRequestService;
 
     public function __construct(LeaveRequestService $leaveRequestService)
@@ -20,30 +21,35 @@ class LeaveRequestController extends Controller
         $this->leaveRequestService = $leaveRequestService;
     }
 
-    public function index(Request $request) 
+    public function index(Request $request)
     {
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
         $response = $this->leaveRequestService->index($perPage, $page);
-        return $response;
-    }
-    public function show(int $leaveRequestId) 
-    {
-        $response = $this->leaveRequestService->show($leaveRequestId);
+
         return $response;
     }
 
-    public function indexAdmin(Request $request) 
+    public function show(int $leaveRequestId)
+    {
+        $response = $this->leaveRequestService->show($leaveRequestId);
+
+        return $response;
+    }
+
+    public function indexAdmin(Request $request)
     {
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
         $response = $this->leaveRequestService->indexAdmin($perPage, $page);
+
         return $response;
     }
 
-    public function showAdmin(int $leaveRequestId) 
+    public function showAdmin(int $leaveRequestId)
     {
         $response = $this->leaveRequestService->showAdmin($leaveRequestId);
+
         return $response;
     }
 
@@ -51,12 +57,14 @@ class LeaveRequestController extends Controller
     {
         $validatedData = $request->validated();
         $response = $this->leaveRequestService->bulkStore($validatedData);
+
         return $response;
     }
 
     public function update(int $leaveRequestId)
     {
         $response = $this->leaveRequestService->update($leaveRequestId);
+
         return $response;
     }
 
@@ -64,19 +72,22 @@ class LeaveRequestController extends Controller
     {
         $validatedData = $request->validated();
         $response = $this->leaveRequestService->bulkUpdate($validatedData);
+
         return $response;
-    }       
+    }
 
     public function destroy(int $leaveRequestId)
     {
         $response = $this->leaveRequestService->destroy($leaveRequestId);
+
         return $response;
     }
 
     public function bulkDestroy(BulkDestroyRequest $request)
-    {    
+    {
         $validatedData = $request->validated();
         $response = $this->leaveRequestService->bulkDestroy($validatedData);
+
         return $response;
-    }    
+    }
 }

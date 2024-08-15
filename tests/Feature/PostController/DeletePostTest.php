@@ -3,7 +3,6 @@
 namespace Tests\Feature\PostController;
 
 use App\Models\Post;
-use App\Models\PostTag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -31,7 +30,7 @@ class DeletePostTest extends TestCase
         $post = Post::factory()->create();
         $post->tags()->createMany([
             ['post_tag' => 'tag1'],
-            ['post_tag' => 'tag2']
+            ['post_tag' => 'tag2'],
         ]);
 
         // Call the destroy method

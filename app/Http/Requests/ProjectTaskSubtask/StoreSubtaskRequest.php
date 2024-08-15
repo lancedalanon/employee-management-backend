@@ -7,6 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 class StoreSubtaskRequest extends FormRequest
 {
     protected $validProjectTaskProgress;
+
     protected $projectTaskPriorityLevel;
 
     public function __construct()
@@ -33,8 +34,8 @@ class StoreSubtaskRequest extends FormRequest
         return [
             'project_task_subtask_name' => 'required|string|max:255',
             'project_task_subtask_description' => 'required|string',
-            'project_task_subtask_progress' => 'required|in:' . implode(',', $this->validProjectTaskProgress),
-            'project_task_subtask_priority_level' => 'required|in:' . implode(',', $this->projectTaskPriorityLevel),
+            'project_task_subtask_progress' => 'required|in:'.implode(',', $this->validProjectTaskProgress),
+            'project_task_subtask_priority_level' => 'required|in:'.implode(',', $this->projectTaskPriorityLevel),
         ];
     }
 }

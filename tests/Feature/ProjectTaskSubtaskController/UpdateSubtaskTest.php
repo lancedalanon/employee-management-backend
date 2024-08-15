@@ -14,8 +14,11 @@ class UpdateSubtaskTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
+
     protected $project;
+
     protected $task;
+
     protected $subtask;
 
     protected function setUp(): void

@@ -15,9 +15,13 @@ class AddUserTaskSubtaskTest extends TestCase
     use RefreshDatabase;
 
     protected $project;
+
     protected $task;
+
     protected $subtask;
+
     protected $admin;
+
     protected $user;
 
     protected function setUp(): void
@@ -53,11 +57,11 @@ class AddUserTaskSubtaskTest extends TestCase
         ]));
 
         $response->assertStatus(200)
-                 ->assertJson(['message' => 'User assigned to subtask successfully.']);
+            ->assertJson(['message' => 'User assigned to subtask successfully.']);
 
         $this->assertDatabaseHas('project_task_subtasks', [
             'project_task_subtask_id' => $this->subtask->project_task_subtask_id,
-            'user_id' => $this->user->user_id
+            'user_id' => $this->user->user_id,
         ]);
     }
 
@@ -76,7 +80,7 @@ class AddUserTaskSubtaskTest extends TestCase
         ]));
 
         $response->assertStatus(403)
-                 ->assertJson(['message' => 'Forbidden.']);
+            ->assertJson(['message' => 'Forbidden.']);
     }
 
     public function test_add_user_to_subtask_user_not_part_of_project()
@@ -92,7 +96,7 @@ class AddUserTaskSubtaskTest extends TestCase
         ]));
 
         $response->assertStatus(404)
-                 ->assertJson(['message' => 'User not found or not associated with the project.']);
+            ->assertJson(['message' => 'User not found or not associated with the project.']);
     }
 
     public function test_add_user_to_subtask_already_assigned()
@@ -109,6 +113,6 @@ class AddUserTaskSubtaskTest extends TestCase
         ]));
 
         $response->assertStatus(409)
-                 ->assertJson(['message' => 'User is already assigned to the subtask.']);
+            ->assertJson(['message' => 'User is already assigned to the subtask.']);
     }
 }

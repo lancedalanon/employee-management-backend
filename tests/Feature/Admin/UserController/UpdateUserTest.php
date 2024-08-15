@@ -1,19 +1,20 @@
 <?php
+
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Validation\Rule;
-use Spatie\Permission\Models\Role;
-use Laravel\Sanctum\Sanctum;
-use Tests\TestCase;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\Sanctum;
+use Spatie\Permission\Models\Role;
+use Tests\TestCase;
 
 class UpdateUserTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $adminUser;
+
     protected $user;
 
     protected function setUp(): void

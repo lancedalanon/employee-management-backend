@@ -67,7 +67,7 @@ class Post extends Model
     /**
      * Remember a cache key.
      *
-     * @param string $key
+     * @param  string  $key
      */
     public static function rememberCacheKey($key)
     {
@@ -75,7 +75,7 @@ class Post extends Model
         $cacheKeys = Cache::get('post_cache_keys', []);
 
         // Add the new key to the list if not already present
-        if (!in_array($key, $cacheKeys)) {
+        if (! in_array($key, $cacheKeys)) {
             $cacheKeys[] = $key;
         }
 

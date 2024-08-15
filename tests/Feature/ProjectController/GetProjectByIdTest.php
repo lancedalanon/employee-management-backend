@@ -10,9 +10,10 @@ use Tests\TestCase;
 
 class GetProjectByIdTest extends TestCase
 {
-    use RefreshDatabase, ProjectTestingTrait;
+    use ProjectTestingTrait, RefreshDatabase;
 
     protected $project;
+
     protected $user;
 
     /**
@@ -77,7 +78,7 @@ class GetProjectByIdTest extends TestCase
 
         // Assert that the JSON response contains the error message
         $response->assertJson([
-            'message' => 'Project not found.'
+            'message' => 'Project not found.',
         ]);
     }
 }

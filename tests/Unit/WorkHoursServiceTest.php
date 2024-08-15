@@ -3,12 +3,12 @@
 namespace Tests\Unit;
 
 use App\Models\Dtr;
-use Tests\TestCase;
 use App\Models\User;
-use App\Services\User\WorkHoursService;
 use App\Services\User\UserRoleService;
+use App\Services\User\WorkHoursService;
 use Carbon\Carbon;
 use Mockery;
+use Tests\TestCase;
 
 class WorkHoursServiceTest extends TestCase
 {
@@ -144,7 +144,6 @@ class WorkHoursServiceTest extends TestCase
         // Act
         $this->workHoursService->evaluateTimeIn($user, $timeIn);
     }
-
 
     public function test_it_returns_true_for_full_time_with_enough_hours()
     {
