@@ -19,7 +19,6 @@ class DatabaseSeeder extends Seeder
         $adminRole = Role::create(['name' => 'admin']);
         $employeeRole = Role::create(['name' => 'employee']);
         $internRole = Role::create(['name' => 'intern']);
-        $supervisorRole = Role::create(['name' => 'supervisor']);
         $companyAdminRole = Role::create(['name' => 'company-admin']);
         $fullTimeRole = Role::create(['name' => 'full-time']);
         $partTimeRole = Role::create(['name' => 'part-time']);
