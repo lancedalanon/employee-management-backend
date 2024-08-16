@@ -42,6 +42,29 @@ class DatabaseSeeder extends Seeder
             $student->assignRole($internRole);
         }
 
+        // Create a sample company admin user and assign the roles
+        $companyAdmin = User::create([
+            'first_name' => 'Sample',
+            'middle_name' => 'User',
+            'last_name' => 'Company Admin',
+            'place_of_birth' => 'Santa Rosa, Laguna',
+            'date_of_birth' => '2002-05-18',
+            'gender' => 'Male',
+            'username' => 'companyadmin',
+            'email' => 'companyadmin@example.com',
+            'recovery_email' => 'companyadmin1@example.com',
+            'emergency_contact_name' => 'Contact Person Name',
+            'emergency_contact_number' => '0921-288-2221',
+            'phone_number' => '0921-212-2228',
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'),
+        ]);
+
+        $companyAdmin->assignRole($dayShiftRole);
+        $companyAdmin->assignRole($fullTimeRole);
+        $companyAdmin->assignRole($companyAdminRole);
+        $companyAdmin->assignRole($employeeRole);
+
         // Create a sample admin user and assign the roles
         $admin = User::create([
             'first_name' => 'Sample',
@@ -62,8 +85,7 @@ class DatabaseSeeder extends Seeder
 
         $admin->assignRole($dayShiftRole);
         $admin->assignRole($fullTimeRole);
-        $admin->assignRole($companyAdminRole);
+        $admin->assignRole($adminRole);
         $admin->assignRole($employeeRole);
-        $admin->assignRole($superRole);
     }
 }
