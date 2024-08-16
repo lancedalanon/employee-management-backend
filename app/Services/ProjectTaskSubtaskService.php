@@ -208,7 +208,7 @@ class ProjectTaskSubtaskService
     public function addUser(int $projectId, int $taskId, int $subtaskId, int $userId)
     {
         try {
-            if (! $this->isProjectAdmin($projectId) && ! Auth::user()->hasRole('admin')) {
+            if (! $this->isProjectAdmin($projectId) && ! Auth::user()->hasRole('company-admin')) {
                 return Response::json([
                     'message' => 'Forbidden.',
                 ], 403);
@@ -259,7 +259,7 @@ class ProjectTaskSubtaskService
     public function removeUser(int $projectId, int $taskId, int $subtaskId, int $userId)
     {
         try {
-            if (! $this->isProjectAdmin($projectId) && ! Auth::user()->hasRole('admin')) {
+            if (! $this->isProjectAdmin($projectId) && ! Auth::user()->hasRole('company-admin')) {
                 return Response::json([
                     'message' => 'Forbidden.',
                 ], 403);
