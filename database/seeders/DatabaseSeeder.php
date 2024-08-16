@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         $employeeRole = Role::create(['name' => 'employee']);
         $internRole = Role::create(['name' => 'intern']);
         $supervisorRole = Role::create(['name' => 'supervisor']);
+        $companyAdminRole = Role::create(['name' => 'company-admin']);
         $fullTimeRole = Role::create(['name' => 'full-time']);
         $partTimeRole = Role::create(['name' => 'part-time']);
         $dayShiftRole = Role::create(['name' => 'day-shift']);

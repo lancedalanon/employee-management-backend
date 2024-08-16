@@ -3,6 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Response;
 
 class AttendanceService
@@ -17,17 +18,37 @@ class AttendanceService
         $this->roles = ['intern', 'employee'];
     }
 
-    public function index(string $employmentStatus, string $personnel, int $perPage, int $page)
+    public function index(array $validatedData, int $perPage, int $page, ?string $startDate, ?string $endDate)
     {
         try {
+            // Get the validated query parameters for filtering
+            $employmentStatus = $validatedData['employment_status']; // e.g., 'full-time' or 'part-time'
+            $personnel = $validatedData['personnel']; // e.g., 'employee' or 'intern'
+
+            // Ensure the date range is within the current month
+            $startOfMonth = Carbon::now()->startOfMonth();
+            $endOfMonth = Carbon::now()->endOfMonth();
+
+            // Parse the start and end dates, defaulting to the start and end of the month
+            $startDate = $startDate ? Carbon::parse($startDate)->startOfDay() : $startOfMonth;
+            $endDate = $endDate ? Carbon::parse($endDate)->endOfDay() : $endOfMonth;
+
+            // Validate that the date range is within the current month
+            if ($startDate->lt($startOfMonth) || $endDate->gt($endOfMonth)) {
+                return Response::json([
+                    'message' => 'Date range must be within the current month.',
+                ], 400);
+            }
+
             $userAttendances = User::role($employmentStatus)
                 ->role($personnel)
                 ->whereDoesntHave('roles', function ($query) {
                     $query->whereIn('name', $this->excludedRoles);
                 })
-                ->withCount(['dtrs as dtr_attendance_count' => function ($query) {
+                ->withCount(['dtrs as dtr_attendance_count' => function ($query) use ($startDate, $endDate) {
                     $query->whereNull('absence_date')
-                        ->whereNull('absence_reason');
+                        ->whereNull('absence_reason')
+                        ->whereBetween('time_in', [$startDate, $endDate]);
                 }])
                 ->paginate($perPage, ['*'], 'page', $page);
 
@@ -54,18 +75,38 @@ class AttendanceService
         }
     }
 
-    public function show(string $employmentStatus, string $personnel, int $userId)
+    public function show(array $validatedData, int $userId, ?string $startDate, ?string $endDate)
     {
         try {
+            // Get the validated query parameters for filtering
+            $employmentStatus = $validatedData['employment_status']; // e.g., 'full-time' or 'part-time'
+            $personnel = $validatedData['personnel']; // e.g., 'employee' or 'intern'
+
+            // Ensure the date range is within the current month
+            $startOfMonth = Carbon::now()->startOfMonth();
+            $endOfMonth = Carbon::now()->endOfMonth();
+
+            // Parse the start and end dates, defaulting to the start and end of the month
+            $startDate = $startDate ? Carbon::parse($startDate)->startOfDay() : $startOfMonth;
+            $endDate = $endDate ? Carbon::parse($endDate)->endOfDay() : $endOfMonth;
+
+            // Validate that the date range is within the current month
+            if ($startDate->lt($startOfMonth) || $endDate->gt($endOfMonth)) {
+                return Response::json([
+                    'message' => 'Date range must be within the current month.',
+                ], 400);
+            }
+
             $userAttendance = User::where('user_id', $userId)
                 ->role($employmentStatus)
                 ->role($personnel)
                 ->whereDoesntHave('roles', function ($query) {
                     $query->whereIn('name', $this->excludedRoles);
                 })
-                ->withCount(['dtrs as dtr_attendance_count' => function ($query) {
+                ->withCount(['dtrs as dtr_attendance_count' => function ($query) use ($startDate, $endDate) {
                     $query->whereNull('absence_date')
-                        ->whereNull('absence_reason');
+                        ->whereNull('absence_reason')
+                        ->whereBetween('time_in', [$startDate, $endDate]);
                 }])
                 ->first();
 

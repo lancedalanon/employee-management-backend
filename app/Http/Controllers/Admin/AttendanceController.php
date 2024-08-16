@@ -18,33 +18,24 @@ class AttendanceController extends Controller
 
     public function index(IndexAttendanceRequest $request)
     {
-        // Retrieve validated data
         $validatedData = $request->validated();
-
-        // Get the validated query parameters for filtering
-        $employmentStatus = $validatedData['employment_status']; // e.g., 'full-time' or 'part-time'
-        $personnel = $validatedData['personnel']; // e.g., 'employee' or 'intern'
-
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
 
-        // Call the appropriate service method based on the parameters
-        $response = $this->attendanceService->index($employmentStatus, $personnel, $perPage, $page);
+        $response = $this->attendanceService->index($validatedData, $perPage, $page, $startDate, $endDate);
 
         return $response;
     }
 
     public function show(ShowAttendanceRequest $request, int $userId)
     {
-        // Retrieve validated data
         $validatedData = $request->validated();
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
 
-        // Get the validated query parameters for filtering
-        $employmentStatus = $validatedData['employment_status']; // e.g., 'full-time' or 'part-time'
-        $personnel = $validatedData['personnel']; // e.g., 'employee' or 'intern'
-
-        // Call the appropriate service method based on the parameters
-        $response = $this->attendanceService->show($employmentStatus, $personnel, $userId);
+        $response = $this->attendanceService->show($validatedData, $userId, $startDate, $endDate);
 
         return $response;
     }
