@@ -24,7 +24,7 @@ class UpdateLeaveRequestAdminTest extends TestCase
 
         // Create a user and act as that user
         $this->user = User::factory()->create();
-        $adminRole = Role::create(['name' => 'admin']);
+        $adminRole = Role::create(['name' => 'company-admin']);
         $this->user->assignRole($adminRole);
         Sanctum::actingAs($this->user);
 
@@ -42,7 +42,7 @@ class UpdateLeaveRequestAdminTest extends TestCase
     {
         $leaveRequest = $this->leaveRequests->first();
 
-        $response = $this->putJson(route('admin.leaveRequests.update', $leaveRequest->dtr_id));
+        $response = $this->putJson(route('companyAdmin.leaveRequests.update', $leaveRequest->dtr_id));
 
         $response->assertStatus(200)
             ->assertJson([
@@ -58,7 +58,7 @@ class UpdateLeaveRequestAdminTest extends TestCase
 
     public function test_update_leave_request_not_found(): void
     {
-        $response = $this->putJson(route('admin.leaveRequests.update', 99999)); // Non-existent ID
+        $response = $this->putJson(route('companyAdmin.leaveRequests.update', 99999)); // Non-existent ID
 
         $response->assertStatus(404)
             ->assertJson([
@@ -75,7 +75,7 @@ class UpdateLeaveRequestAdminTest extends TestCase
             'absence_approved_at' => Carbon::now()->subDay(),
         ]);
 
-        $response = $this->putJson(route('admin.leaveRequests.update', $leaveRequest->dtr_id));
+        $response = $this->putJson(route('companyAdmin.leaveRequests.update', $leaveRequest->dtr_id));
 
         $response->assertStatus(404)
             ->assertJson([

@@ -27,7 +27,7 @@ class GetUserByIdTest extends TestCase
         parent::setUp();
 
         // Create roles
-        $adminRole = Role::create(['name' => 'admin']);
+        $adminRole = Role::create(['name' => 'company-admin']);
         $internRole = Role::create(['name' => 'intern']);
         $employeeRole = Role::create(['name' => 'employee']);
         $superRole = Role::create(['name' => 'super']);
@@ -59,7 +59,7 @@ class GetUserByIdTest extends TestCase
     public function test_can_retrieve_user_with_intern_role(): void
     {
         // Perform a GET request to retrieve the intern user
-        $response = $this->getJson(route('admin.users.show', ['userId' => $this->internUser->user_id]));
+        $response = $this->getJson(route('companyAdmin.users.show', ['userId' => $this->internUser->user_id]));
 
         // Assert the response status is 200 OK
         $response->assertStatus(200);
@@ -89,7 +89,7 @@ class GetUserByIdTest extends TestCase
     public function test_can_retrieve_user_with_employee_role(): void
     {
         // Perform a GET request to retrieve the employee user
-        $response = $this->getJson(route('admin.users.show', ['userId' => $this->employeeUser->user_id]));
+        $response = $this->getJson(route('companyAdmin.users.show', ['userId' => $this->employeeUser->user_id]));
 
         // Assert the response status is 200 OK
         $response->assertStatus(200);
@@ -119,7 +119,7 @@ class GetUserByIdTest extends TestCase
     public function test_cannot_retrieve_user_with_admin_role(): void
     {
         // Perform a GET request to retrieve an admin user (should fail)
-        $response = $this->getJson(route('admin.users.show', ['userId' => $this->adminUser2->user_id]));
+        $response = $this->getJson(route('companyAdmin.users.show', ['userId' => $this->adminUser2->user_id]));
 
         // Assert the response status is 404 Not Found
         $response->assertStatus(404);
@@ -133,7 +133,7 @@ class GetUserByIdTest extends TestCase
     public function test_cannot_retrieve_user_with_super_role(): void
     {
         // Perform a GET request to retrieve the super user (should fail)
-        $response = $this->getJson(route('admin.users.show', ['userId' => $this->superUser->user_id]));
+        $response = $this->getJson(route('companyAdmin.users.show', ['userId' => $this->superUser->user_id]));
 
         // Assert the response status is 404 Not Found
         $response->assertStatus(404);
@@ -147,7 +147,7 @@ class GetUserByIdTest extends TestCase
     public function test_cannot_retrieve_non_existent_user(): void
     {
         // Perform a GET request to a non-existent user ID
-        $response = $this->getJson(route('admin.users.show', ['userId' => 99999]));
+        $response = $this->getJson(route('companyAdmin.users.show', ['userId' => 99999]));
 
         // Assert the response status is 404 Not Found
         $response->assertStatus(404);

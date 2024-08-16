@@ -19,7 +19,7 @@ class GetUsersTest extends TestCase
         parent::setUp();
 
         // Create roles
-        $adminRole = Role::create(['name' => 'admin']);
+        $adminRole = Role::create(['name' => 'company-admin']);
         $internRole = Role::create(['name' => 'intern']);
         $employeeRole = Role::create(['name' => 'employee']);
         $superRole = Role::create(['name' => 'super']);
@@ -44,7 +44,7 @@ class GetUsersTest extends TestCase
     public function test_it_can_retrieve_users_with_intern_and_employee_roles(): void
     {
         // Perform a GET request to the 'admin.users.index' route
-        $response = $this->getJson(route('admin.users.index'));
+        $response = $this->getJson(route('companyAdmin.users.index'));
 
         // Assert that the response status is 200 OK
         $response->assertStatus(200);
@@ -98,7 +98,7 @@ class GetUsersTest extends TestCase
         });
 
         // Perform a GET request to the 'admin.users.index' route with pagination parameters
-        $response = $this->getJson(route('admin.users.index', ['page' => 2, 'per_page' => 10]));
+        $response = $this->getJson(route('companyAdmin.users.index', ['page' => 2, 'per_page' => 10]));
 
         // Assert that the response status is 200 OK
         $response->assertStatus(200);

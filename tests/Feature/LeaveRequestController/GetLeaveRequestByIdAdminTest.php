@@ -30,7 +30,7 @@ class GetLeaveRequestByIdAdminTest extends TestCase
 
         // Create a user
         $this->user = User::factory()->create();
-        $adminRole = Role::create(['name' => 'admin']);
+        $adminRole = Role::create(['name' => 'company-admin']);
         $this->user->assignRole($adminRole);
 
         // Use the LeaveRequestFactory's dateRange method to create leave requests for the user
@@ -47,7 +47,7 @@ class GetLeaveRequestByIdAdminTest extends TestCase
 
     public function test_successful_retrieval_of_leave_request(): void
     {
-        $response = $this->getJson(route('admin.leaveRequests.showAdmin', ['leaveRequestId' => $this->leaveRequests->first()->dtr_id]));
+        $response = $this->getJson(route('companyAdmin.leaveRequests.showAdmin', ['leaveRequestId' => $this->leaveRequests->first()->dtr_id]));
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -64,7 +64,7 @@ class GetLeaveRequestByIdAdminTest extends TestCase
 
     public function test_leave_request_not_found(): void
     {
-        $response = $this->getJson(route('admin.leaveRequests.showAdmin', ['leaveRequestId' => 99999]));
+        $response = $this->getJson(route('companyAdmin.leaveRequests.showAdmin', ['leaveRequestId' => 99999]));
 
         $response->assertStatus(404)
             ->assertJson([

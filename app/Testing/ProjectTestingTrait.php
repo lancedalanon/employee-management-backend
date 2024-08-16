@@ -19,7 +19,7 @@ trait ProjectTestingTrait
     protected function setUpProject(): void
     {
         // Create admin role
-        $adminRole = Role::create(['name' => 'admin']);
+        $adminRole = Role::create(['name' => 'company-admin']);
 
         // Create a dummy admin user
         $this->admin = User::factory()->create();

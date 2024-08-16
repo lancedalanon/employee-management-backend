@@ -28,7 +28,7 @@ class GetLeaveRequestsAdminTest extends TestCase
 
         // Create a user
         $this->user = User::factory()->create();
-        $adminRole = Role::create(['name' => 'admin']);
+        $adminRole = Role::create(['name' => 'company-admin']);
         $this->user->assignRole($adminRole);
 
         // Use the LeaveRequestFactory's dateRange method to create leave requests for the user
@@ -46,7 +46,7 @@ class GetLeaveRequestsAdminTest extends TestCase
     public function test_leave_requests_pagination(): void
     {
         // Send GET request to the leave requests index route with pagination
-        $response = $this->getJson(route('admin.leaveRequests.indexAdmin'));
+        $response = $this->getJson(route('companyAdmin.leaveRequests.indexAdmin'));
 
         // Assert the response status
         $response->assertStatus(200);

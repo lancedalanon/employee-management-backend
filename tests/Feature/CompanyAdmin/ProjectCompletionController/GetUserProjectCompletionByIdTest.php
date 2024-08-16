@@ -10,7 +10,7 @@ use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
-class GetUserProjectCompletionsTest extends TestCase
+class GetUserProjectCompletionByIdTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -21,6 +21,8 @@ class GetUserProjectCompletionsTest extends TestCase
     protected $task;
 
     protected $subtask;
+
+    protected $user;
 
     protected function setUp(): void
     {
@@ -36,7 +38,7 @@ class GetUserProjectCompletionsTest extends TestCase
         $this->admin = $this->project->users()->first();
 
         // Create roles
-        $adminRole = Role::create(['name' => 'admin']);
+        $adminRole = Role::create(['name' => 'company-admin']);
         $fullRole = Role::create(['name' => 'full-time']);
         $employeeRole = Role::create(['name' => 'employee']);
 
@@ -48,6 +50,8 @@ class GetUserProjectCompletionsTest extends TestCase
             $user->assignRole($employeeRole, $fullRole);
         });
 
+        $this->user = $this->project->users()->skip(1)->first();
+
         // Set the authenticated user for Sanctum
         Sanctum::actingAs($this->admin);
 
@@ -57,10 +61,11 @@ class GetUserProjectCompletionsTest extends TestCase
         ]);
     }
 
-    public function test_can_retrieve_user_project_completions_within_current_month()
+    public function test_can_retrieve_user_project_completion_within_current_month()
     {
-        // Send a GET request to the controller's index method
-        $response = $this->getJson(route('admin.projectCompletions.index', [
+        // Send a GET request to the controller's show method
+        $response = $this->getJson(route('companyAdmin.projectCompletions.show', [
+            'userId' => $this->user->user_id,
             'employment_status' => 'full-time',
             'personnel' => 'employee',
         ]));
@@ -71,50 +76,43 @@ class GetUserProjectCompletionsTest extends TestCase
         // Assert the JSON structure
         $response->assertJsonStructure([
             'message',
-            'current_page',
             'data' => [
-                '*' => [
-                    'user_id',
-                    'first_name',
-                    'middle_name',
-                    'last_name',
-                    'suffix',
-                    'place_of_birth',
-                    'date_of_birth',
-                    'gender',
-                    'username',
-                    'email',
-                    'recovery_email',
-                    'phone_number',
-                    'emergency_contact_name',
-                    'emergency_contact_number',
-                    'email_verified_at',
-                    'created_at',
-                    'updated_at',
-                    'deleted_at',
-                    'tasks_not_started_count',
-                    'tasks_in_progress_count',
-                    'tasks_reviewing_count',
-                    'tasks_completed_count',
-                    'subtasks_not_started_count',
-                    'subtasks_in_progress_count',
-                    'subtasks_reviewing_count',
-                    'subtasks_completed_count',
-                ],
+                'user_id',
+                'first_name',
+                'middle_name',
+                'last_name',
+                'suffix',
+                'place_of_birth',
+                'date_of_birth',
+                'gender',
+                'username',
+                'email',
+                'recovery_email',
+                'phone_number',
+                'emergency_contact_name',
+                'emergency_contact_number',
+                'email_verified_at',
+                'created_at',
+                'updated_at',
+                'deleted_at',
+                'tasks_not_started_count',
+                'tasks_in_progress_count',
+                'tasks_reviewing_count',
+                'tasks_completed_count',
+                'subtasks_not_started_count',
+                'subtasks_in_progress_count',
+                'subtasks_reviewing_count',
+                'subtasks_completed_count',
             ],
-            'first_page_url',
-            'last_page',
-            'last_page_url',
-            'next_page_url',
-            'prev_page_url',
-            'total',
         ]);
     }
 
-    public function test_index_with_missing_parameters()
+    public function test_show_with_missing_parameters()
     {
         // Send a GET request with missing query parameters using route name
-        $response = $this->getJson(route('admin.projectCompletions.index'));
+        $response = $this->getJson(route('companyAdmin.projectCompletions.show', [
+            'userId' => $this->user->user_id,
+        ]));
 
         // Assert that the response returns a 422 Unprocessable Entity status
         $response->assertStatus(422);

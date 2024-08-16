@@ -63,7 +63,7 @@ class DatabaseSeeder extends Seeder
 
         $admin->assignRole($dayShiftRole);
         $admin->assignRole($fullTimeRole);
-        $admin->assignRole($adminRole);
+        $admin->assignRole($companyAdminRole);
         $admin->assignRole($employeeRole);
         $admin->assignRole($superRole);
     }

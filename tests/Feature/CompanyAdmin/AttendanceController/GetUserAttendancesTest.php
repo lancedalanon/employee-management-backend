@@ -31,7 +31,7 @@ class GetUserAttendancesTest extends TestCase
         parent::setUp();
 
         // Create roles
-        $this->adminRole = Role::create(['name' => 'admin']);
+        $this->adminRole = Role::create(['name' => 'company-admin']);
         $this->fullTimeRole = Role::create(['name' => 'full-time']);
         $this->employeeRole = Role::create(['name' => 'employee']);
 
@@ -64,7 +64,7 @@ class GetUserAttendancesTest extends TestCase
     public function test_index_with_valid_parameters()
     {
         // Send a GET request with valid query parameters using route name
-        $response = $this->getJson(route('admin.attendances.index', [
+        $response = $this->getJson(route('companyAdmin.attendances.index', [
             'employment_status' => 'full-time',
             'personnel' => 'employee',
         ]));
@@ -115,7 +115,7 @@ class GetUserAttendancesTest extends TestCase
     public function test_index_with_missing_parameters()
     {
         // Send a GET request with missing query parameters using route name
-        $response = $this->getJson(route('admin.attendances.index'));
+        $response = $this->getJson(route('companyAdmin.attendances.index'));
 
         // Assert that the response returns a 422 Unprocessable Entity status
         $response->assertStatus(422);

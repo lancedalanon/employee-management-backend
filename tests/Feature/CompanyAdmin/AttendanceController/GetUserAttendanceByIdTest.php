@@ -31,7 +31,7 @@ class GetUserAttendanceByIdTest extends TestCase
         parent::setUp();
 
         // Create roles
-        $this->adminRole = Role::create(['name' => 'admin']);
+        $this->adminRole = Role::create(['name' => 'company-admin']);
         $this->fullTimeRole = Role::create(['name' => 'full-time']);
         $this->employeeRole = Role::create(['name' => 'employee']);
 
@@ -64,7 +64,7 @@ class GetUserAttendanceByIdTest extends TestCase
     public function test_show_attendance_with_valid_parameters(): void
     {
         // Send a GET request with valid query parameters and user ID
-        $response = $this->getJson(route('admin.attendances.show', [
+        $response = $this->getJson(route('companyAdmin.attendances.show', [
             'userId' => $this->user->user_id,
             'employment_status' => 'full-time',
             'personnel' => 'employee',
@@ -103,7 +103,7 @@ class GetUserAttendanceByIdTest extends TestCase
     public function test_show_attendance_with_missing_parameters(): void
     {
         // Send a GET request with missing query parameters
-        $response = $this->getJson(route('admin.attendances.show', [
+        $response = $this->getJson(route('companyAdmin.attendances.show', [
             'userId' => $this->user->user_id,
         ]));
 

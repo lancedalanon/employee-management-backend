@@ -19,7 +19,7 @@ class CreateUserTest extends TestCase
         parent::setUp();
 
         // Create roles
-        Role::create(['name' => 'admin']);
+        Role::create(['name' => 'company-admin']);
         Role::create(['name' => 'intern']);
         Role::create(['name' => 'employee']);
         Role::create(['name' => 'full-time']);
@@ -32,7 +32,7 @@ class CreateUserTest extends TestCase
 
         // Create an admin user and act as that user
         $this->adminUser = User::factory()->create();
-        $this->adminUser->assignRole('admin');
+        $this->adminUser->assignRole('company-admin');
         Sanctum::actingAs($this->adminUser);
     }
 
@@ -60,7 +60,7 @@ class CreateUserTest extends TestCase
             'shift' => 'day-shift',
         ];
 
-        $response = $this->postJson(route('admin.users.store'), $userData);
+        $response = $this->postJson(route('companyAdmin.users.store'), $userData);
 
         $response->assertStatus(200);
         $response->assertJsonFragment([
@@ -90,7 +90,7 @@ class CreateUserTest extends TestCase
             'shift' => 'day-shift',
         ];
 
-        $response = $this->postJson(route('admin.users.store'), $userData);
+        $response = $this->postJson(route('companyAdmin.users.store'), $userData);
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['first_name']);
@@ -115,7 +115,7 @@ class CreateUserTest extends TestCase
             'shift' => 'day-shift',
         ];
 
-        $response = $this->postJson(route('admin.users.store'), $userData);
+        $response = $this->postJson(route('companyAdmin.users.store'), $userData);
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['gender', 'email']);
@@ -146,7 +146,7 @@ class CreateUserTest extends TestCase
             'shift' => 'day-shift',
         ];
 
-        $response = $this->postJson(route('admin.users.store'), $userData);
+        $response = $this->postJson(route('companyAdmin.users.store'), $userData);
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['username', 'email']);

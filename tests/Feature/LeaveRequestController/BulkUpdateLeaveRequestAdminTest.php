@@ -23,7 +23,7 @@ class BulkUpdateLeaveRequestAdminTest extends TestCase
 
         // Create a user and act as that user
         $this->user = User::factory()->create();
-        $adminRole = Role::create(['name' => 'admin']);
+        $adminRole = Role::create(['name' => 'company-admin']);
         $this->user->assignRole($adminRole);
         Sanctum::actingAs($this->user);
 
@@ -40,7 +40,7 @@ class BulkUpdateLeaveRequestAdminTest extends TestCase
     {
         $dtrIds = $this->leaveRequests->pluck('dtr_id')->toArray();
 
-        $response = $this->patchJson(route('admin.leaveRequests.bulkUpdate'), [
+        $response = $this->patchJson(route('companyAdmin.leaveRequests.bulkUpdate'), [
             'dtr_ids' => $dtrIds,
         ]);
 
@@ -52,7 +52,7 @@ class BulkUpdateLeaveRequestAdminTest extends TestCase
 
     public function test_invalid_dtr_ids(): void
     {
-        $response = $this->patchJson(route('admin.leaveRequests.bulkUpdate'), [
+        $response = $this->patchJson(route('companyAdmin.leaveRequests.bulkUpdate'), [
             'dtr_ids' => [99999, 88888], // Non-existent IDs
         ]);
 
@@ -67,7 +67,7 @@ class BulkUpdateLeaveRequestAdminTest extends TestCase
 
     public function test_empty_dtr_ids(): void
     {
-        $response = $this->patchJson(route('admin.leaveRequests.bulkUpdate'), [
+        $response = $this->patchJson(route('companyAdmin.leaveRequests.bulkUpdate'), [
             'dtr_ids' => [],
         ]);
 

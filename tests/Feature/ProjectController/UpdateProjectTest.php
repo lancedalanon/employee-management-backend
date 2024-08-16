@@ -35,7 +35,7 @@ class UpdateProjectTest extends TestCase
     {
         $newProjectName = $this->faker->unique()->sentence;
 
-        $response = $this->putJson(route('admin.projects.update', ['projectId' => $this->project->project_id]), [
+        $response = $this->putJson(route('companyAdmin.projects.update', ['projectId' => $this->project->project_id]), [
             'project_name' => $newProjectName,
             'project_description' => $this->project->project_description,
         ]);
@@ -61,7 +61,7 @@ class UpdateProjectTest extends TestCase
 
     public function test_handles_validation_error_when_project_name_is_same()
     {
-        $response = $this->putJson(route('admin.projects.update', ['projectId' => $this->project->project_id]), [
+        $response = $this->putJson(route('companyAdmin.projects.update', ['projectId' => $this->project->project_id]), [
             'project_name' => $this->project->project_name,
             'project_description' => $this->project->project_description,
         ]);
@@ -76,7 +76,7 @@ class UpdateProjectTest extends TestCase
     {
         $nonExistingId = 999;
 
-        $response = $this->putJson(route('admin.projects.update', ['projectId' => $nonExistingId]), [
+        $response = $this->putJson(route('companyAdmin.projects.update', ['projectId' => $nonExistingId]), [
             'project_name' => 'Updated Project Name',
             'project_description' => 'Updated project description.',
         ]);
@@ -91,7 +91,7 @@ class UpdateProjectTest extends TestCase
     {
         $newProjectName = str_repeat('a', 300);
 
-        $response = $this->putJson(route('admin.projects.update', ['projectId' => $this->project->project_id]), [
+        $response = $this->putJson(route('companyAdmin.projects.update', ['projectId' => $this->project->project_id]), [
             'project_name' => $newProjectName,
             'project_description' => $this->project->project_description,
         ]);
@@ -104,7 +104,7 @@ class UpdateProjectTest extends TestCase
     {
         $newProjectDescription = str_repeat('a', 600);
 
-        $response = $this->putJson(route('admin.projects.update', ['projectId' => $this->project->project_id]), [
+        $response = $this->putJson(route('companyAdmin.projects.update', ['projectId' => $this->project->project_id]), [
             'project_name' => $this->project->project_name,
             'project_description' => $newProjectDescription,
         ]);

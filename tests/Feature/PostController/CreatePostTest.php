@@ -24,7 +24,7 @@ class CreatePostTest extends TestCase
         parent::setUp();
         Storage::fake('public');
         $user = User::factory()->create();
-        $adminRole = Role::create(['name' => 'admin']);
+        $adminRole = Role::create(['name' => 'company-admin']);
         $user->assignRole($adminRole);
         Sanctum::actingAs($user);
     }
@@ -52,7 +52,7 @@ class CreatePostTest extends TestCase
         ];
 
         // Call the store method
-        $response = $this->postJson(route('admin.posts.store'), [
+        $response = $this->postJson(route('companyAdmin.posts.store'), [
             'post_title' => 'Test Post Title',
             'post_content' => 'Test post content with media1.jpg and media2.jpg',
             'post_tags' => $tags,
@@ -92,7 +92,7 @@ class CreatePostTest extends TestCase
 
     public function test_post_creation_fails_without_post_title()
     {
-        $response = $this->postJson(route('admin.posts.store'), [
+        $response = $this->postJson(route('companyAdmin.posts.store'), [
             'post_content' => 'Test post content',
             'post_tags' => ['tag1', 'tag2'],
         ]);
@@ -103,7 +103,7 @@ class CreatePostTest extends TestCase
 
     public function test_post_creation_fails_without_post_content()
     {
-        $response = $this->postJson(route('admin.posts.store'), [
+        $response = $this->postJson(route('companyAdmin.posts.store'), [
             'post_title' => 'Test Post Title',
             'post_tags' => ['tag1', 'tag2'],
         ]);
@@ -114,7 +114,7 @@ class CreatePostTest extends TestCase
 
     public function test_post_creation_fails_without_post_tags()
     {
-        $response = $this->postJson(route('admin.posts.store'), [
+        $response = $this->postJson(route('companyAdmin.posts.store'), [
             'post_title' => 'Test Post Title',
             'post_content' => 'Test post content',
         ]);
@@ -125,7 +125,7 @@ class CreatePostTest extends TestCase
 
     public function test_post_creation_fails_with_empty_post_tags()
     {
-        $response = $this->postJson(route('admin.posts.store'), [
+        $response = $this->postJson(route('companyAdmin.posts.store'), [
             'post_title' => 'Test Post Title',
             'post_content' => 'Test post content',
             'post_tags' => [],
@@ -141,7 +141,7 @@ class CreatePostTest extends TestCase
             UploadedFile::fake()->create('document.pdf', 100, 'application/pdf'),
         ];
 
-        $response = $this->postJson(route('admin.posts.store'), [
+        $response = $this->postJson(route('companyAdmin.posts.store'), [
             'post_title' => 'Test Post Title',
             'post_content' => 'Test post content',
             'post_tags' => ['tag1', 'tag2'],

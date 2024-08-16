@@ -45,7 +45,7 @@ class CreateProjectTest extends TestCase
         ];
 
         // Send a POST request to create a project
-        $response = $this->postJson(route('admin.projects.store'), $data);
+        $response = $this->postJson(route('companyAdmin.projects.store'), $data);
 
         // Assert that the response is successful (201 Created)
         $response->assertStatus(201);
@@ -76,7 +76,7 @@ class CreateProjectTest extends TestCase
         ];
 
         // Send a POST request to create a project
-        $response = $this->postJson(route('admin.projects.store'), $data);
+        $response = $this->postJson(route('companyAdmin.projects.store'), $data);
 
         // Assert that the response status is 422 (Unprocessable Entity)
         $response->assertStatus(422);
@@ -99,7 +99,7 @@ class CreateProjectTest extends TestCase
         ];
 
         // Send a POST request to create a project
-        $response = $this->postJson(route('admin.projects.store'), $data);
+        $response = $this->postJson(route('companyAdmin.projects.store'), $data);
 
         // Assert that the response status is 422
         $response->assertStatus(422)

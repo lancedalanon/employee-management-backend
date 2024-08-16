@@ -24,7 +24,7 @@ class DeleteLeaveRequestAdminTest extends TestCase
 
         // Create a user and act as that user
         $this->user = User::factory()->create();
-        $adminRole = Role::create(['name' => 'admin']);
+        $adminRole = Role::create(['name' => 'company-admin']);
         $this->user->assignRole($adminRole);
         Sanctum::actingAs($this->user);
 
@@ -40,7 +40,7 @@ class DeleteLeaveRequestAdminTest extends TestCase
 
     public function test_successful_destroy(): void
     {
-        $response = $this->deleteJson(route('admin.leaveRequests.destroy', $this->leaveRequest->first()->dtr_id));
+        $response = $this->deleteJson(route('companyAdmin.leaveRequests.destroy', $this->leaveRequest->first()->dtr_id));
 
         $response->assertStatus(200)
             ->assertJson([
@@ -55,7 +55,7 @@ class DeleteLeaveRequestAdminTest extends TestCase
 
     public function test_destroy_non_existent_leave_request(): void
     {
-        $response = $this->deleteJson(route('admin.leaveRequests.destroy', 99999)); // Non-existent ID
+        $response = $this->deleteJson(route('companyAdmin.leaveRequests.destroy', 99999)); // Non-existent ID
 
         $response->assertStatus(404)
             ->assertJson([

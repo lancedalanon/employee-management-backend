@@ -19,7 +19,7 @@ class DeletePostTest extends TestCase
         parent::setUp();
         Storage::fake('public');
         $user = User::factory()->create();
-        $adminRole = Role::create(['name' => 'admin']);
+        $adminRole = Role::create(['name' => 'company-admin']);
         $user->assignRole($adminRole);
         Sanctum::actingAs($user);
     }
@@ -34,7 +34,7 @@ class DeletePostTest extends TestCase
         ]);
 
         // Call the destroy method
-        $response = $this->deleteJson(route('admin.posts.destroy', $post->post_id));
+        $response = $this->deleteJson(route('companyAdmin.posts.destroy', $post->post_id));
 
         // Assert the response
         $response->assertStatus(200);
@@ -45,7 +45,7 @@ class DeletePostTest extends TestCase
 
     public function test_destroy_non_existing_post()
     {
-        $response = $this->deleteJson(route('admin.posts.destroy', 9999));
+        $response = $this->deleteJson(route('companyAdmin.posts.destroy', 9999));
 
         $response->assertStatus(404);
         $response->assertJsonFragment(['message' => 'Post not found.']);

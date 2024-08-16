@@ -22,7 +22,7 @@ class UpdateUserTest extends TestCase
         parent::setUp();
 
         // Create roles and assign them to variables
-        Role::create(['name' => 'admin']);
+        Role::create(['name' => 'company-admin']);
         Role::create(['name' => 'intern']);
         Role::create(['name' => 'employee']);
         Role::create(['name' => 'full-time']);
@@ -35,7 +35,7 @@ class UpdateUserTest extends TestCase
 
         // Create an admin user and act as that user
         $this->adminUser = User::factory()->create();
-        $this->adminUser->assignRole('admin');
+        $this->adminUser->assignRole('company-admin');
         Sanctum::actingAs($this->adminUser);
 
         // Create a user to be updated
@@ -62,7 +62,7 @@ class UpdateUserTest extends TestCase
             'shift' => 'day-shift',
         ];
 
-        $response = $this->putJson(route('admin.users.update', $this->user->user_id), $updateData);
+        $response = $this->putJson(route('companyAdmin.users.update', $this->user->user_id), $updateData);
 
         // Check if the response status is 200
         $response->assertStatus(200);
@@ -108,7 +108,7 @@ class UpdateUserTest extends TestCase
             'shift' => 'day-shift',
         ];
 
-        $response = $this->putJson(route('admin.users.update', 99999), $updateData);
+        $response = $this->putJson(route('companyAdmin.users.update', 99999), $updateData);
 
         $response->assertStatus(404)
             ->assertJson([
@@ -118,7 +118,7 @@ class UpdateUserTest extends TestCase
 
     public function test_it_validates_update_request()
     {
-        $response = $this->putJson(route('admin.users.update', $this->user->user_id), [
+        $response = $this->putJson(route('companyAdmin.users.update', $this->user->user_id), [
             'first_name' => '', // Invalid first name
             'last_name' => '', // Invalid last name
             'username' => 'updatedusername',

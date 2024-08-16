@@ -43,7 +43,7 @@ class DeleteProjectTest extends TestCase
     public function test_delete_project_by_id()
     {
         // Send a DELETE request to delete the project
-        $response = $this->deleteJson(route('admin.projects.destroy', ['projectId' => $this->project->project_id]));
+        $response = $this->deleteJson(route('companyAdmin.projects.destroy', ['projectId' => $this->project->project_id]));
 
         // Assert that the response is successful (200 OK)
         $response->assertStatus(200);
@@ -65,7 +65,7 @@ class DeleteProjectTest extends TestCase
     public function test_delete_non_existent_project()
     {
         // Send a DELETE request to delete the project
-        $response = $this->deleteJson(route('admin.projects.destroy', ['projectId' => 99999]));
+        $response = $this->deleteJson(route('companyAdmin.projects.destroy', ['projectId' => 99999]));
 
         // Assert that the response status is 404 (Not Found)
         $response->assertStatus(404);

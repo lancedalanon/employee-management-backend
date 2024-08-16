@@ -23,7 +23,7 @@ class UpdatePostTest extends TestCase
         parent::setUp();
         Storage::fake('public');
         $user = User::factory()->create();
-        $adminRole = Role::create(['name' => 'admin']);
+        $adminRole = Role::create(['name' => 'company-admin']);
         $user->assignRole($adminRole);
         Sanctum::actingAs($user);
     }
@@ -64,7 +64,7 @@ class UpdatePostTest extends TestCase
         ];
 
         // Call the update method
-        $response = $this->putJson(route('admin.posts.update', $post->post_id), array_merge(
+        $response = $this->putJson(route('companyAdmin.posts.update', $post->post_id), array_merge(
             $new_data,
             ['post_media' => $new_media_files]
         ));
@@ -101,7 +101,7 @@ class UpdatePostTest extends TestCase
 
     public function test_update_non_existing_post()
     {
-        $response = $this->putJson(route('admin.posts.update', 9999), [
+        $response = $this->putJson(route('companyAdmin.posts.update', 9999), [
             'post_title' => 'Non Existing Title',
             'post_content' => 'Non Existing content.',
             'post_tags' => ['tag1', 'tag2'],
@@ -117,7 +117,7 @@ class UpdatePostTest extends TestCase
         $post = Post::factory()->create();
 
         // Missing post_title
-        $response = $this->putJson(route('admin.posts.update', $post->post_id), [
+        $response = $this->putJson(route('companyAdmin.posts.update', $post->post_id), [
             'post_content' => 'Updated content.',
             'post_tags' => ['tag1', 'tag2'],
         ]);
@@ -132,7 +132,7 @@ class UpdatePostTest extends TestCase
         $post = Post::factory()->create();
 
         // Missing post_content
-        $response = $this->putJson(route('admin.posts.update', $post->post_id), [
+        $response = $this->putJson(route('companyAdmin.posts.update', $post->post_id), [
             'post_title' => 'Updated Title',
             'post_tags' => ['tag1', 'tag2'],
         ]);
@@ -147,7 +147,7 @@ class UpdatePostTest extends TestCase
         $post = Post::factory()->create();
 
         // Invalid post_tags
-        $response = $this->putJson(route('admin.posts.update', $post->post_id), [
+        $response = $this->putJson(route('companyAdmin.posts.update', $post->post_id), [
             'post_title' => 'Updated Title',
             'post_content' => 'Updated content.',
             'post_tags' => 'invalid_tag', // Should be an array
@@ -164,7 +164,7 @@ class UpdatePostTest extends TestCase
 
         // Invalid post_media_type
         $invalidMediaFile = UploadedFile::fake()->create('document.pdf', 100, 'application/pdf');
-        $response = $this->putJson(route('admin.posts.update', $post->post_id), [
+        $response = $this->putJson(route('companyAdmin.posts.update', $post->post_id), [
             'post_title' => 'Updated Title',
             'post_content' => 'Updated content.',
             'post_tags' => ['tag1', 'tag2'],
