@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Admin;
+namespace App\Services\CompanyAdmin;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Response;

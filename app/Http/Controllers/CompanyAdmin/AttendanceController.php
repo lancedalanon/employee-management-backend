@@ -5,7 +5,7 @@ namespace App\Http\Controllers\CompanyAdmin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Attendance\IndexAttendanceRequest;
 use App\Http\Requests\Admin\Attendance\ShowAttendanceRequest;
-use App\Services\Admin\AttendanceService;
+use App\Services\CompanyAdmin\AttendanceService;
 
 class AttendanceController extends Controller
 {

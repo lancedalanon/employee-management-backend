@@ -5,7 +5,7 @@ namespace App\Http\Controllers\CompanyAdmin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\User\StoreUserRequest;
 use App\Http\Requests\Admin\User\UpdateUserRequest;
-use App\Services\Admin\UserService;
+use App\Services\CompanyAdmin\UserService;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
