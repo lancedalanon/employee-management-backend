@@ -97,6 +97,9 @@ class ProjectService
             // Create a new project
             $project = Project::create($validatedData);
 
+            // Attach the authenticated user as a project member with the 'project_admin' role
+            $project->users()->attach($this->userId, ['project_role' => 'project_admin']);
+
             // Return the created project as a JSON response
             return Response::json([
                 'message' => 'Project created successfully.',

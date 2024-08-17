@@ -19,8 +19,8 @@ class InviteToken extends Model
         'expires_at',
         'used_at',
     ];
-
-    // Generate a unique token
+    
+    // Generate a unique token    
     public static function generateToken()
     {
         return Str::random(60);
