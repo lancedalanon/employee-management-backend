@@ -2,10 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
+use App\Models\InviteToken;
+use App\Models\User;
+use App\Notifications\InviteNotification;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 
 class UserController extends Controller
 {
@@ -26,6 +32,122 @@ class UserController extends Controller
         ], 200);
     }
 
+    public function register(Request $request, $token) {
+
+    }
+
+    public function registerCompanyAdmin(Request $request) {
+        $validatedData = $request->validate([
+            // Company Admin
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'suffix' => 'nullable|string|max:255',
+            'place_of_birth' => 'required|string|max:255',
+            'date_of_birth' => 'required|date',
+            'gender' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'phone_number' => 'required|string|max:13|unique:users,phone_number',
+            'password' => 'required|string|min:8|max:255|confirmed',
+
+            // Company
+            'company_name' => 'required|string|unique:companies,company_name|max:255',
+            'company_registration_number' => 'required|string|unique:companies,company_registration_number|max:50',
+            'company_tax_id' => 'required|string|unique:companies,company_tax_id|max:50',
+            'company_address' => 'required|string|max:255',
+            'company_city' => 'required|string|max:100',
+            'company_state' => 'required|string|max:100',
+            'company_postal_code' => 'required|string|max:20',
+            'company_country' => 'required|string|max:100',
+            'company_phone_number' => 'required|string|unique:companies,company_phone_number|max:20',
+            'company_email' => 'required|email|unique:companies,company_email|max:255',
+            'company_website' => 'required|url|max:255',
+            'company_industry' => 'required|string|max:100',
+            'company_founded_at' => 'required|date',
+            'company_description' => 'nullable|string',
+        ]);
+
+        // Create the user (Company Admin)
+        $user = User::create([
+            'first_name' => $validatedData['first_name'],
+            'middle_name' => $validatedData['middle_name'] ?? null,
+            'last_name' => $validatedData['last_name'],
+            'suffix' => $validatedData['suffix'] ?? null,
+            'place_of_birth' => $validatedData['place_of_birth'],
+            'date_of_birth' => $validatedData['date_of_birth'],
+            'gender' => $validatedData['gender'],
+            'username' => $validatedData['username'],
+            'email' => $validatedData['email'],
+            'phone_number' => $validatedData['phone_number'],
+            'password' => Hash::make($validatedData['password']),
+        ]);
+
+        // Create the company
+        $company = Company::create([
+            'user_id' => $user->user_id,
+            'company_name' => $validatedData['company_name'],
+            'company_registration_number' => $validatedData['company_registration_number'],
+            'company_tax_id' => $validatedData['company_tax_id'],
+            'company_address' => $validatedData['company_address'],
+            'company_city' => $validatedData['company_city'],
+            'company_state' => $validatedData['company_state'],
+            'company_postal_code' => $validatedData['company_postal_code'],
+            'company_country' => $validatedData['company_country'],
+            'company_phone_number' => $validatedData['company_phone_number'],
+            'company_email' => $validatedData['company_email'],
+            'company_website' => $validatedData['company_website'],
+            'company_industry' => $validatedData['company_industry'],
+            'company_founded_at' => $validatedData['company_founded_at'],
+            'company_description' => $validatedData['company_description'] ?? null,
+        ]);
+
+        // Update the user with the company_id
+        $user->company_id = $company->company_id;
+        $user->assignRole('company-admin');
+        $user->save();
+
+        // Return a response indicating success
+        return response()->json([
+            'message' => 'Company Admin and Company registered successfully.',
+        ], 201);
+    }
+
+    public function sendInvite(Request $request) {
+        // Validate the request
+        $request->validate([
+            'email' => 'required|email|max:255',
+        ]);
+
+        // Get the authenticated user
+        $user = Auth::user();
+
+        // Fetch the company_id from the authenticated user
+        $company_id = $user->company_id;
+
+        if (!$company_id) {
+            return response()->json(['message' => 'User does not belong to a company.'], 403);
+        }
+
+        // Generate a unique token and set the expiration date
+        $token = InviteToken::generateToken();
+        $expiresAt = Carbon::now()->addHours(24); // Token expires in 24 hours
+
+        // Create the invite
+        InviteToken::create([
+            'company_id' => $company_id,
+            'email' => $request->input('email'),
+            'token' => $token,
+            'expires_at' => $expiresAt,
+        ]);
+
+        // Send invite email
+        Notification::route('mail', $request->input('email'))
+                    ->notify(new InviteNotification($token));
+
+        return response()->json(['message' => 'Invite sent successfully.'], 200);
+    }
+
     /**
      * Update the specified user's personal information in the database.
      *
@@ -39,6 +161,7 @@ class UserController extends Controller
                 'first_name' => 'nullable|string|max:255',
                 'middle_name' => 'nullable|string|max:255',
                 'last_name' => 'nullable|string|max:255',
+                'suffix' => 'nullable|string|max:255',
                 'place_of_birth' => 'nullable|string|max:255',
                 'date_of_birth' => 'nullable|date',
                 'gender' => 'nullable|in:Male,Female',

@@ -2,16 +2,30 @@
 <?php
 
 use App\Http\Controllers\CompanyAdmin\AttendanceController as CompanyAdminAttendanceController;
+use App\Http\Controllers\CompanyAdmin\CompanyController as CompanyAdminCompanyController;
 use App\Http\Controllers\CompanyAdmin\ProjectCompletionController as CompanyProjectCompletionController;
 use App\Http\Controllers\CompanyAdmin\UserController as CompanyAdminUserController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectUserController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:company-admin')->prefix('company-admin')->name('companyAdmin.')->group(function () {
+
+        // Admin routes for sending invites via email
+        Route::post('send-invite', [UserController::class, 'sendInvite'])->name('send-invite');
+
+        // Admin routes for managing company profile
+        Route::prefix('company')->name('company.')->group(function () {
+            Route::get('{companyId}', [CompanyAdminCompanyController::class, 'show'])->name('show');
+            Route::get('{companyId}', [CompanyAdminCompanyController::class, 'store'])->name('store');
+            Route::get('{companyId}', [CompanyAdminCompanyController::class, 'update'])->name('update');
+            Route::get('{companyId}', [CompanyAdminCompanyController::class, 'deactivate'])->name('deactivate');
+        });
+
         // Admin routes for managing user's leave requests
         Route::prefix('leave-requests')->name('leaveRequests.')->group(function () {
             Route::get('/', [LeaveRequestController::class, 'indexAdmin'])->name('indexAdmin');

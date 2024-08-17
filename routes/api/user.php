@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('login', [AuthController::class, 'login']);
 Route::post('password/email', [AuthController::class, 'sendResetLinkEmail'])->name('password.email');
 Route::post('password/reset', [AuthController::class, 'reset'])->name('password.reset');
+Route::post('register/company-admin', [UserController::class, 'registerCompanyAdmin'])->name('register.company-admin');
 
 Route::middleware('auth:sanctum')->group(function () {
     // Routes for authenticated users

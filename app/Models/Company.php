@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Company extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $primaryKey = 'company_id';
 
@@ -28,11 +27,16 @@ class Company extends Model
         'company_industry',
         'company_founded_at',
         'company_description',
-        'company_status',
+        'deactivated_at'
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
+    }
+
+    public function invites()
+    {
+        return $this->hasMany(InviteToken::class, 'company_id', 'company_id');
     }
 }
