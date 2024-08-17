@@ -32,10 +32,66 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function register(Request $request, $token) {
+    public function register(Request $request) {
+        // Extract the token from the request body
+        $token = $request->input('token');
+        
+        // Check if the token exists and hasn't expired
+        $inviteToken = InviteToken::where('token', $token)
+            ->where('expires_at', '>', Carbon::now())
+            ->whereNull('used_at')
+            ->first();
+    
+        if (!$inviteToken) {
+            return response()->json(['message' => 'This token is invalid or has expired.'], 400);
+        }
+    
+        // Validate the request data
+        $validatedData = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'suffix' => 'nullable|string|max:255',
+            'place_of_birth' => 'required|string|max:255',
+            'date_of_birth' => 'required|date',
+            'gender' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'phone_number' => 'required|string|max:13|unique:users,phone_number',
+            'password' => 'required|string|min:8|max:255|confirmed',
+            'employment_type' => 'required|string|in:full-time,part-time',
+            'shift' => 'required|string|in:day-shift,afternoon-shift,evening-shift,early-shift,late-shift',
+            'role' => 'required|string|in:intern,employee',
+        ]);
+    
+        // Create the user (Company Admin)
+        $user = User::create([
+            'first_name' => $validatedData['first_name'],
+            'middle_name' => $validatedData['middle_name'] ?? null,
+            'last_name' => $validatedData['last_name'],
+            'suffix' => $validatedData['suffix'] ?? null,
+            'place_of_birth' => $validatedData['place_of_birth'],
+            'date_of_birth' => $validatedData['date_of_birth'],
+            'gender' => $validatedData['gender'],
+            'username' => $validatedData['username'],
+            'email' => $validatedData['email'],
+            'phone_number' => $validatedData['phone_number'],
+            'password' => Hash::make($validatedData['password']),
+            'company_id' => $inviteToken->company_id,
+        ]);
 
+        // Assign user appropriate employment type, shift, and role
+        $user->assignRole($validatedData['employment_type']);
+        $user->assignRole($validatedData['shift']);
+        $user->assignRole($validatedData['role']);
+
+        // Mark the token as used by setting the used_at timestamp
+        $inviteToken->update(['used_at' => Carbon::now()]);
+    
+        // Return a successful response or perform any other actions as needed
+        return response()->json(['message' => 'Registration successful.'], 201);
     }
-
+    
     public function registerCompanyAdmin(Request $request) {
         $validatedData = $request->validate([
             // Company Admin

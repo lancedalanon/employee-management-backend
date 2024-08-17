@@ -10,11 +10,14 @@ class InviteToken extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'invite_token_id';
+
     protected $fillable = [
         'company_id',
         'email',
         'token',
         'expires_at',
+        'used_at',
     ];
 
     // Generate a unique token

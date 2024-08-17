@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('email');
             $table->string('token');
             $table->timestamp('expires_at');
+            $table->timestamp('used_at')->nullable();
             $table->timestamps();
 
             $table->foreign('company_id')->references('company_id')->on('companies')->onDelete('cascade');
