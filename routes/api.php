@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -11,5 +13,8 @@
 |
 */
 
-require __DIR__ . '/api/user.php';
-require __DIR__ . '/api/company_admin.php';
+Route::prefix('v1')->name('v1.')->group(function () {
+    //require __DIR__ . '/api/v1/admin.php';
+    //require __DIR__ . '/api/v1/company_admin.php';
+    require __DIR__ . '/api/v1/user.php';
+});

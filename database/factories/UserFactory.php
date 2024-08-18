@@ -2,10 +2,15 @@
 
 namespace Database\Factories;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+use App\Models\Company;
+use Spatie\Permission\Models\Role;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ */
 class UserFactory extends Factory
 {
     /**
@@ -22,36 +27,68 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-        $suffixes = ['Jr.', 'Sr.', 'III', 'IV', 'V'];
-        $gender = ['Male', 'Female'];
-
         return [
-            'first_name' => $this->faker->firstName,
-            'middle_name' => $this->faker->firstName,
-            'last_name' => $this->faker->lastName,
-            'suffix' => $this->faker->randomElement(array_merge($suffixes, [null])),
-            'place_of_birth' => $this->faker->city,
-            'date_of_birth' => $this->faker->date(),
-            'gender' => $this->faker->randomElement($gender),
-            'username' => $this->faker->userName,
-            'email' => $this->faker->unique()->safeEmail,
-            'phone_number' => $this->faker->regexify('09[0-9]{2}-[0-9]{3}-[0-9]{4}'),
+            'first_name' => $this->faker->firstName(),
+            'middle_name' => $this->faker->firstName(),
+            'last_name' => $this->faker->lastName(),
+            'place_of_birth' => $this->faker->city(),
+            'date_of_birth' => $this->faker->date('Y-m-d', '2002-01-01'), 
+            'gender' => $this->faker->randomElement(['Male', 'Female']),
+            'username' => $this->faker->unique()->userName(),
+            'email' => $this->faker->unique()->safeEmail(),
+            'recovery_email' => $this->faker->unique()->safeEmail(),
+            'emergency_contact_name' => $this->faker->name(),
+            'emergency_contact_number' => $this->faker->phoneNumber(),
+            'phone_number' => $this->faker->phoneNumber(),
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
-            'recovery_email' => $this->faker->unique()->safeEmail,
-            'emergency_contact_name' => $this->faker->firstName,
-            'emergency_contact_number' => $this->faker->regexify('09[0-9]{2}-[0-9]{3}-[0-9]{4}'),
-            'remember_token' => null,
+            'company_id' => Company::factory(),
         ];
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Define a state with roles assigned.
+     *
+     * @param array<string> $roles
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
      */
-    public function unverified(): static
+    public function withRoles(array $roles = []): Factory
     {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
+        return $this->afterCreating(function (User $user) use ($roles) {
+            // Create roles if they don't exist
+            $availableRoles = [
+                'employee',
+                'intern',
+                'full-time',
+                'part-time',
+                'day-shift',
+                'afternoon-shift',
+                'evening-shift',
+                'early-shift',
+                'late-shift',
+            ];
+
+            foreach ($availableRoles as $role) {
+                Role::firstOrCreate(['name' => $role]);
+            }
+
+            // Assign the provided roles to the user
+            if (empty($roles)) {
+                // Default roles if none provided
+                $shiftRoles = Role::whereIn('name', ['day-shift', 'afternoon-shift', 'evening-shift', 'early-shift', 'late-shift'])->get();
+                $jobTypeRoles = Role::whereIn('name', ['full-time', 'part-time'])->get();
+                $internRole = Role::where('name', 'intern')->first();
+
+                $user->assignRole($shiftRoles->random());
+                $user->assignRole($jobTypeRoles->random());
+                $user->assignRole($internRole);
+            } else {
+                // Assign specified roles
+                $rolesToAssign = Role::whereIn('name', $roles)->get();
+                foreach ($rolesToAssign as $role) {
+                    $user->assignRole($role);
+                }
+            }
+        });
     }
 }

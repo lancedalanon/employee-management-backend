@@ -17,6 +17,7 @@ class ProjectUser extends Model
     protected $primaryKey = 'project_user_id';
 
     protected $fillable = [
+        'company_id',
         'project_id',
         'user_id',
         'project_role',
@@ -98,5 +99,10 @@ class ProjectUser extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class, 'company_id', 'company_id');
     }
 }

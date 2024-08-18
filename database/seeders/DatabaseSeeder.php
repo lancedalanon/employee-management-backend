@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Company;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -28,44 +29,7 @@ class DatabaseSeeder extends Seeder
         $earlyShiftRole = Role::create(['name' => 'early-shift']);
         $lateShiftRole = Role::create(['name' => 'late-shift']);
 
-        // Create 10 student users and shuffle their roles
-        $students = User::factory()->count(10)->create();
-        foreach ($students as $student) {
-            $shiftRoles = [$dayShiftRole, $afternoonShiftRole, $eveningShiftRole, $earlyShiftRole, $lateShiftRole];
-            shuffle($shiftRoles);
-            $student->assignRole($shiftRoles[0]);
-
-            $jobTypeRoles = [$fullTimeRole, $partTimeRole];
-            shuffle($jobTypeRoles);
-            $student->assignRole($jobTypeRoles[0]);
-
-            $student->assignRole($internRole);
-        }
-
-        // Create a sample company admin user and assign the roles
-        $companyAdmin = User::create([
-            'first_name' => 'Sample',
-            'middle_name' => 'User',
-            'last_name' => 'Company Admin',
-            'place_of_birth' => 'Santa Rosa, Laguna',
-            'date_of_birth' => '2002-05-18',
-            'gender' => 'Male',
-            'username' => 'companyadmin',
-            'email' => 'companyadmin@example.com',
-            'recovery_email' => 'companyadmin1@example.com',
-            'emergency_contact_name' => 'Contact Person Name',
-            'emergency_contact_number' => '0921-288-2221',
-            'phone_number' => '0921-212-2228',
-            'email_verified_at' => now(),
-            'password' => Hash::make('password'),
-        ]);
-
-        $companyAdmin->assignRole($dayShiftRole);
-        $companyAdmin->assignRole($fullTimeRole);
-        $companyAdmin->assignRole($companyAdminRole);
-        $companyAdmin->assignRole($employeeRole);
-
-        // Create a sample admin user and assign the roles
+        // Create admin user
         $admin = User::create([
             'first_name' => 'Sample',
             'middle_name' => 'User',
@@ -83,9 +47,36 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
         ]);
 
-        $admin->assignRole($dayShiftRole);
-        $admin->assignRole($fullTimeRole);
         $admin->assignRole($adminRole);
-        $admin->assignRole($employeeRole);
+        
+        // Create a sample company admin user and assign the roles
+        $companyAdmin = User::create([
+            'first_name' => 'Company',
+            'last_name' => 'Admin',
+            'place_of_birth' => 'Santa Rosa, Laguna',
+            'date_of_birth' => '2002-05-18',
+            'gender' => 'Male',
+            'username' => 'companyadmin',
+            'email' => 'companyadmin@example.com',
+            'recovery_email' => 'companyadmin1@example.com',
+            'emergency_contact_name' => 'Contact Person Name',
+            'emergency_contact_number' => '0921-277-2222',
+            'phone_number' => '0921-212-2777',
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'),
+        ]);
+
+        $companyAdmin->assignRole($companyAdminRole);
+        $companyAdmin->assignRole($fullTimeRole);
+        $companyAdmin->assignRole($dayShiftRole);
+
+        // Create dummy company
+        $company = Company::factory()->create(['user_id' => $companyAdmin->user_id]);
+
+        // Attach company_id to company admin user
+        $companyAdmin->update(['company_id' => $company->company_id]);
+
+        // Create dummy users
+        User::factory()->count(10)->create(['company_id' => $company->company_id]);
     }
 }
