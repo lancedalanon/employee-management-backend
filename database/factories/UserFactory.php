@@ -42,7 +42,7 @@ class UserFactory extends Factory
             'phone_number' => $this->faker->phoneNumber(),
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
-            'company_id' => Company::factory(),
+            'company_id' => null,
         ];
     }
 
