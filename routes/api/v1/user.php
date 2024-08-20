@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\v1\AuthenticationController;
+use App\Http\Controllers\v1\DtrController;
 use App\Http\Controllers\v1\RegistrationController;
 use Illuminate\Support\Facades\Route;
 
@@ -12,4 +13,11 @@ Route::post('register/company-admin', [RegistrationController::class, 'registerC
 // Authenticated routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthenticationController::class, 'logout'])->name('logout');
+
+    Route::prefix('dtrs')->name('dtrs.')->group(function () {
+        Route::post('time-in', [DtrController::class, 'storeTimeIn'])->name('storeTimeIn');
+        Route::post('time-out', [DtrController::class, 'storeTimeOut'])->name('storeTimeOut');
+        Route::post('break', [DtrController::class, 'storeBreak'])->name('storeBreak');
+        Route::post('resume', [DtrController::class, 'storeResume'])->name('storeResume');
+    });
 });

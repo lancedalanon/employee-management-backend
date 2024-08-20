@@ -15,8 +15,8 @@ return new class() extends Migration
             $table->id('dtr_break_id');
             $table->unsignedBigInteger('dtr_id');
             $table->foreign('dtr_id')->references('dtr_id')->on('dtrs')->onDelete('cascade');
-            $table->dateTime('break_time');
-            $table->dateTime('resume_time')->nullable();
+            $table->dateTime('dtr_break_break_time');
+            $table->dateTime('dtr_break_resume_time')->nullable();
             $table->timestamps();
         });
     }

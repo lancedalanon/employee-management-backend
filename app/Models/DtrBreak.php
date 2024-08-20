@@ -13,8 +13,8 @@ class DtrBreak extends Model
 
     protected $fillable = [
         'dtr_id',
-        'break_time',
-        'resume_time',
+        'dtr_break_break_time',
+        'dtr_break_resume_time',
     ];
 
     public function dtr()

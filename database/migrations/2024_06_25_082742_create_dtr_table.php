@@ -14,16 +14,19 @@ return new class() extends Migration
         Schema::create('dtrs', function (Blueprint $table) {
             $table->id('dtr_id');
             $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
-            $table->dateTime('time_in')->nullable();
-            $table->dateTime('time_out')->nullable();
-            $table->text('end_of_the_day_report')->nullable();
-            $table->boolean('is_overtime')->default(0);
-            $table->date('absence_date')->nullable();
-            $table->string('absence_reason')->nullable();
-            $table->timestamp('absence_approved_at')->nullable();
+            $table->timestamp('dtr_time_in')->nullable();
+            $table->timestamp('dtr_time_out')->nullable();
+            $table->binary('dtr_time_in_image')->nullable();
+            $table->binary('dtr_time_out_image')->nullable();
+            $table->text('dtr_end_of_the_day_report')->nullable();
+            $table->boolean('dtr_is_overtime')->default(0);
+            $table->date('dtr_absence_date')->nullable();
+            $table->string('dtr_absence_reason')->nullable();
+            $table->timestamp('dtr_absence_approved_at')->nullable();
             $table->softDeletes();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
         });
     }
 
