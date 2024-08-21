@@ -74,17 +74,11 @@ class DtrController extends Controller
         try {
             // Handle DTR time out image file upload
             $dtrTimeOutFilePath = $request->file('dtr_time_out_image')->store('dtr_time_out_images');
-            if (!$dtrTimeOutFilePath) {
-                return response()->json(['message' => 'Time out file upload failed.'], 400);
-            }
 
             // Handle end of the day report images
             $endOfTheDayReportImages = $request->file('end_of_the_day_report_images');
             foreach ($endOfTheDayReportImages as $file) {
                 $path = $file->store('end_of_the_day_report_images');
-                if (!$path) {
-                    return response()->json(['message' => 'End of the day report file upload failed.'], 400);
-                }
                 $endOfTheDayReportImagePaths[] = $path;
             }
 

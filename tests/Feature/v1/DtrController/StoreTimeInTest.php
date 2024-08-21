@@ -17,6 +17,7 @@ use Tests\TestCase;
 class StoreTimeInTest extends TestCase
 {
     use RefreshDatabase;
+    
     protected $user;
 
     protected function setUp(): void
