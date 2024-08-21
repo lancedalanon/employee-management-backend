@@ -10,10 +10,12 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "phpmailer/phpmailer": "^6.9",
+        "spatie/laravel-csp": "^2.10",
         "spatie/laravel-permission": "^6.7",
         "tymon/jwt-auth": "^2.1"
     },
     "require-dev": {
+        "enlightn/enlightn": "^2.10",
         "fakerphp/faker": "^1.23",
         "laravel/pint": "^1.13",
         "laravel/sail": "^1.26",

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\v1\DtrController\StoreTimeInRequest;
+use App\Http\Requests\v1\DtrController\StoreTimeOutRequest;
 use App\Models\Dtr;
 use App\Models\DtrBreak;
 use App\Models\EndOfTheDayReportImage;
@@ -11,7 +13,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class DtrController extends Controller
@@ -23,28 +24,24 @@ class DtrController extends Controller
         $this->user = Auth::user();
     }
 
-    public function storeTimeIn(Request $request): JsonResponse
+    public function storeTimeIn(StoreTimeInRequest $request): JsonResponse
     {
-        // Start a database transaction
-        DB::beginTransaction();
-
+        // Initialize file path for potential rollback
         $dtrTimeInFilePath = null;
 
         try {
             // Check if there is an open time in session
             $openTimeIn = Dtr::where('user_id', $this->user->user_id)
-                            ->whereNull('dtr_time_out')     
-                            ->whereNull('dtr_time_out_image')     
+                            ->whereNull(['dtr_time_out', 'dtr_time_out_image', 
+                                        'dtr_absence_date', 'dtr_absence_reason', 
+                            ])            
                             ->first();
             if ($openTimeIn) {
-                throw new \Exception('Failed to time in. You currently have an open time in session.');
+                return response()->json(['message' => 'Time in failed. You currently have an open time in session.'], 400);
             }
 
             // Handle time in image file upload
             $dtrTimeInFilePath = $request->file('dtr_time_in_image')->store('dtr_time_in_images');
-            if (!$dtrTimeInFilePath) {
-                throw new \Exception('File upload failed.');
-            }
 
             // Create a new DTR record with the time in and the uploaded image path
             Dtr::create([
@@ -53,14 +50,8 @@ class DtrController extends Controller
                 'dtr_time_in_image' => $dtrTimeInFilePath,
             ]);
 
-            // Commit the transaction
-            DB::commit();
-
             return response()->json(['message' => 'Timed in successfully.'], 201);
         } catch (\Exception $e) {
-            // Rollback the transaction
-            DB::rollBack();
-
             // Delete the uploaded file if it exists
             if ($dtrTimeInFilePath) {
                 Storage::delete($dtrTimeInFilePath);
@@ -68,10 +59,10 @@ class DtrController extends Controller
 
             // Return an error response
             return response()->json(['message' => 'Failed to time in.'], 500);
-        } 
+        }
     }
 
-    public function storeTimeOut(Request $request): JsonResponse
+    public function storeTimeOut(StoreTimeOutRequest $request): JsonResponse
     {
         // Start a database transaction
         DB::beginTransaction();
@@ -84,15 +75,15 @@ class DtrController extends Controller
             // Handle DTR time out image file upload
             $dtrTimeOutFilePath = $request->file('dtr_time_out_image')->store('dtr_time_out_images');
             if (!$dtrTimeOutFilePath) {
-                throw new \Exception('Time out file upload failed.');
+                return response()->json(['message' => 'Time out file upload failed.'], 400);
             }
-            
+
             // Handle end of the day report images
             $endOfTheDayReportImages = $request->file('end_of_the_day_report_images');
             foreach ($endOfTheDayReportImages as $file) {
                 $path = $file->store('end_of_the_day_report_images');
                 if (!$path) {
-                    throw new \Exception('End of the day report file upload failed.');
+                    return response()->json(['message' => 'End of the day report file upload failed.'], 400);
                 }
                 $endOfTheDayReportImagePaths[] = $path;
             }
@@ -100,11 +91,13 @@ class DtrController extends Controller
             // Retrieve the most recent DTR record with a time-in
             $dtrTimeIn = Dtr::where('user_id', $this->user->user_id)
                             ->whereNotNull(['dtr_time_in', 'dtr_time_in_image'])
-                            ->whereNull(['dtr_time_out', 'dtr_time_out_image'])
+                            ->whereNull(['dtr_time_out', 'dtr_time_out_image', 
+                                        'dtr_absence_date', 'dtr_absence_reason', 
+                            ])   
                             ->first();
 
             if (!$dtrTimeIn) {
-                throw new \Exception('Failed to time out. You have not timed in yet.');
+                return response()->json(['message' => 'Failed to time out. You have not timed in yet.'], 400);
             }
 
             // Check for any open breaks
@@ -112,7 +105,7 @@ class DtrController extends Controller
                         ->whereNull('dtr_break_resume_time')
                         ->first();
             if ($openBreak) {
-                throw new \Exception('Failed to time out. You have an open break session.');
+                return response()->json(['message' => 'Failed to time out. You have an open break session.'], 400);
             }
 
             // Update the DTR record with time out details
@@ -147,8 +140,6 @@ class DtrController extends Controller
                 Storage::delete($path);
             }
 
-            Log::error($e->getMessage());
-
             return response()->json(['message' => 'Failed to time out.'], 500);
         }
     }
@@ -156,65 +147,68 @@ class DtrController extends Controller
     public function storeBreak(): JsonResponse
     {
         try {
-            // Retrieve the DTR record with a time-in and a break session
+            // Retrieve the DTR record with a time-in and no time-out
             $dtrWithBreak = Dtr::with('breaks')
-                            ->where('user_id', $this->user->user_id)
-                            ->whereNull('dtr_time_out')     
-                            ->whereNull('dtr_time_out_image')  
-                            ->first();
-
-            // Check if there is an open time in session
+                                ->where('user_id', $this->user->user_id)
+                                ->whereNull(['dtr_time_out', 'dtr_time_out_image', 
+                                            'dtr_absence_date', 'dtr_absence_reason', 
+                                ])                                   
+                                ->first();
+        
+            // Check if there is an open time-in session
             if (!$dtrWithBreak) {
-                throw new \Exception('Failed to add break time. You have not timed in yet.');
+                return response()->json(['message' => 'Failed to add break time. You have not timed in yet.'], 400);
             }
-
+    
             // Check if there is an open break session
             $openBreak = $dtrWithBreak->breaks()->whereNull('dtr_break_resume_time')->first();
             if ($openBreak) {
-                throw new \Exception('Failed to add break time. You have an open break time session.');
+                return response()->json(['message' => 'Failed to add break time. You have an open break time session.'], 400);
             }
-
+    
             // Record the break time in the database
             DtrBreak::create([
                 'dtr_id' => $dtrWithBreak->dtr_id,
                 'dtr_break_break_time' => Carbon::now(),
             ]);
-
+    
             return response()->json(['message' => 'Break time was added successfully.'], 201);
         } catch (\Exception $e) {
             // Return an error response
             return response()->json(['message' => 'Failed to add break time.'], 500);
-        };
-    }
+        }
+    }    
 
     public function storeResume(): JsonResponse
     {
         try {
-            // Retrieve the DTR record with a time-in and a break session
+            // Retrieve the DTR record with a time-in and no time-out
             $dtrWithBreak = Dtr::with('breaks')
-                            ->where('user_id', $this->user->user_id)
-                            ->whereNull('dtr_time_out')     
-                            ->whereNull('dtr_time_out_image')  
-                            ->first();
-
-            // Check if there is an open time in session
+                                ->where('user_id', $this->user->user_id)
+                                ->whereNull(['dtr_time_out', 'dtr_time_out_image', 
+                                            'dtr_absence_date', 'dtr_absence_reason', 
+                                ])   
+                                ->first();
+    
+            // Check if there is an open time-in session
             if (!$dtrWithBreak) {
-                throw new \Exception('Failed to add resume time. You have not timed in yet.');
+                return response()->json(['message' => 'Failed to add resume time. You have not timed in yet.'], 400);
             }
-
+    
             // Check if there is an open break session
             $openBreak = $dtrWithBreak->breaks()->whereNull('dtr_break_resume_time')->first();
             if (!$openBreak) {
-                throw new \Exception('Failed to add resume time. You have an open break time session.');
+                return response()->json(['message' => 'Failed to add resume time. There is no open break session.'], 400);
             }
-
+    
+            // Record the resume time in the database
             $openBreak->dtr_break_resume_time = Carbon::now();
             $openBreak->save();
-
+    
             return response()->json(['message' => 'Resume time was added successfully.'], 201);
         } catch (\Exception $e) {
             // Return an error response
             return response()->json(['message' => 'Failed to add resume time.'], 500);
         }
-    }
+    }    
 }
