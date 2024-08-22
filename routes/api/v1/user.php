@@ -15,6 +15,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthenticationController::class, 'logout'])->name('logout');
 
     Route::prefix('dtrs')->name('dtrs.')->group(function () {
+        Route::get('/', [DtrController::class, 'index'])->name('index');
+        Route::get('{dtrId}', [DtrController::class, 'show'])->name('show');
         Route::post('time-in', [DtrController::class, 'storeTimeIn'])->name('storeTimeIn');
         Route::post('time-out', [DtrController::class, 'storeTimeOut'])->name('storeTimeOut');
         Route::post('break', [DtrController::class, 'storeBreak'])->name('storeBreak');

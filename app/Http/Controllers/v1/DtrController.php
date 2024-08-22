@@ -24,6 +24,64 @@ class DtrController extends Controller
         $this->user = Auth::user();
     }
 
+    public function index(Request $request): JsonResponse
+    {
+        // Retrieve the query parameters from the request
+        $sort = $request->input('sort', 'dtr_id'); 
+        $order = $request->input('order', 'desc'); 
+        $search = $request->input('search', '');
+        $perPage = $request->input('per_page', 25);
+        $page = $request->input('page', 1);
+    
+        // Build the query
+        $query = Dtr::select('dtr_id', 'dtr_time_in', 'dtr_time_out', 'dtr_end_of_the_day_report', 'dtr_is_overtime')
+                    ->where('user_id', $this->user->user_id)
+                    ->whereNull(['dtr_absence_date', 'dtr_absence_reason']);
+    
+        // Apply search filter if provided
+        if ($search) {
+            $query->where(function ($query) use ($search) {
+                $query->where('dtr_end_of_the_day_report', 'LIKE', "%$search%");
+            });
+        }
+    
+        // Apply sorting
+        $query->orderBy($sort, $order);
+    
+        // Paginate the results
+        $dtrs = $query->paginate($perPage, ['*'], 'page', $page);
+    
+        // Construct the response data
+        $responseData = [
+            'message' => $dtrs->isEmpty() ? 'No DTR records found for the provided criteria.' : 'DTR records retrieved successfully.',
+            'data' => $dtrs,
+        ];
+
+        // Return the response as JSON with a 200 status code
+        return response()->json($responseData, 200);
+    }
+
+    public function show(int $dtrId): JsonResponse
+    {
+        // Retrieve the DTR record for the given ID and check if it exists
+        $dtr = Dtr::select('dtr_id', 'dtr_time_in', 'dtr_time_out', 'dtr_end_of_the_day_report', 'dtr_is_overtime')
+                ->where('user_id', $this->user->user_id)
+                ->where('dtr_id', $dtrId)
+                ->whereNull(['dtr_absence_date', 'dtr_absence_reason'])
+                ->first();
+
+        // Handle DTR record not found
+        if (!$dtr) {
+            return response()->json(['message' => 'DTR record not found.'], 404);
+        }
+
+        // Return the response as JSON with a 200 status code
+        return response()->json([
+            'message' => 'DTR record retrieved successfully.',
+            'data' => $dtr,
+        ], 200);
+    }
+
     public function storeTimeIn(StoreTimeInRequest $request): JsonResponse
     {
         // Initialize file path for potential rollback
@@ -35,7 +93,7 @@ class DtrController extends Controller
                             ->whereNull(['dtr_time_out', 'dtr_time_out_image', 
                                         'dtr_absence_date', 'dtr_absence_reason', 
                             ])            
-                            ->first();
+                            ->exists();
             if ($openTimeIn) {
                 return response()->json(['message' => 'Time in failed. You currently have an open time in session.'], 400);
             }
