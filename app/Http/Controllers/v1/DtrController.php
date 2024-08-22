@@ -82,23 +82,25 @@ class DtrController extends Controller
                 $endOfTheDayReportImagePaths[] = $path;
             }
 
-            // Retrieve the most recent DTR record with a time-in
-            $dtrTimeIn = Dtr::where('user_id', $this->user->user_id)
-                            ->whereNotNull(['dtr_time_in', 'dtr_time_in_image'])
-                            ->whereNull(['dtr_time_out', 'dtr_time_out_image', 
-                                        'dtr_absence_date', 'dtr_absence_reason', 
-                            ])   
-                            ->first();
+            // Retrieve the most recent DTR record with a time-in and eager load breaks
+            $dtrTimeIn = Dtr::with(['breaks' => function ($query) {
+                            $query->whereNull('dtr_break_resume_time');
+                        }])
+                        ->where('user_id', $this->user->user_id)
+                        ->whereNotNull(['dtr_time_in', 'dtr_time_in_image'])
+                        ->whereNull([
+                            'dtr_time_out', 'dtr_time_out_image',
+                            'dtr_absence_date', 'dtr_absence_reason',
+                        ])
+                        ->first();
 
+            // Handle DTR record not found
             if (!$dtrTimeIn) {
                 return response()->json(['message' => 'Failed to time out. You have not timed in yet.'], 400);
             }
 
             // Check for any open breaks
-            $openBreak = DtrBreak::where('dtr_id', $dtrTimeIn->dtr_id)
-                        ->whereNull('dtr_break_resume_time')
-                        ->first();
-            if ($openBreak) {
+            if ($dtrTimeIn->breaks->isNotEmpty()) {
                 return response()->json(['message' => 'Failed to time out. You have an open break session.'], 400);
             }
 
@@ -130,6 +132,7 @@ class DtrController extends Controller
                 Storage::delete($dtrTimeOutFilePath);
             }
 
+            // Delete end of the day report images
             foreach ($endOfTheDayReportImagePaths as $path) {
                 Storage::delete($path);
             }
