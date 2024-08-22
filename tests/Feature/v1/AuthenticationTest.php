@@ -31,9 +31,9 @@ class AuthenticationTest extends TestCase
 
         // Create roles
         $this->adminRole = Role::create(['name' => 'admin']);
-        $this->companyAdminRole = Role::create(['name' => 'company-admin']);
-        $this->fullTimeRole = Role::create(['name' => 'full-time']);
-        $this->dayShiftRole = Role::create(['name' => 'day-shift']);
+        $this->companyAdminRole = Role::create(['name' => 'company_admin']);
+        $this->fullTimeRole = Role::create(['name' => 'full_time']);
+        $this->dayShiftRole = Role::create(['name' => 'day_shift']);
 
         // Create a sample admin user and assign the roles
         $this->admin = User::create([
@@ -87,7 +87,7 @@ class AuthenticationTest extends TestCase
     protected function tearDown(): void
     {
         // Clean up roles and other data if needed
-        Role::whereIn('name', ['admin', 'company-admin', 'full-time', 'day-shift'])->delete();
+        Role::whereIn('name', ['admin', 'company_admin', 'full_time', 'day_shift'])->delete();
         User::whereIn('username', ['admin', 'companyadmin', $this->user->username])->delete();
         Company::whereIn('user_id', [$this->companyAdmin->user_id])->delete();
 

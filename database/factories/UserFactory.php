@@ -59,13 +59,14 @@ class UserFactory extends Factory
             $availableRoles = [
                 'employee',
                 'intern',
-                'full-time',
-                'part-time',
-                'day-shift',
-                'afternoon-shift',
-                'evening-shift',
-                'early-shift',
-                'late-shift',
+                'full_time',
+                'part_time',
+                'day_shift',
+                'afternoon_shift',
+                'evening_shift',
+                'early_shift',
+                'late_shift',
+                'night_shift',
             ];
 
             foreach ($availableRoles as $role) {
@@ -75,8 +76,8 @@ class UserFactory extends Factory
             // Assign the provided roles to the user
             if (empty($roles)) {
                 // Default roles if none provided
-                $shiftRoles = Role::whereIn('name', ['day-shift', 'afternoon-shift', 'evening-shift', 'early-shift', 'late-shift'])->get();
-                $jobTypeRoles = Role::whereIn('name', ['full-time', 'part-time'])->get();
+                $shiftRoles = Role::whereIn('name', ['day_shift', 'afternoon_shift', 'evening_shift', 'early_shift', 'late_shift', 'night_shift'])->get();
+                $jobTypeRoles = Role::whereIn('name', ['full_time', 'part_time'])->get();
                 $internRole = Role::where('name', 'intern')->first();
 
                 $user->assignRole($shiftRoles->random());

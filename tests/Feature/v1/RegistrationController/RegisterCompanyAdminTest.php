@@ -30,10 +30,10 @@ class RegisterCompanyAdminTest extends TestCase
         parent::setUp();
 
         // Create roles
-        $this->companyAdminRole = Role::create(['name' => 'company-admin']);
+        $this->companyAdminRole = Role::create(['name' => 'company_admin']);
         $this->employeeRole = Role::create(['name' => 'employee']);
-        $this->fullTimeRole = Role::create(['name' => 'full-time']);
-        $this->dayShiftRole = Role::create(['name' => 'day-shift']);
+        $this->fullTimeRole = Role::create(['name' => 'full_time']);
+        $this->dayShiftRole = Role::create(['name' => 'day_shift']);
 
         // Create a sample company admin user and assign the roles
         $this->companyAdmin = User::create([
@@ -76,7 +76,7 @@ class RegisterCompanyAdminTest extends TestCase
     protected function tearDown(): void
     {
         // Clean up roles and other data if needed
-        Role::whereIn('name', ['company-admin', 'full-time', 'day-shift'])->delete();
+        Role::whereIn('name', ['company_admin', 'full_time', 'day_shift'])->delete();
         User::whereIn('username', ['companyadmin'])->delete();
         Company::whereIn('user_id', [$this->companyAdmin->user_id])->delete();
 

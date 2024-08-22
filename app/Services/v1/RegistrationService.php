@@ -99,7 +99,7 @@ class RegistrationService
 
         // Update the user with the company_id
         $user->company_id = $company->company_id;
-        $user->assignRole('company-admin');
+        $user->assignRole('company_admin');
         $user->save();
 
         // Return a response indicating success

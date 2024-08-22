@@ -32,8 +32,8 @@ class RegisterRequest extends FormRequest
             'username' => 'required|string|max:255|unique:users,username',
             'phone_number' => 'required|string|max:13|unique:users,phone_number',
             'password' => 'required|string|min:8|max:255|confirmed',
-            'employment_type' => 'required|string|in:full-time,part-time',
-            'shift' => 'required_if:employment_type,part-time|string|in:day-shift,afternoon-shift,evening-shift,early-shift,late-shift',
+            'employment_type' => 'required|string|in:full_time,part_time',
+            'shift' => 'required|string|in:day_shift,afternoon_shift,evening_shift,early_shift,late_shift,night_shift',
             'role' => 'required|string|in:intern,employee',
             'token' => 'required|string|max:255',
         ];

@@ -20,14 +20,15 @@ class DatabaseSeeder extends Seeder
         $adminRole = Role::create(['name' => 'admin']);
         $employeeRole = Role::create(['name' => 'employee']);
         $internRole = Role::create(['name' => 'intern']);
-        $companyAdminRole = Role::create(['name' => 'company-admin']);
-        $fullTimeRole = Role::create(['name' => 'full-time']);
-        $partTimeRole = Role::create(['name' => 'part-time']);
-        $dayShiftRole = Role::create(['name' => 'day-shift']);
-        $afternoonShiftRole = Role::create(['name' => 'afternoon-shift']);
-        $eveningShiftRole = Role::create(['name' => 'evening-shift']);
-        $earlyShiftRole = Role::create(['name' => 'early-shift']);
-        $lateShiftRole = Role::create(['name' => 'late-shift']);
+        $companyAdminRole = Role::create(['name' => 'company_admin']);
+        $fullTimeRole = Role::create(['name' => 'full_time']);
+        $partTimeRole = Role::create(['name' => 'part_time']);
+        $dayShiftRole = Role::create(['name' => 'day_shift']);
+        $afternoonShiftRole = Role::create(['name' => 'afternoon_shift']);
+        $eveningShiftRole = Role::create(['name' => 'evening_shift']);
+        $earlyShiftRole = Role::create(['name' => 'early_shift']);
+        $nightShiftRole = Role::create(['name' => 'night_shift']);
+        $lateShiftRole = Role::create(['name' => 'late_shift']);
 
         // Create admin user
         $admin = User::create([
