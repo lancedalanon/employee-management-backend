@@ -145,7 +145,9 @@ class DtrController extends Controller
     {
         try {
             // Retrieve the DTR record with a time-in and no time-out
-            $dtrWithBreak = Dtr::with('breaks')
+            $dtrWithBreak = Dtr::with(['breaks' => function ($query) {
+                                    $query->whereNull('dtr_break_resume_time');
+                                }])
                                 ->where('user_id', $this->user->user_id)
                                 ->whereNull(['dtr_time_out', 'dtr_time_out_image', 
                                             'dtr_absence_date', 'dtr_absence_reason', 
@@ -158,8 +160,7 @@ class DtrController extends Controller
             }
     
             // Check if there is an open break session
-            $openBreak = $dtrWithBreak->breaks()->whereNull('dtr_break_resume_time')->first();
-            if ($openBreak) {
+            if ($dtrWithBreak->breaks->isNotEmpty()) {
                 return response()->json(['message' => 'Failed to add break time. You have an open break time session.'], 400);
             }
     
@@ -180,7 +181,9 @@ class DtrController extends Controller
     {
         try {
             // Retrieve the DTR record with a time-in and no time-out
-            $dtrWithBreak = Dtr::with('breaks')
+            $dtrWithBreak = Dtr::with(['breaks' => function ($query) {
+                                    $query->whereNull('dtr_break_resume_time');
+                                }])
                                 ->where('user_id', $this->user->user_id)
                                 ->whereNull(['dtr_time_out', 'dtr_time_out_image', 
                                             'dtr_absence_date', 'dtr_absence_reason', 
