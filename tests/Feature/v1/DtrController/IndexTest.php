@@ -23,8 +23,8 @@ class IndexTest extends TestCase
 
         // Create roles
         Role::create(['name' => 'employee']);
-        Role::create(['name' => 'full-time']);
-        Role::create(['name' => 'day-shift']);
+        Role::create(['name' => 'full_time']);
+        Role::create(['name' => 'day_shift']);
 
         // Create a sample user and assign the roles
         $this->user = User::factory()->withRoles()->create();
@@ -37,7 +37,7 @@ class IndexTest extends TestCase
     protected function tearDown(): void
     {
         // Clean up roles and other data if needed
-        Role::whereIn('name', ['employee', 'full-time', 'day-shift'])->delete();
+        Role::whereIn('name', ['employee', 'full_time', 'day_shift'])->delete();
         $this->user = null;
         $this->dtr = null;
 

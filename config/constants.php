@@ -70,15 +70,5 @@ return [
                 'end_time' => '18:00:00',   // 6:00 PM
             ],
         ],
-        'custom_shift' => [
-            'full_time' => [
-                'start_time' => null,
-                'end_time' => null,
-            ],
-            'part_time' => [
-                'start_time' => null,
-                'end_time' => null,
-            ],
-        ],
     ],
 ];

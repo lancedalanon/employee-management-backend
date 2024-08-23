@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Role;
@@ -24,13 +25,17 @@ class StoreTimeInTest extends TestCase
     {
         parent::setUp();
 
+        // Set the test time to 08:00:00
+        $now = Carbon::now()->setHour(8)->setMinute(0)->setSecond(0);
+        Carbon::setTestNow($now);
+
         // Create roles
         Role::create(['name' => 'employee']);
-        Role::create(['name' => 'full-time']);
-        Role::create(['name' => 'day-shift']);
+        Role::create(['name' => 'full_time']);
+        Role::create(['name' => 'day_shift']);
 
         // Create a sample user and assign the roles
-        $this->user = User::factory()->withRoles()->create();
+        $this->user = User::factory()->withRoles(['employee', 'full_time', 'day_shift'])->create();
         Sanctum::actingAs($this->user);
 
         // Set up fake storage disk
@@ -40,18 +45,19 @@ class StoreTimeInTest extends TestCase
     protected function tearDown(): void
     {
         // Clean up roles and other data if needed
-        Role::whereIn('name', ['employee', 'full-time', 'day-shift'])->delete();
+        Role::whereIn('name', ['employee', 'full_time', 'day_shift'])->delete();
         $this->user = null;
-
+        Carbon::setTestNow();
+        
         parent::tearDown();
     }
 
     public function testAuthenticatedUserCanTimeIn(): void
     {
-        // Arrange fake image
+        // Arrange
         $fakeImage = UploadedFile::fake()->image('dtr_time_in_image.jpg', 600, 600);
 
-        // Act the response
+        // Act
         $response = $this->postJson(route('v1.dtrs.storeTimeIn'), [
             'dtr_time_in_image' => $fakeImage
         ]);
@@ -62,20 +68,20 @@ class StoreTimeInTest extends TestCase
                         'message' => 'Timed in successfully.',
                     ]);
 
-       // Assert that the image was stored
-       Storage::disk('public')->assertExists('dtr_time_in_images/' . $fakeImage->hashName());
+        // Assert that the image was stored
+        Storage::disk('public')->assertExists('dtr_time_in_images/' . $fakeImage->hashName());
 
-       // Assert that the Dtr record was created in the database
-       $this->assertDatabaseHas('dtrs', [
-           'user_id' => $this->user->user_id,
-           'dtr_time_in' => Carbon::now()->toDateTimeString(), // Adjust for exact match if necessary
-           'dtr_time_in_image' => 'dtr_time_in_images/' . $fakeImage->hashName(),
-       ]);
+        // Assert that the Dtr record was created in the database
+        $this->assertDatabaseHas('dtrs', [
+            'user_id' => $this->user->user_id,
+            'dtr_time_in' => Carbon::now()->toDateTimeString(), // Adjust for exact match if necessary
+            'dtr_time_in_image' => 'dtr_time_in_images/' . $fakeImage->hashName(),
+        ]);
     }
 
     public function testAuthenticatedUserFailsTimeInWithMissingField(): void
     {
-        // Act the response
+        // Act
         $response = $this->postJson(route('v1.dtrs.storeTimeIn'), [
             'dtr_time_in_image' => ''
         ]);
@@ -87,7 +93,7 @@ class StoreTimeInTest extends TestCase
     
     public function testAuthenticatedUserFailsTimeInWithInvalidField(): void
     {
-        // Arrange an invalid file type
+        // Arrange
         $invalidFile = UploadedFile::fake()->create('invalid_file.txt', 100, 'text/plain');
 
         // Act: Send the request with the invalid file
@@ -102,13 +108,9 @@ class StoreTimeInTest extends TestCase
 
     public function testAuthenticatedUserFailsToTimeInIfAlreadyTimedIn(): void
     {
-        // Arrange fake image
+        // Arrange
         $fakeImage = UploadedFile::fake()->image('dtr_time_in_image.jpg', 600, 600);
-
-        // Act the response
-        $response = $this->postJson(route('v1.dtrs.storeTimeIn'), [
-            'dtr_time_in_image' => $fakeImage
-        ]);
+        Dtr::factory()->create(['user_id' => $this->user->user_id, 'dtr_time_in' => Carbon::now()]);
 
         // Act the response again
         $response = $this->postJson(route('v1.dtrs.storeTimeIn'), [

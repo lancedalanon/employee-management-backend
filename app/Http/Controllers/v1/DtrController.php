@@ -8,6 +8,7 @@ use App\Http\Requests\v1\DtrController\StoreTimeOutRequest;
 use App\Models\Dtr;
 use App\Models\DtrBreak;
 use App\Models\EndOfTheDayReportImage;
+use App\Services\v1\EvaluateScheduleService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -18,10 +19,12 @@ use Illuminate\Support\Facades\Storage;
 class DtrController extends Controller
 {
     protected $user;
+    protected $evaluateScheduleService;
 
-    public function __construct()
+    public function __construct(EvaluateScheduleService $evaluateScheduleService)
     {
         $this->user = Auth::user();
+        $this->evaluateScheduleService = $evaluateScheduleService;
     }
 
     public function index(Request $request): JsonResponse
@@ -88,6 +91,14 @@ class DtrController extends Controller
         $dtrTimeInFilePath = null;
 
         try {
+            // Evaluate the schedule start time
+            $isWithinSchedule = $this->evaluateScheduleService->evaluateSchedule($this->user);
+
+            // Handle schedule start time failure
+            if (! $isWithinSchedule) {
+                return response()->json(['message' => 'Outside of schedule.'], 409);
+            }
+
             // Check if there is an open time in session
             $openTimeIn = Dtr::where('user_id', $this->user->user_id)
                             ->whereNull(['dtr_time_out', 'dtr_time_out_image', 

@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Laravel\Sanctum\PersonalAccessToken;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Csp\CspServiceProvider;
+use Spatie\LaravelSettings\LaravelSettingsServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,5 +25,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
         CspServiceProvider::class;
+        LaravelSettingsServiceProvider::class;
     }
 }

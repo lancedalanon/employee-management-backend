@@ -100,6 +100,9 @@ class RegistrationService
         // Update the user with the company_id
         $user->company_id = $company->company_id;
         $user->assignRole('company_admin');
+        $user->assignRole('full_time');
+        $user->assignRole('day_shift');
+        $user->assignRole('employee');
         $user->save();
 
         // Return a response indicating success
