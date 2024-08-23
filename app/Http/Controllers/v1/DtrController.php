@@ -3,13 +3,17 @@
 namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\v1\DtrController\IndexRequest;
 use App\Http\Requests\v1\DtrController\StoreTimeInRequest;
 use App\Http\Requests\v1\DtrController\StoreTimeOutRequest;
 use App\Models\Dtr;
 use App\Models\DtrBreak;
 use App\Models\EndOfTheDayReportImage;
+use App\Models\User;
+use App\Services\v1\DtrService;
 use App\Services\v1\EvaluateScheduleService;
 use Carbon\Carbon;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,50 +22,31 @@ use Illuminate\Support\Facades\Storage;
 
 class DtrController extends Controller
 {
-    protected $user;
+    protected $dtrService;
     protected $evaluateScheduleService;
+    protected $user;
 
-    public function __construct(EvaluateScheduleService $evaluateScheduleService)
+    public function __construct(EvaluateScheduleService $evaluateScheduleService, DtrService $dtrService)
     {
         $this->user = Auth::user();
         $this->evaluateScheduleService = $evaluateScheduleService;
+        $this->dtrService = $dtrService;
     }
 
-    public function index(Request $request): JsonResponse
+    public function index(IndexRequest $request): JsonResponse
     {
-        // Retrieve the query parameters from the request
-        $sort = $request->input('sort', 'dtr_id'); 
-        $order = $request->input('order', 'desc'); 
-        $search = $request->input('search', '');
-        $perPage = $request->input('per_page', 25);
-        $page = $request->input('page', 1);
-    
-        // Build the query
-        $query = Dtr::select('dtr_id', 'dtr_time_in', 'dtr_time_out', 'dtr_end_of_the_day_report', 'dtr_is_overtime')
-                    ->where('user_id', $this->user->user_id)
-                    ->whereNull(['dtr_absence_date', 'dtr_absence_reason']);
-    
-        // Apply search filter if provided
-        if ($search) {
-            $query->where(function ($query) use ($search) {
-                $query->where('dtr_end_of_the_day_report', 'LIKE', "%$search%");
-            });
-        }
-    
-        // Apply sorting
-        $query->orderBy($sort, $order);
-    
-        // Paginate the results
-        $dtrs = $query->paginate($perPage, ['*'], 'page', $page);
-    
-        // Construct the response data
-        $responseData = [
-            'message' => $dtrs->isEmpty() ? 'No DTR records found for the provided criteria.' : 'DTR records retrieved successfully.',
-            'data' => $dtrs,
-        ];
+        // Get validated data
+        $validatedData = $request->validated();
 
-        // Return the response as JSON with a 200 status code
-        return response()->json($responseData, 200);
+        // Retrieve the query parameters from the request
+        $sort = $validatedData['sort']; 
+        $order = $validatedData['order']; 
+        $search = $validatedData['search'];
+        $perPage = $validatedData['per_page'];
+        $page = $validatedData['page'];
+    
+        // Retrieve DTR records based on the given parameters
+        return $this->dtrService->getDtrs($this->user, $sort, $order, $search, $perPage, $page);
     }
 
     public function show(int $dtrId): JsonResponse

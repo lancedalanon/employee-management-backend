@@ -44,6 +44,7 @@ class IndexTest extends TestCase
         parent::tearDown();
     }
 
+    // Main function
     public function testAuthenticatedUserCanRetrievePaginatedDtrData(): void
     {
         // Act the response
