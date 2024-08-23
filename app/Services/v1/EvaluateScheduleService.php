@@ -59,16 +59,17 @@ class EvaluateScheduleService
             $endTime->addDay();
         }
     
-        // Reduce the start time by 30 minutes to account for the grace period
+        // Apply a 30-minute grace period to both the start and end times
         $startTimeWithGrace = $startTime->copy()->subMinutes(30);
+        $endTimeWithGrace = $endTime->copy()->addMinutes(30);
     
         // Convert times to their string representations
         $nowString = $now->toDateTimeString();
         $startTimeWithGraceString = $startTimeWithGrace->toDateTimeString();
-        $endTimeString = $endTime->toDateTimeString();
+        $endTimeWithGraceString = $endTimeWithGrace->toDateTimeString();
     
-        // Check if the current time is within the schedule range using string comparison
-        return $nowString >= $startTimeWithGraceString && $nowString <= $endTimeString;
+        // Check if the current time is within the schedule range including grace periods
+        return $nowString >= $startTimeWithGraceString && $nowString <= $endTimeWithGraceString;
     }
     
     private function checkEmploymentType(Authenticatable $user): void
