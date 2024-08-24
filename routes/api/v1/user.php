@@ -21,5 +21,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('time-out', [DtrController::class, 'storeTimeOut'])->name('storeTimeOut');
         Route::post('break', [DtrController::class, 'storeBreak'])->name('storeBreak');
         Route::post('resume', [DtrController::class, 'storeResume'])->name('storeResume');
+        Route::put('time-out', [DtrController::class, 'updateTimeOut'])->name('updateTimeOut');
     });
 });

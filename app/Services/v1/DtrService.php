@@ -342,6 +342,14 @@ class DtrService
                 return response()->json(['message' => 'Failed to time out. You have an open break session.'], 400);
             }
 
+            // Convert `dtr_time_in` to a Carbon instance
+            $dtrTimeInTime = Carbon::parse($dtrTimeIn->dtr_time_in);
+
+            // Check if time-out is not the allowed late entry time
+            if (!($this->evaluateScheduleService->isTimeOutLate($user, $dtrTimeInTime))) {
+                return response()->json(['message' => 'Time-out is not a late entry.'], 409);
+            }
+
             // Update the DTR record with time out details
             $dtrTimeIn->update([
                 'dtr_time_out' => Carbon::now(),
