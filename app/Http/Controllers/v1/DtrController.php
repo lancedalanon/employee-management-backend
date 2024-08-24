@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\DtrController\IndexRequest;
 use App\Http\Requests\v1\DtrController\StoreTimeInRequest;
 use App\Http\Requests\v1\DtrController\StoreTimeOutRequest;
+use App\Http\Requests\v1\DtrController\UpdateTimeOut;
 use App\Services\v1\DtrService;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\JsonResponse;
@@ -66,4 +67,13 @@ class DtrController extends Controller
         // Handle DTR resume
         return $this->dtrService->createResume($this->user);
     }    
+
+    public function updateTimeOut(UpdateTimeOut $request): JsonResponse
+    {
+        // Get validated data
+        $validatedData = $request->validated();
+
+        // Handle late DTR time-out with image file upload
+        return $this->dtrService->updateTimeOut($this->user, $validatedData);
+    } 
 }

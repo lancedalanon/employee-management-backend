@@ -21,6 +21,7 @@ class Dtr extends Model
         'dtr_end_of_the_day_report',
         'dtr_time_in_image',
         'dtr_time_out_image',
+        'dtr_reason_of_late_entry',
         'dtr_is_overtime',
         'dtr_absence_date',
         'dtr_absence_reason',

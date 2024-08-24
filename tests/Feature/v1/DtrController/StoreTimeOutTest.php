@@ -5,6 +5,7 @@ namespace Tests\Feature\v1\DtrController;
 use App\Models\Dtr;
 use App\Models\DtrBreak;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Storage;
@@ -24,17 +25,21 @@ class StoreTimeOutTest extends TestCase
     {
         parent::setUp();
 
+        // Get the current date and set the time to 08:00:00
+        $timeNowAdjusted = Carbon::now()->setTime(8, 0, 0);
+        Carbon::setTestNow($timeNowAdjusted);
+
         // Create roles
         Role::create(['name' => 'employee']);
         Role::create(['name' => 'full_time']);
         Role::create(['name' => 'day_shift']);
 
         // Create a sample user and assign the roles
-        $this->user = User::factory()->withRoles()->create();
+        $this->user = User::factory()->withRoles(['employee', 'full_time', 'day_shift'])->create();
         Sanctum::actingAs($this->user);
 
         // Create a sample DTR record for the user with a time-in event
-        $this->dtr = Dtr::factory()->create(['user_id' => $this->user->user_id]);
+        $this->dtr = Dtr::factory()->create(['user_id' => $this->user->user_id, 'dtr_time_in' => Carbon::now()]);
 
         // Set up fake storage disk
         Storage::fake('public');
@@ -46,6 +51,7 @@ class StoreTimeOutTest extends TestCase
         Role::whereIn('name', ['employee', 'full_time', 'day_shift'])->delete();
         $this->user = null;
         $this->dtr = null;
+        Carbon::setTestNow();
 
         parent::tearDown();
     }
@@ -62,7 +68,7 @@ class StoreTimeOutTest extends TestCase
             UploadedFile::fake()->image('image3.jpg', 600, 600),
             UploadedFile::fake()->image('image4.jpg', 600, 600),
         ];
-    
+
         // Act the request to the storeTimeOut endpoint
         $response = $this->postJson(route('v1.dtrs.storeTimeOut'), [
             'dtr_time_out_image' => $fakeImage,
@@ -216,5 +222,46 @@ class StoreTimeOutTest extends TestCase
             ->assertJson([
                 'message' => 'Failed to time out. You have an open break session.',
             ]);
+    }
+
+    public function testAuthenticatedUserFailsTimeOutIfLate(): void
+    {
+        // Arrange new user
+        $user = User::factory()->withRoles(['employee', 'full_time', 'day_shift'])->create();
+        Sanctum::actingAs($user);
+
+        // Arrange DTR entry to time out 1 day late
+        Dtr::factory()->create(['user_id' => $user->user_id, 'dtr_time_in' => Carbon::now()->subDay(1)]);
+
+        // Arrange the time to add one day for late entry
+        $futureTime = Carbon::now()->addDay();
+        Carbon::setTestNow($futureTime);
+
+        // Arrange fake image for DTR time out
+        $fakeImage = UploadedFile::fake()->image('dtr_time_out_image.jpg', 600, 600);
+    
+        // Arrange multiple fake images for the end of the day report
+        $multipleFakeImages = [
+            UploadedFile::fake()->image('image1.jpg', 600, 600),
+            UploadedFile::fake()->image('image2.jpg', 600, 600),
+            UploadedFile::fake()->image('image3.jpg', 600, 600),
+            UploadedFile::fake()->image('image4.jpg', 600, 600),
+        ];
+    
+        // Act the request to the storeTimeOut endpoint
+        $response = $this->postJson(route('v1.dtrs.storeTimeOut'), [
+            'dtr_time_out_image' => $fakeImage,
+            'dtr_end_of_the_day_report' => 'The day has ended.',
+            'end_of_the_day_report_images' => $multipleFakeImages,
+        ]);
+    
+        // Assert that the response has the correct status and message
+        $response->assertStatus(409)
+            ->assertJson([
+                'message' => 'Failed to time out. The time-out is too late. Please use the late entry clearance option.',
+            ]);
+
+        // Reset the time after the test
+        Carbon::setTestNow();
     }
 }

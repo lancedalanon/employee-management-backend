@@ -133,86 +133,94 @@ class DtrService
     {
         // Start a database transaction
         DB::beginTransaction();
-
+    
         // Initialize file paths for potential rollback
         $endOfTheDayReportImagePaths = [];
         $dtrTimeOutFilePath = null;
-
+    
         // Handle validated file uploads
         $dtrTimeOutImage = $validatedData['dtr_time_out_image'];
         $endOfTheDayReportImages = $validatedData['end_of_the_day_report_images'];
-
-        // Handle end of the day report
+    
+        // Handle end-of-the-day report
         $dtrEndOfTheDayReport = $validatedData['dtr_end_of_the_day_report'];
-
+    
         try {
-            // Handle DTR time out image file upload
-            $dtrTimeOutFilePath = $dtrTimeOutImage->store('dtr_time_out_images');
-
-            // Handle end of the day report images
-            foreach ($endOfTheDayReportImages as $file) {
-                $path = $file->store('end_of_the_day_report_images');
-                $endOfTheDayReportImagePaths[] = $path;
-            }
-
             // Retrieve the most recent DTR record with a time-in and eager load breaks
             $dtrTimeIn = Dtr::with(['breaks' => function ($query) {
-                            $query->whereNull('dtr_break_resume_time');
-                        }])
-                        ->where('user_id', $user->user_id)
-                        ->whereNotNull(['dtr_time_in', 'dtr_time_in_image'])
-                        ->whereNull([
-                            'dtr_time_out', 'dtr_time_out_image',
-                            'dtr_absence_date', 'dtr_absence_reason',
-                        ])
-                        ->first();
-
+                                $query->whereNull('dtr_break_resume_time');
+                            }])
+                            ->where('user_id', $user->user_id)
+                            ->whereNotNull(['dtr_time_in', 'dtr_time_in_image'])
+                            ->whereNull([
+                                'dtr_time_out', 'dtr_time_out_image',
+                                'dtr_absence_date', 'dtr_absence_reason',
+                            ])
+                            ->first();
+    
             // Handle DTR record not found
             if (!$dtrTimeIn) {
                 return response()->json(['message' => 'Failed to time out. You have not timed in yet.'], 400);
             }
-
+    
             // Check for any open breaks
             if ($dtrTimeIn->breaks->isNotEmpty()) {
                 return response()->json(['message' => 'Failed to time out. You have an open break session.'], 400);
             }
+            
+            // Convert `dtr_time_in` to a Carbon instance
+            $dtrTimeInTime = Carbon::parse($dtrTimeIn->dtr_time_in);
 
-            // Update the DTR record with time out details
+            // Check if time-out is within the allowed late entry time
+            if ($this->evaluateScheduleService->isTimeOutLate($user, $dtrTimeInTime)) {
+                return response()->json(['message' => 'Failed to time out. The time-out is too late. Please use the late entry clearance option.'], 409);
+            }
+    
+            // Handle DTR time-out image file upload
+            $dtrTimeOutFilePath = $dtrTimeOutImage->store('dtr_time_out_images');
+    
+            // Handle end-of-the-day report images
+            foreach ($endOfTheDayReportImages as $file) {
+                $path = $file->store('end_of_the_day_report_images');
+                $endOfTheDayReportImagePaths[] = $path;
+            }
+    
+            // Update the DTR record with time-out details
             $dtrTimeIn->update([
                 'dtr_time_out' => Carbon::now(),
                 'dtr_time_out_image' => $dtrTimeOutFilePath,
                 'dtr_end_of_the_day_report' => $dtrEndOfTheDayReport,
             ]);
-
-            // Store end of the day report images
+    
+            // Store end-of-the-day report images
             foreach ($endOfTheDayReportImagePaths as $path) {
                 EndOfTheDayReportImage::create([
                     'dtr_id' => $dtrTimeIn->dtr_id,
                     'end_of_the_day_report_image' => $path,
                 ]);
             }
-
+    
             // Commit the transaction
             DB::commit();
-
+    
             return response()->json(['message' => 'Timed out successfully.'], 201);
         } catch (\Exception $e) {
             // Rollback transaction and delete files on failure
             DB::rollBack();
-
+    
             // Delete already uploaded files
             if ($dtrTimeOutFilePath) {
                 Storage::delete($dtrTimeOutFilePath);
             }
-
-            // Delete end of the day report images
+    
+            // Delete end-of-the-day report images
             foreach ($endOfTheDayReportImagePaths as $path) {
                 Storage::delete($path);
             }
-
+    
             return response()->json(['message' => 'Failed to time out.'], 500);
         }
-    }
+    }    
 
     public function createBreak(Authenticatable $user): JsonResponse 
     {
@@ -282,6 +290,93 @@ class DtrService
         } catch (\Exception $e) {
             // Return an error response
             return response()->json(['message' => 'Failed to add resume time.'], 500);
+        }
+    }
+
+    public function updateTimeOut(Authenticatable $user, array $validatedData): JsonResponse 
+    {
+        // Start a database transaction
+        DB::beginTransaction();
+
+        // Initialize file paths for potential rollback
+        $endOfTheDayReportImagePaths = [];
+        $dtrTimeOutFilePath = null;
+
+        // Handle validated file uploads
+        $dtrTimeOutImage = $validatedData['dtr_time_out_image'];
+        $endOfTheDayReportImages = $validatedData['end_of_the_day_report_images'];
+
+        // Handle end of the day report
+        $dtrEndOfTheDayReport = $validatedData['dtr_end_of_the_day_report'];
+        $dtrReasonOfLateEntry = $validatedData['dtr_reason_of_late_entry'];
+
+        try {
+            // Handle DTR time out image file upload
+            $dtrTimeOutFilePath = $dtrTimeOutImage->store('dtr_time_out_images');
+
+            // Handle end of the day report images
+            foreach ($endOfTheDayReportImages as $file) {
+                $path = $file->store('end_of_the_day_report_images');
+                $endOfTheDayReportImagePaths[] = $path;
+            }
+
+            // Retrieve the most recent DTR record with a time-in and eager load breaks
+            $dtrTimeIn = Dtr::with(['breaks' => function ($query) {
+                            $query->whereNull('dtr_break_resume_time');
+                        }])
+                        ->where('user_id', $user->user_id)
+                        ->whereNotNull(['dtr_time_in', 'dtr_time_in_image'])
+                        ->whereNull([
+                            'dtr_time_out', 'dtr_time_out_image',
+                            'dtr_absence_date', 'dtr_absence_reason',
+                        ])
+                        ->first();
+
+            // Handle DTR record not found
+            if (!$dtrTimeIn) {
+                return response()->json(['message' => 'Failed to time out. You have not timed in yet.'], 400);
+            }
+
+            // Check for any open breaks
+            if ($dtrTimeIn->breaks->isNotEmpty()) {
+                return response()->json(['message' => 'Failed to time out. You have an open break session.'], 400);
+            }
+
+            // Update the DTR record with time out details
+            $dtrTimeIn->update([
+                'dtr_time_out' => Carbon::now(),
+                'dtr_time_out_image' => $dtrTimeOutFilePath,
+                'dtr_end_of_the_day_report' => $dtrEndOfTheDayReport,
+                'dtr_reason_of_late_entry' => $dtrReasonOfLateEntry,
+            ]);
+
+            // Store end of the day report images
+            foreach ($endOfTheDayReportImagePaths as $path) {
+                EndOfTheDayReportImage::create([
+                    'dtr_id' => $dtrTimeIn->dtr_id,
+                    'end_of_the_day_report_image' => $path,
+                ]);
+            }
+
+            // Commit the transaction
+            DB::commit();
+
+            return response()->json(['message' => 'Timed out successfully.'], 201);
+        } catch (\Exception $e) {
+            // Rollback transaction and delete files on failure
+            DB::rollBack();
+
+            // Delete already uploaded files
+            if ($dtrTimeOutFilePath) {
+                Storage::delete($dtrTimeOutFilePath);
+            }
+
+            // Delete end of the day report images
+            foreach ($endOfTheDayReportImagePaths as $path) {
+                Storage::delete($path);
+            }
+
+            return response()->json(['message' => 'Failed to time out.'], 500);
         }
     }
 }

@@ -19,7 +19,7 @@ class EvaluateScheduleService
     
         // Check if employment type and shift type are found
         if (!$this->employmentType || !$this->shiftType) {
-            return ['status' => 'Shift or employment type not found'];
+            return false;
         }
     
         // Load the DTR settings
@@ -71,7 +71,55 @@ class EvaluateScheduleService
         // Check if the current time is within the schedule range including grace periods
         return $nowString >= $startTimeWithGraceString && $nowString <= $endTimeWithGraceString;
     }
+
+    public function isTimeOutLate(Authenticatable $user, Carbon $timeIn): bool
+    {
+        // Check and set employment type and shift type
+        $this->checkEmploymentType($user);
+        $this->checkShiftType($user);
     
+        // Check if employment type and shift type are found
+        if (!$this->employmentType || !$this->shiftType) {
+            return false;
+        }
+    
+        // Load the DTR settings
+        $settings = app(DtrSettings::class);
+    
+        // Determine which schedule to use based on the strict_schedule setting
+        if ($settings->strict_schedule) {
+            // Use the default schedule from the config
+            $schedules = config('constants.dtr_schedules');
+    
+            // Find the matching schedule based on shift type
+            $schedule = $schedules[$this->shiftType][$this->employmentType] ?? null;
+    
+            // Check if the schedule is found
+            if (!$schedule) {
+                return false;
+            }
+        } else {
+            // Use custom shift schedules from settings
+            $schedule = $this->employmentType === 'full_time' ? $settings->custom_shift_full_time : $settings->custom_shift_part_time;
+    
+            // Check if the schedule is found
+            if (!$schedule) {
+                return false;
+            }
+        }
+
+        // Parse the start and end times
+        $startTime = Carbon::parse($schedule['start_time']);
+        $endTime = Carbon::parse($schedule['end_time']);
+
+        // If end time is earlier than start time, it means it's past midnight
+        if ($endTime < $startTime) {
+            $startTime->addDay();
+        }
+    
+        return $startTime > $timeIn;
+    }
+
     private function checkEmploymentType(Authenticatable $user): void
     {   
         // Check if the user has the 'full_time' role

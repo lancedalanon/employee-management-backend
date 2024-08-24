@@ -4,7 +4,7 @@ namespace App\Http\Requests\v1\DtrController;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreTimeOutRequest extends FormRequest
+class UpdateTimeOut extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,6 +26,7 @@ class StoreTimeOutRequest extends FormRequest
             'end_of_the_day_report_images' => 'required|array|max:4',
             'end_of_the_day_report_images.*' => 'file|image|mimes:jpeg,jpg,png|max:5120',
             'dtr_end_of_the_day_report' => 'required|string|max:255',
+            'dtr_reason_of_late_entry' => 'required|string|max:255',
         ];
     }
 
@@ -54,6 +55,10 @@ class StoreTimeOutRequest extends FormRequest
             'dtr_end_of_the_day_report.required' => 'The end of the day report is required.',
             'dtr_end_of_the_day_report.string' => 'The end of the day report must be valid.',
             'dtr_end_of_the_day_report.max' => 'The end of the day report must not exceed 255 characters.',
+
+            'dtr_reason_of_late_entry.required' => 'The end of the day report is required.',
+            'dtr_reason_of_late_entry.string' => 'The end of the day report must be valid.',
+            'dtr_reason_of_late_entry.max' => 'The end of the day report must not exceed 255 characters.',
         ];
     }
 }
