@@ -3,6 +3,7 @@
 use App\Http\Controllers\v1\AuthenticationController;
 use App\Http\Controllers\v1\DtrController;
 use App\Http\Controllers\v1\RegistrationController;
+use App\Http\Controllers\v1\UserController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -22,5 +23,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('break', [DtrController::class, 'storeBreak'])->name('storeBreak');
         Route::post('resume', [DtrController::class, 'storeResume'])->name('storeResume');
         Route::put('time-out', [DtrController::class, 'updateTimeOut'])->name('updateTimeOut');
+    });
+
+    Route::prefix('users')->name('users.')->group(function () {
+        Route::get('/', [UserController::class, 'show'])->name('show');
+        Route::put('/personal-information', [UserController::class, 'updatePersonalInformation'])->name('updatePersonalInformation');
+        Route::put('/contact-information', [UserController::class, 'updateContactInformation'])->name('updateContactInformation');
+        Route::put('/password', [UserController::class, 'updatePassword'])->name('updatePassword');
+        Route::put('/api-key', [UserController::class, 'updateApiKey'])->name('updateApiKey');
     });
 });
