@@ -38,7 +38,7 @@ class ShowTest extends TestCase
         parent::tearDown();
     }
 
-    public function testAuthencticatedUserCanRetrieveUserInformation(): void
+    public function testAuthenticatedUserCanRetrieveUserInformation(): void
     {
         // Act the response
         $response = $this->getJson(route('v1.users.show'));
