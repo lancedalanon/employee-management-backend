@@ -38,8 +38,8 @@ class UserFactory extends Factory
             'email' => $this->faker->unique()->safeEmail(),
             'recovery_email' => $this->faker->unique()->safeEmail(),
             'emergency_contact_name' => $this->faker->name(),
-            'emergency_contact_number' => $this->faker->phoneNumber(),
-            'phone_number' => $this->faker->phoneNumber(),
+            'emergency_contact_number' => $this->generateFormattedPhoneNumber(),
+            'phone_number' => $this->generateFormattedPhoneNumber(),
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
             'company_id' => null,
@@ -91,5 +91,20 @@ class UserFactory extends Factory
                 }
             }
         });
+    }
+
+    /**
+     * Generate a phone number in the format 09XX-XXX-XXXX.
+     *
+     * @return string
+     */
+    protected function generateFormattedPhoneNumber(): string
+    {
+        // Generate a phone number in the format 09XX-XXX-XXXX
+        $areaCode = $this->faker->numerify('09##'); // Generates 09XX
+        $middlePart = $this->faker->numerify('###'); // Generates XXX
+        $lastPart = $this->faker->numerify('####');  // Generates XXXX
+
+        return "{$areaCode}-{$middlePart}-{$lastPart}";
     }
 }

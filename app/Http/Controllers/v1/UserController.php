@@ -157,7 +157,7 @@ class UserController extends Controller
         }
 
         // Validate the API key validity
-        if (strlen($apiKey) < 32 || strlen($apiKey) > 255) {
+        if (strlen($apiKey) < 32 || strlen($apiKey) > 500) {
             return response()->json(['message' => 'Invalid API key format.'], 422);
         }
 

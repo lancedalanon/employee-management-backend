@@ -23,10 +23,10 @@ class RegisterCompanyAdminRequest extends FormRequest
     {
         return [
             // Company Admin
-            'first_name' => 'required|string|max:255|regex:/^[a-zA-Z\s]*$/',
-            'middle_name' => 'nullable|string|max:255|regex:/^[a-zA-Z\s]*$/',
-            'last_name' => 'required|string|max:255|regex:/^[a-zA-Z\s]*$/',
-            'suffix' => 'nullable|string|max:255|regex:/^[a-zA-Z\s]*$/',
+            'first_name' => 'required|string|max:255|regex:/^[\p{L}\s\-\'\.]*$/u',
+            'middle_name' => 'nullable|string|max:255|regex:/^[\p{L}\s\-\'\.]*$/u',
+            'last_name' => 'required|string|max:255|regex:/^[\p{L}\s\-\'\.]*$/u',
+            'suffix' => 'nullable|string|max:255|regex:/^[\p{L}\s\-\'\.]*$/u',  
             'place_of_birth' => 'required|string|max:255',
             'date_of_birth' => 'required|date|before:today',
             'gender' => 'required|string|max:255',

@@ -21,40 +21,45 @@ class UpdateContactInformationRequest extends FormRequest
      */
     public function rules(): array
     {
+        // Fetch the authenticated user's ID
+        $userId = $this->user()->user_id;
+
         return [
             'username' => [
                 'required',
                 'string',
                 'max:255',
-                // Allow existing username for the current user
-                'unique:users,username,' . $this->user_id,
+                // Allow existing username for the current user, using user_id as the primary key
+                'unique:users,username,' . $userId . ',user_id',
             ],
             'email' => [
                 'required',
                 'string',
                 'max:255',
-                // Allow existing email for the current user
-                'unique:users,email,' . $this->user_id,
+                'email',
+                // Allow existing email for the current user, using user_id as the primary key
+                'unique:users,email,' . $userId . ',user_id',
             ],
             'recovery_email' => [
                 'nullable',
                 'string',
                 'max:255',
-                // Allow existing recovery email for the current user
-                'unique:users,recovery_email,' . $this->user_id,
+                'email',
+                // Allow existing recovery email for the current user, using user_id as the primary key
+                'unique:users,recovery_email,' . $userId . ',user_id',
             ],
             'phone_number' => [
                 'required',
                 'string',
                 'max:13',
-                // Allow existing phone number for the current user
-                'unique:users,phone_number,' . $this->user_id,
+                // Allow existing phone number for the current user, using user_id as the primary key
+                'unique:users,phone_number,' . $userId . ',user_id',
             ],
             'emergency_contact_name' => [
                 'nullable',
                 'string',
                 'max:255',
-                'regex:/^[a-zA-Z\s]*$/',
+                'regex:/^[\p{L}\s\-\'\.]*$/u',
             ],
             'emergency_contact_number' => [
                 'nullable',
@@ -62,8 +67,8 @@ class UpdateContactInformationRequest extends FormRequest
                 'max:13',
                 // Only required if emergency_contact_name is present
                 'required_if:emergency_contact_name,!=,',
-                // Allow existing emergency contact number for the current user
-                'unique:users,emergency_contact_number,' . $this->user_id,
+                // Allow existing emergency contact number for the current user, using user_id as the primary key
+                'unique:users,emergency_contact_number,' . $userId . ',user_id',
             ],
         ];
     }
