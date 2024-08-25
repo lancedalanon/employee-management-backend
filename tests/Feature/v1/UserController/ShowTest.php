@@ -25,7 +25,7 @@ class ShowTest extends TestCase
         Role::create(['name' => 'day_shift']);
 
         // Create a sample user and assign the roles
-        $this->user = User::factory()->withRoles()->create();
+        $this->user = User::factory()->withRoles(['employee', 'full_time', 'day_shift'])->create();
         Sanctum::actingAs($this->user);
     }
 
