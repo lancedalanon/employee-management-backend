@@ -18,9 +18,9 @@ class UserController extends Controller
 {
     protected Authenticatable $user;
 
-    public function __construct()
+    public function __construct(Authenticatable $user)
     {
-        $this->user = Auth::user();
+        $this->user = $user;
     }
 
     public function show(): JsonResponse

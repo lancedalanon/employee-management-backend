@@ -10,17 +10,16 @@ use App\Http\Requests\v1\DtrController\UpdateTimeOut;
 use App\Services\v1\DtrService;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 
 class DtrController extends Controller
 {
     protected DtrService $dtrService;
     protected Authenticatable $user;
 
-    public function __construct(DtrService $dtrService)
+    public function __construct(DtrService $dtrService, Authenticatable $user)
     {
         $this->dtrService = $dtrService;
-        $this->user = Auth::user();
+        $this->user = $user;
     }
 
     public function index(IndexRequest $request): JsonResponse
