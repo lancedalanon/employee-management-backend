@@ -65,7 +65,6 @@ class UserFactory extends Factory
                 'afternoon_shift',
                 'evening_shift',
                 'early_shift',
-                'late_shift',
                 'night_shift',
             ];
 
@@ -76,7 +75,7 @@ class UserFactory extends Factory
             // Assign the provided roles to the user
             if (empty($roles)) {
                 // Default roles if none provided
-                $shiftRoles = Role::whereIn('name', ['day_shift', 'afternoon_shift', 'evening_shift', 'early_shift', 'late_shift', 'night_shift'])->get();
+                $shiftRoles = Role::whereIn('name', ['day_shift', 'afternoon_shift', 'evening_shift', 'early_shift', 'night_shift'])->get();
                 $jobTypeRoles = Role::whereIn('name', ['full_time', 'part_time'])->get();
                 $internRole = Role::where('name', 'intern')->first();
 
