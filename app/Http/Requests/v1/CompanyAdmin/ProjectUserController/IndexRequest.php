@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\v1\CompanyAdmin\ProjectController;
+namespace App\Http\Requests\v1\CompanyAdmin\ProjectUserController;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -15,22 +15,6 @@ class IndexRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
-    public function rules(): array
-    {
-        return [
-            'sort' => 'in:project_id,project_name,project_description',
-            'order' => 'in:asc,desc',
-            'search' => 'nullable|string|max:255',
-            'per_page' => 'int|min:5|max:50',
-            'page' => 'int|min:1',
-        ];
-    }
-
-    /**
      * Get the error messages for the defined validation rules.
      *
      * @return array<string, string>
@@ -38,7 +22,7 @@ class IndexRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'sort.in' => 'Please choose a valid field to sort by (project_id, project_name, project_description)',
+            'sort.in' => 'Please choose a valid field to sort by (user_id, username, first_name, middle_name, last_name, suffix',
             'order.in' => 'The order must be either ascending (asc) or descending (desc).',
             'search.string' => 'The search term must be valid.',
             'search.max' => 'The search term may not be greater than 255 characters.',
@@ -58,7 +42,7 @@ class IndexRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'sort' => $this->input('sort', 'project_id'), // Default sort by 'project_id'
+            'sort' => $this->input('sort', 'user_id'), // Default sort by 'user_id'
             'order' => $this->input('order', 'desc'), // Default order is 'desc'
             'per_page' => $this->input('per_page', 25), // Default items per page
             'page' => $this->input('page', 1), // Default page number

@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::post('login', [AuthenticationController::class, 'login'])->name('login');
+//Route::post('password/email', [AuthenticationController::class, 'sendResetLinkEmail'])->name('password.email');
+//Route::post('password/reset', [AuthenticationController::class, 'reset'])->name('password.reset');
 Route::post('register', [RegistrationController::class, 'register'])->name('register');
 Route::post('register/company-admin', [RegistrationController::class, 'registerCompanyAdmin'])->name('register.company-admin');
 

@@ -23,57 +23,6 @@ class ProjectUser extends Model
         'project_role',
     ];
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        // Clear cache when a project task status is saved
-        static::saved(function () {
-            ProjectUser::clearCache();
-        });
-
-        // Clear cache when a project task status is deleted
-        static::deleted(function () {
-            ProjectUser::clearCache();
-        });
-    }
-
-    /**
-     * Clear all cache keys related to posts.
-     */
-    public static function clearCache()
-    {
-        // Retrieve all post cache keys
-        $cacheKeys = Cache::get('project_user_cache_keys', []);
-
-        // Clear each cache key
-        foreach ($cacheKeys as $cacheKey) {
-            Cache::forget($cacheKey);
-        }
-
-        // Clear the list of cache keys
-        Cache::forget('project_user_cache_keys');
-    }
-
-    /**
-     * Remember a cache key.
-     *
-     * @param  string  $key
-     */
-    public static function rememberCacheKey($key)
-    {
-        // Retrieve current cache keys
-        $cacheKeys = Cache::get('project_user_cache_keys', []);
-
-        // Add the new key to the list if not already present
-        if (! in_array($key, $cacheKeys)) {
-            $cacheKeys[] = $key;
-        }
-
-        // Store the updated list of cache keys
-        Cache::put('project_user_cache_keys', $cacheKeys);
-    }
-
     /**
      * Set the project role attribute.
      *
@@ -91,7 +40,7 @@ class ProjectUser extends Model
         $this->attributes['project_role'] = $value;
     }
 
-    public function project()
+    public function projects()
     {
         return $this->belongsTo(Project::class, 'project_id', 'project_id');
     }

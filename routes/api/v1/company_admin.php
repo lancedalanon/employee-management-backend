@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\v1\CompanyAdmin\ProjectController;
+use App\Http\Controllers\v1\CompanyAdmin\ProjectUserController;
 use App\Http\Controllers\v1\RegistrationController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +17,10 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/', [ProjectController::class,'store'])->name('store');
             Route::put('{projectId}', [ProjectController::class, 'update'])->name('update');
             Route::delete('{projectId}', [ProjectController::class, 'destroy'])->name('destroy');
+
+            Route::prefix('{projectId}/users')->name('users.')->group(function () {
+                Route::get('/', [ProjectUserController::class, 'index'])->name('index');
+            });
         });
     });
 });
