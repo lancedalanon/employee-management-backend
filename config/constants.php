@@ -2,8 +2,8 @@
 
 return [
     'project_roles' => [
-        'project-admin',
-        'project-user',
+        'project_admin',
+        'project_user',
     ],
 
     'project_task_progress' => [
