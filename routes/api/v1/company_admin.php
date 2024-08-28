@@ -20,6 +20,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
             Route::prefix('{projectId}/users')->name('users.')->group(function () {
                 Route::get('/', [ProjectUserController::class, 'index'])->name('index');
+                Route::get('{userId}', [ProjectUserController::class, 'show'])->name('show');
+                Route::post('/add', [ProjectUserController::class, 'bulkAddUsers'])->name('bulkAddUsers');
+                Route::post('/remove', [ProjectUserController::class, 'bulkRemoveUsers'])->name('bulkRemoveUsers');
             });
         });
     });
