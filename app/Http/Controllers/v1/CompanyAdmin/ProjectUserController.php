@@ -112,22 +112,40 @@ class ProjectUserController extends Controller
         // Validate the request to ensure 'project_users' is an array
         $validatedData = $request->validate([
             'project_users' => 'required|array',
-            'project_users.*.user_id' => 'required|exists:users,user_id',
+            'project_users.*' => 'required|integer|exists:users,user_id',
         ]);
 
         // Retrieve the authenticated user's company ID
         $companyId = $request->user()->company_id;
 
-        // Initialize an array to hold the new ProjectUser entries
+        // Initialize arrays to hold the new ProjectUser entries and existing users
         $projectUsersData = [];
+        $existingUsers = [];
 
         // Start a database transaction
         DB::beginTransaction();
 
         try {
-            // Iterate over each project user data in the request
-            foreach ($validatedData['project_users'] as $userData) {
-                $user = User::find($userData['user_id']);
+            // Iterate over each user ID in the validated data
+            foreach ($validatedData['project_users'] as $userId) {
+                // Check if the user already exists in the project with the same company ID
+                $existingUser = ProjectUser::where('user_id', $userId)
+                                        ->where('project_id', $projectId)
+                                        ->where('company_id', $companyId)
+                                        ->first();
+
+                if ($existingUser) {
+                    // Collect details of the existing user
+                    $existingUserDetails = User::select('user_id', 'first_name', 'middle_name', 'last_name', 'suffix', 'username')
+                                            ->find($userId);
+
+                    // Add to the existing users array
+                    $existingUsers[] = $existingUserDetails;
+                    continue; // Skip to the next user ID
+                }
+
+                // Find the user to verify their company_id
+                $user = User::find($userId);
 
                 // Check if the user's company_id matches the authenticated user's company_id
                 if ($user->company_id !== $companyId) {
@@ -136,18 +154,30 @@ class ProjectUserController extends Controller
 
                     // Return an error response indicating the mismatch
                     return response()->json([
-                        'message' => "User ID {$userData['user_id']} does not belong to the same company.",
+                        'message' => "User ID {$userId} does not belong to the same company.",
                     ], 422); // 422 Unprocessable Entity is a suitable status code for validation errors
                 }
 
                 // Prepare the data for insertion
                 $projectUsersData[] = [
                     'project_id' => $projectId,
-                    'user_id' => $userData['user_id'],
+                    'user_id' => $userId,
                     'company_id' => $companyId,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
+            }
+
+            // If there are any existing users
+            if (!empty($existingUsers)) {
+                // Rollback the transaction before returning an error response
+                DB::rollBack();
+
+                // Return an error response including details of existing users
+                return response()->json([
+                    'message' => 'The following users are already part of the project:',
+                    'data' => $existingUsers,
+                ], 422); // 422 Unprocessable Entity for validation errors
             }
 
             // Insert the new ProjectUser records
@@ -159,7 +189,6 @@ class ProjectUserController extends Controller
             // Return a success response
             return response()->json([
                 'message' => 'Users added to project successfully.',
-                'data' => $projectUsersData,
             ], 200);
 
         } catch (\Exception $e) {
@@ -178,54 +207,73 @@ class ProjectUserController extends Controller
         // Validate the request to ensure 'project_users' is an array
         $validatedData = $request->validate([
             'project_users' => 'required|array',
-            'project_users.*.user_id' => 'required|exists:project_users,user_id,project_id,' . $projectId,
+            'project_users.*' => 'required|integer|exists:project_users,user_id,project_id,' . $projectId,
         ]);
-    
+
         // Retrieve the authenticated user's company ID
         $companyId = $request->user()->company_id;
-    
+
         // Start a database transaction
         DB::beginTransaction();
-    
+
         try {
-            // Iterate over each project user data in the request
-            foreach ($validatedData['project_users'] as $userData) {
-                $projectUser = ProjectUser::where('user_id', $userData['user_id'])
-                                          ->where('project_id', $projectId)
-                                          ->first();
-    
-                // Check if the project user's company_id matches the authenticated user's company_id
-                if ($projectUser->company_id !== $companyId) {
-                    // Rollback the transaction before returning an error response
-                    DB::rollBack();
-    
-                    // Return an error response indicating the mismatch
-                    return response()->json([
-                        'message' => "User ID {$userData['user_id']} does not belong to the same company or is not part of this project.",
-                    ], 422);
+            // Initialize arrays to track not found users and their details
+            $notFoundUsers = [];
+            $notFoundUsersDetails = [];
+
+            // Iterate over each user ID in the validated data
+            foreach ($validatedData['project_users'] as $userId) {
+                $projectUser = ProjectUser::where('user_id', $userId)
+                                        ->where('project_id', $projectId)
+                                        ->where('company_id', $companyId)
+                                        ->first();
+
+                // Check if the project user exists and if the company's ID matches
+                if (!$projectUser) {
+                    // Collect details of the user who was not found
+                    $user = User::select('user_id', 'first_name', 'middle_name', 'last_name', 'suffix', 'username')
+                                ->find($userId);
+
+                    // Add to the not found users arrays
+                    $notFoundUsers[] = $userId;
+                    if ($user) {
+                        $notFoundUsersDetails[] = $user;
+                    }
+                    continue; // Skip to the next user ID
                 }
-    
+
                 // Delete the ProjectUser record
                 $projectUser->delete();
             }
-    
+
+            // Check if any users were not found
+            if (!empty($notFoundUsers)) {
+                // Rollback the transaction before returning an error response
+                DB::rollBack();
+
+                // Return an error response including details of not found users
+                return response()->json([
+                    'message' => 'The following users were not found in the project:',
+                    'data' => $notFoundUsersDetails, // Include details of users not found
+                ], 422); // 422 Unprocessable Entity for validation errors
+            }
+
             // Commit the transaction
             DB::commit();
-    
+
             // Return a success response
             return response()->json([
                 'message' => 'Users removed from project successfully.',
             ], 200);
-    
+
         } catch (\Exception $e) {
             // Rollback the transaction if an error occurs
             DB::rollBack();
-    
+
             // Return an error response
             return response()->json([
                 'message' => 'Failed to remove users from project.',
-                'error' => $e->getMessage(),
             ], 500);
         }
-    }    
+    }
 }
