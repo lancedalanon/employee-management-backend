@@ -6,19 +6,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class BulkRemoveUsersRequest extends FormRequest
 {
-    protected $projectId;
-
-    /**
-     * Create a new request instance.
-     *
-     * @param int $projectId
-     */
-    public function __construct(int $projectId)
-    {
-        parent::__construct();
-        $this->projectId = $projectId;
-    }
-
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -35,8 +22,8 @@ class BulkRemoveUsersRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'project_users' => 'required|array',
-            'project_users.*' => 'required|integer|exists:project_users,user_id,project_id,' . $this->projectId,
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'required|integer|exists:users,user_id',
         ];
     }
 }

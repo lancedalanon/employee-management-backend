@@ -103,143 +103,122 @@ class ProjectUserService
 
     public function bulkAddUsers(Authenticatable $user, array $validatedData, int $projectId): JsonResponse
     {
+        // Use a transaction to ensure all or nothing
+        DB::beginTransaction();
+
         // Retrieve the authenticated user's company ID
         $companyId = $user->company_id;
 
-        // Initialize arrays to hold the new ProjectUser entries and existing users
-        $projectUsersData = [];
-        $existingUsers = [];
-
-        // Start a database transaction
-        DB::beginTransaction();
-
         try {
-            // Iterate over each user ID in the validated data
-            foreach ($validatedData['project_users'] as $userId) {
-                // Check if the user already exists in the project with the same company ID
-                $existingUser = ProjectUser::where('user_id', $userId)
-                                        ->where('project_id', $projectId)
-                                        ->where('company_id', $companyId)
-                                        ->first();
+            // Insert each project ID manually into the project_users table
+            foreach ($validatedData['user_ids'] as $userId) {
 
-                if ($existingUser) {
-                    // Collect details of the existing user
-                    $existingUserDetails = User::select('user_id', 'first_name', 'middle_name', 
-                                                        'last_name', 'suffix', 'username')
-                                            ->find($userId);
+                // Check if the user exists in the company
+                $user = User::where('user_id', $userId)
+                        ->where('company_id', $companyId)
+                        ->exists();
 
-                    // Add to the existing users array
-                    $existingUsers[] = $existingUserDetails;
-                    continue; // Skip to the next user ID
-                }
-
-                // Find the user to verify their company_id
-                $user = User::find($userId);
-
-                // Check if the user's company_id matches the authenticated user's company_id
-                if ($user->company_id !== $companyId) {
-                    // Rollback the transaction before returning an error response
+                // Handle user not found in the company
+                if (!$user) {
+                    // Rollback the transaction if there was an error
                     DB::rollBack();
 
-                    // Return an error response indicating the mismatch
+                    // Return a success response
                     return response()->json([
-                        'message' => "User does not belong to the same company.",
-                        'data' => $existingUserDetails,
-                    ], 422); // 422 Unprocessable Entity is a suitable status code for validation errors
+                        'message' => 'A user does not belong into the company or does not exist.',
+                        'data' => ['user_id' => (int) $userId],
+                    ], 404);
                 }
 
-                // Prepare the data for insertion
-                $projectUsersData[] = [
-                    'project_id' => $projectId,
+                // Check if the user is already assigned to the project
+                $existingUser = ProjectUser::with(['user:user_id,username,first_name,middle_name,last_name,suffix'])
+                                ->where('user_id', $userId)
+                                ->where('project_id', $projectId)
+                                ->where('company_id', $companyId)
+                                ->first();
+                
+                // Handle user already assigned to the project
+                if ($existingUser) {
+                    // Rollback the transaction if there was an error
+                    DB::rollBack();
+
+                    // Format the existing user data to include the necessary fields
+                    $existingUserData = [
+                        'user_id' => $existingUser->user->user_id,
+                        'username' => $existingUser->user->username,
+                        'first_name' => $existingUser->user->first_name,
+                        'middle_name' => $existingUser->user->middle_name,
+                        'last_name' => $existingUser->user->last_name,
+                        'suffix' => $existingUser->user->suffix,
+                        'full_name' => $existingUser->user->full_name,
+                    ];
+
+                    // Return a success response
+                    return response()->json([
+                        'message' => 'User is already assigned to the project.',
+                        'data' => $existingUserData
+                    ], 409);
+                }
+
+                // Insert the user into the project_users table
+                DB::table('project_users')->insert([
                     'user_id' => $userId,
+                    'project_id' => $projectId,
                     'company_id' => $companyId,
                     'created_at' => now(),
                     'updated_at' => now(),
-                ];
+                ]);
             }
 
-            // If there are any existing users
-            if (!empty($existingUsers)) {
-                // Rollback the transaction before returning an error response
-                DB::rollBack();
-
-                // Return an error response including details of existing users
-                return response()->json([
-                    'message' => 'The following users are already part of the project:',
-                    'data' => $existingUsers,
-                ], 422); // 422 Unprocessable Entity for validation errors
-            }
-
-            // Insert the new ProjectUser records
-            ProjectUser::insert($projectUsersData);
-
-            // Commit the transaction
+            // Commit the transaction if all is well
             DB::commit();
 
             // Return a success response
             return response()->json([
-                'message' => 'Users added to project successfully.',
+                'message' => 'Users assigned to projects successfully.',
             ], 200);
-
         } catch (\Exception $e) {
-            // Rollback the transaction if an error occurs
+            // Rollback the transaction if there was an error
             DB::rollBack();
 
             // Return an error response
             return response()->json([
-                'message' => 'Failed to add users to project.',
+                'message' => 'Failed to assign users to project.', 
             ], 500);
         }
     }
 
     public function bulkRemoveUsers(Authenticatable $user, array $validatedData, int $projectId): JsonResponse
     {
-        // Retrieve the authenticated user's company ID
-        $companyId = $user->company_id;
-
         // Start a database transaction
         DB::beginTransaction();
 
+        // Retrieve the authenticated user's company ID
+        $companyId = $user->company_id;
+
         try {
-            // Initialize arrays to track not found users and their details
-            $notFoundUsers = [];
-            $notFoundUsersDetails = [];
-
             // Iterate over each user ID in the validated data
-            foreach ($validatedData['project_users'] as $userId) {
-                $projectUser = ProjectUser::where('user_id', $userId)
-                                        ->where('project_id', $projectId)
-                                        ->where('company_id', $companyId)
-                                        ->first();
+            foreach ($validatedData['user_ids'] as $userId) {
+                // Check if the user exists within the project
+                $existingUser = ProjectUser::with(['user:user_id,username,first_name,middle_name,last_name,suffix'])
+                                ->where('user_id', $userId)
+                                ->where('project_id', $projectId)
+                                ->where('company_id', $companyId)
+                                ->first();
 
-                // Check if the project user exists and if the company's ID matches
-                if (!$projectUser) {
-                    // Collect details of the user who was not found
-                    $user = User::select('user_id', 'first_name', 'middle_name', 'last_name', 'suffix', 'username')
-                                ->find($userId);
-
-                    // Add to the not found users arrays
-                    $notFoundUsers[] = $userId;
-                    if ($user) {
-                        $notFoundUsersDetails[] = $user;
-                    }
-                    continue; // Skip to the next user ID
+                // If the user does not exist, return a 404 response
+                if (!$existingUser) {
+                    return response()->json([
+                        'message' => 'User does not exist in the project.',
+                        'data' => ['user_id' => (int) $userId],
+                    ], 404);
                 }
 
-                // Delete the ProjectUser record
-                $projectUser->delete();
-            }
-
-            // Check if any users were not found
-            if (!empty($notFoundUsers)) {
-                // Rollback the transaction before returning an error response
-                DB::rollBack();
-
-                // Return an error response including details of not found users
-                return response()->json([
-                    'message' => 'The following users were not found in the project:',
-                    'data' => $notFoundUsersDetails, // Include details of users not found
-                ], 422); // 422 Unprocessable Entity for validation errors
+                // Delete the user from the project_users table
+                ProjectUser::where('user_id', $userId)
+                        ->where('project_id', $projectId)
+                        ->where('company_id', $companyId)
+                        ->delete();
             }
 
             // Commit the transaction
@@ -249,7 +228,6 @@ class ProjectUserService
             return response()->json([
                 'message' => 'Users removed from project successfully.',
             ], 200);
-
         } catch (\Exception $e) {
             // Rollback the transaction if an error occurs
             DB::rollBack();

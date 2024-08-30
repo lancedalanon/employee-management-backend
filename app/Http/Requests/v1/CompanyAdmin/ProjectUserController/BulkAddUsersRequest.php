@@ -22,8 +22,8 @@ class BulkAddUsersRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'project_users' => 'required|array',
-            'project_users.*' => 'required|integer|exists:users,user_id',
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'required|integer|exists:users,user_id',
         ];
     }
 }
