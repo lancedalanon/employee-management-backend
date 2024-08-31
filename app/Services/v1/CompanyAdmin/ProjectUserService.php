@@ -204,17 +204,24 @@ class ProjectUserService
             // Iterate over each user ID in the validated data
             foreach ($validatedData['user_ids'] as $userId) {
                 // Check if the user exists within the project
-                $existingUser = ProjectUser::with(['user:user_id,username,first_name,middle_name,last_name,suffix'])
-                                ->where('user_id', $userId)
+                $existingUser = ProjectUser::where('user_id', $userId)
                                 ->where('project_id', $projectId)
                                 ->where('company_id', $companyId)
-                                ->first();
+                                ->exists();
 
                 // If the user does not exist, return a 404 response
                 if (!$existingUser) {
+                    DB::rollBack();
+
+                    // Fetch the user information
+                    $user = User::select('user_id', 'first_name', 'middle_name', 
+                                'last_name', 'suffix')
+                            ->where('user_id', $userId)
+                            ->first();
+
                     return response()->json([
                         'message' => 'User does not exist in the project.',
-                        'data' => ['user_id' => (int) $userId],
+                        'data' => $user
                     ], 404);
                 }
 
