@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::get('{userId}', [ProjectUserController::class, 'show'])->name('show');
                 Route::post('/add', [ProjectUserController::class, 'bulkAddUsers'])->name('bulkAddUsers');
                 Route::post('/remove', [ProjectUserController::class, 'bulkRemoveUsers'])->name('bulkRemoveUsers');
+                Route::put('{userId}/change-role', [ProjectUserController::class, 'changeRole'])->name('changeRole');
             });
         });
     });
