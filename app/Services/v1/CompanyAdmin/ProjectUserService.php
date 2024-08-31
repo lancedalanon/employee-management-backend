@@ -261,21 +261,47 @@ class ProjectUserService
         }
     }         
 
-    public function changeRole(Authenticatable $user, int $projectId, int $userId): JsonResponse
+    public function changeRole(Authenticatable $user, array $validatedData, int $projectId, int $userId): JsonResponse
     {
         // Get user admin company_id
         $companyId = $user->company_id;
 
         // Retrieve the user from the given ID and check if it exists
-        $user = ProjectUser::where('user_id', $userId)
-                ->where('project_id', $projectId)
-                ->where('company_id', $companyId)
-                ->whereHas('project.users', function ($query) use ($userId, $companyId) {
-                    $query->where('users.user_id', $userId)
-                        ->where('users.company_id', $companyId);
-                })
+        $user = ProjectUser::with(['user' => function ($query) use ($companyId) {
+                        $query->select('user_id', 'username', 'first_name', 
+                                        'middle_name', 'last_name', 'suffix')
+                                ->where('company_id', $companyId);
+                    }])
+                    ->where('user_id', $userId)
+                    ->whereNot('user_id', $user->user_id)
+                    ->where('project_id', $projectId)
+                    ->where('company_id', $companyId)
+                    ->whereHas('user', function ($query) use ($userId, $companyId) {
+                        $query->where('users.user_id', $userId)
+                            ->where('users.company_id', $companyId);
+                    })
                 ->first();
+
+        // Check if the user exists in the project
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found in the specified project.'
+            ], 404);
+        }
+
+        // Check if the user is already in the specified role in the project
+        if ($user->project_role === $validatedData['project_role']) {
+            return response()->json([
+                'error' => 'User is already assigned to the specified role in this project.'
+            ], 422);
+        }
+
+        // Update the user's role in the project
+        $user->project_role = $validatedData['project_role'];
+        $user->save();
         
-        return response()->json($user, 200);
+        return response()->json([
+            'message' => 'User role in the project updated successfully', 
+        ], 200);
     }
 }

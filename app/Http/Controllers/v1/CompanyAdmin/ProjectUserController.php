@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\CompanyAdmin\ProjectController\IndexRequest;
 use App\Http\Requests\v1\CompanyAdmin\ProjectUserController\BulkAddUsersRequest;
 use App\Http\Requests\v1\CompanyAdmin\ProjectUserController\BulkRemoveUsersRequest;
+use App\Http\Requests\v1\CompanyAdmin\ProjectUserController\ChangeRoleRequest;
 use App\Models\ProjectUser;
 use App\Models\User;
 use App\Services\v1\CompanyAdmin\ProjectUserService;
@@ -54,5 +55,14 @@ class ProjectUserController extends Controller
 
         // Remove users into the project in bulk
         return $this->projectUserService->bulkRemoveUsers($user, $validatedData, $projectId);
+    }
+
+    public function changeRole(Authenticatable $user, ChangeRoleRequest $request, int $projectId, int $userId): JsonResponse
+    {
+        // Retrieve validated data from request
+        $validatedData = $request->validated();
+
+        // Change user role in project
+        return $this->projectUserService->changeRole($user, $validatedData, $projectId, $userId);
     }
 }
