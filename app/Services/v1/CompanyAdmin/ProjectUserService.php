@@ -194,61 +194,72 @@ class ProjectUserService
 
     public function bulkRemoveUsers(Authenticatable $user, array $validatedData, int $projectId): JsonResponse
     {
-        // Start a database transaction
         DB::beginTransaction();
-
-        // Retrieve the authenticated user's company ID
+    
         $companyId = $user->company_id;
-
+    
         try {
-            // Iterate over each user ID in the validated data
-            foreach ($validatedData['user_ids'] as $userId) {
-                // Check if the user exists within the project
-                $existingUser = ProjectUser::where('user_id', $userId)
-                                ->where('project_id', $projectId)
-                                ->where('company_id', $companyId)
-                                ->exists();
-
-                // If the user does not exist, return a 404 response
-                if (!$existingUser) {
-                    DB::rollBack();
-
-                    // Fetch the user information
-                    $user = User::select('user_id', 'first_name', 'middle_name', 
-                                'last_name', 'suffix')
-                            ->where('user_id', $userId)
-                            ->first();
-
-                    return response()->json([
-                        'message' => 'User does not exist in the project.',
-                        'data' => $user
-                    ], 404);
+            // Fetch users with their project details
+            $users = User::with(['projects' => function ($query) use ($projectId) {
+                $query->select('project_users.project_id', 'project_users.user_id', 'project_users.deleted_at')
+                    ->where('project_users.project_id', $projectId)
+                    ->withPivot('deleted_at');
+            }])
+            ->where('company_id', $companyId)
+            ->whereIn('user_id', $validatedData['user_ids'])
+            ->select('users.user_id', 'users.username', 'users.first_name', 'users.middle_name', 'users.last_name', 'users.suffix')
+            ->get();
+    
+            $usersNotInProject = [];
+            $usersRemovedFromProject = [];
+            $usersInProject = [];
+    
+            foreach ($users as $user) {
+                $isInProject = false;
+                foreach ($user->projects as $project) {
+                    if ($project->pivot->deleted_at === null) {
+                        // User is associated with the project
+                        $isInProject = true;
+                        $usersInProject[] = $user; // Track users found in the project
+                        break;
+                    }
                 }
-
-                // Delete the user from the project_users table
-                ProjectUser::where('user_id', $userId)
-                        ->where('project_id', $projectId)
-                        ->where('company_id', $companyId)
-                        ->delete();
+    
+                if ($isInProject) {
+                    // Remove the user from the project
+                    $user->projects()->updateExistingPivot($projectId, [
+                        'deleted_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                    $usersRemovedFromProject[] = $user;
+                } else {
+                    // User is not part of the project
+                    $usersNotInProject[] = $user;
+                }
             }
-
-            // Commit the transaction
+    
+            // Stop the operation if any user was not found in the project
+            if (count($usersNotInProject) > 0) {
+                DB::rollBack();
+                return response()->json([
+                    'message' => 'Some users were not found in the specified project and thus were not removed.',
+                    'data' => $usersNotInProject
+                ], 400);
+            }
+    
             DB::commit();
-
-            // Return a success response
+    
             return response()->json([
-                'message' => 'Users removed from project successfully.',
+                'message' => 'Users removed from the project successfully.',
             ], 200);
         } catch (\Exception $e) {
-            // Rollback the transaction if an error occurs
             DB::rollBack();
-
-            // Return an error response
+    
             return response()->json([
-                'message' => 'Failed to remove users from project.',
+                'message' => 'Failed to remove users from the project.',
             ], 500);
         }
-    }
+    }         
 
     public function changeRole(Authenticatable $user, int $projectId, int $userId): JsonResponse
     {
