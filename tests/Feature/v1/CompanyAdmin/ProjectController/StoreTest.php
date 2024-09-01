@@ -1,10 +1,8 @@
 <?php
 
-namespace Tests\Feature\v1\ProjectController;
+namespace Tests\Feature\v1\CompanyAdmin\ProjectController;
 
 use App\Models\Company;
-use App\Models\Project;
-use App\Models\ProjectUser;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -12,7 +10,7 @@ use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
-class ShowTest extends TestCase
+class StoreTest extends TestCase
 {
     use RefreshDatabase;
     
@@ -40,16 +38,6 @@ class ShowTest extends TestCase
         $this->companyAdmin->update(['company_id' => $this->company->company_id]);
 
         Sanctum::actingAs($this->companyAdmin);
-
-        // Create dummy project
-        $this->project = Project::factory()->create();
-
-        ProjectUser::factory()->create([
-            'user_id' => $this->companyAdmin->user_id, 
-            'company_id' => $this->companyAdmin->company_id,
-            'project_id' => $this->project->project_id,
-            'project_role' => 'project_admin',
-        ]);
     }
 
     protected function tearDown(): void
@@ -58,47 +46,56 @@ class ShowTest extends TestCase
         Role::whereIn('name', ['company_admin', 'employee', 'full_time', 'day_shift'])->delete();
         $this->companyAdmin = null;
         $this->company = null;
-        $this->project = null;
 
         parent::tearDown();
     }
 
-    public function testCompanyAdminCanRetrieveProjectById(): void
+    public function testCompanyAdminCanCreateProject(): void
     {
+        // Arrange project data 
+        $projectData = [
+            'project_name' => 'Sample Project Name',
+        ];
+        
         // Act the response
-        $response = $this->getJson(route('v1.companyAdmin.projects.show', ['projectId' => $this->project->project_id]));
-
-        // Assert the response status code and data structure
-        $response->assertStatus(200)
-            ->assertJsonStructure([
-                'message',
-                'data' => [
-                    'project_id',
-                    'project_name',
-                    'project_description',
-                ],
-            ]);
+        $response = $this->postJson(route('v1.companyAdmin.projects.store', $projectData));
 
         // Assert specific data fragments
         $response->assertJsonFragment([
-            'message' => 'Project retrieved successfully.',
+            'message' => 'Project created successfully.',
         ]);
     }
 
-    public function testCompanyAdminFailsIfProjectIsNotFound(): void
+    public function testCompanyAdminFailsToCreateProjectIfMissingRequiredField(): void
     {
+        // Arrange project data 
+        $projectData = [
+            'project_name' => '',
+        ];
+        
         // Act the response
-        $response = $this->getJson(route('v1.companyAdmin.projects.show', ['projectId' => 99999]));
+        $response = $this->postJson(route('v1.companyAdmin.projects.store', $projectData));
 
-        // Assert the response status code and data structure
-        $response->assertStatus(404)
-            ->assertJsonStructure([
-                'message',
-            ]);
+        // Assert the response
+        $response->assertStatus(422)
+                ->assertJsonValidationErrors(['project_name']);
+    }
 
-        // Assert specific data fragments
-        $response->assertJsonFragment([
-            'message' => 'Project not found.',
-        ]);
+    public function testCompanyAdminFailsToCreateProjectIfInvalidField(): void
+    {
+        // Arrange project_name to have 256 characters
+        $longString = str_repeat('a', 256);
+
+        // Arrange project data 
+        $projectData = [
+            'project_name' => $longString,
+        ];
+        
+        // Act the response
+        $response = $this->postJson(route('v1.companyAdmin.projects.store', $projectData));
+
+        // Assert the response
+        $response->assertStatus(422)
+                ->assertJsonValidationErrors(['project_name']);
     }
 }

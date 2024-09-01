@@ -108,14 +108,6 @@ class ProjectUserService
         $companyId = $user->company_id;
 
         try {
-            // Validate user_ids
-            $userIds = $validatedData['user_ids'];
-            if (!is_array($userIds) || empty($userIds)) {
-                return response()->json([
-                    'message' => 'Invalid user IDs provided.',
-                ], 400);
-            }
-
             // Fetch users with necessary details
             $users = User::with(['projects' => function ($query) use ($projectId) {
                 $query->select('project_users.project_id', 'project_users.user_id', 'project_users.deleted_at')
@@ -123,7 +115,7 @@ class ProjectUserService
                     ->withPivot('deleted_at');
             }])
             ->where('company_id', $companyId)
-            ->whereIn('user_id', $userIds)
+            ->whereIn('user_id', $validatedData['user_ids'])
             ->select('users.user_id', 'users.username', 'users.first_name', 'users.middle_name', 'users.last_name', 'users.suffix')
             ->get();
 
@@ -209,7 +201,7 @@ class ProjectUserService
             ->whereIn('user_id', $validatedData['user_ids'])
             ->select('users.user_id', 'users.username', 'users.first_name', 'users.middle_name', 'users.last_name', 'users.suffix')
             ->get();
-    
+
             $usersNotInProject = [];
             $usersRemovedFromProject = [];
             $usersInProject = [];
@@ -292,7 +284,7 @@ class ProjectUserService
         // Check if the user is already in the specified role in the project
         if ($user->project_role === $validatedData['project_role']) {
             return response()->json([
-                'error' => 'User is already assigned to the specified role in this project.'
+                'message' => 'User is already assigned to the specified role in this project.'
             ], 422);
         }
 
@@ -301,7 +293,7 @@ class ProjectUserService
         $user->save();
         
         return response()->json([
-            'message' => 'User role in the project updated successfully', 
+            'message' => 'User role in the project updated successfully.', 
         ], 200);
     }
 }

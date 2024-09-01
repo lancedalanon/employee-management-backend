@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\v1\ProjectController;
+namespace Tests\Feature\v1\CompanyAdmin\ProjectController;
 
 use App\Models\Company;
 use App\Models\Project;

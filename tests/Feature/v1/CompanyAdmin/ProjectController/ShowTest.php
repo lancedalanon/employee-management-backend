@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\v1\ProjectController;
+namespace Tests\Feature\v1\CompanyAdmin\ProjectController;
 
 use App\Models\Company;
 use App\Models\Project;
@@ -12,7 +12,7 @@ use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
-class DestroyTest extends TestCase
+class ShowTest extends TestCase
 {
     use RefreshDatabase;
     
@@ -63,31 +63,38 @@ class DestroyTest extends TestCase
         parent::tearDown();
     }
 
-    public function testCompanyAdminCanDeleteProject(): void
+    public function testCompanyAdminCanRetrieveProjectById(): void
     {
         // Act the response
-        $response = $this->deleteJson(route('v1.companyAdmin.projects.destroy', [
-            'projectId' => $this->project->project_id,
-        ]));
+        $response = $this->getJson(route('v1.companyAdmin.projects.show', ['projectId' => $this->project->project_id]));
 
-        // Assert the response
-        $response->assertStatus(200);
+        // Assert the response status code and data structure
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'message',
+                'data' => [
+                    'project_id',
+                    'project_name',
+                    'project_description',
+                ],
+            ]);
 
         // Assert specific data fragments
         $response->assertJsonFragment([
-            'message' => 'Project deleted successfully.',
+            'message' => 'Project retrieved successfully.',
         ]);
     }
 
-    public function testCompanyAdminFailsToDeleteProjectIfProjectDoesNotExist(): void
+    public function testCompanyAdminFailsIfProjectIsNotFound(): void
     {
         // Act the response
-        $response = $this->deleteJson(route('v1.companyAdmin.projects.destroy', [
-            'projectId' => 99999,
-        ]));
+        $response = $this->getJson(route('v1.companyAdmin.projects.show', ['projectId' => 99999]));
 
-        // Assert the response
-        $response->assertStatus(404);
+        // Assert the response status code and data structure
+        $response->assertStatus(404)
+            ->assertJsonStructure([
+                'message',
+            ]);
 
         // Assert specific data fragments
         $response->assertJsonFragment([

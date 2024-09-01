@@ -42,7 +42,7 @@ class ProjectUserController extends Controller
     public function bulkAddUsers(Authenticatable $user, BulkAddUsersRequest $request, int $projectId): JsonResponse
     {
         // Retrieve validated data from request
-        $validatedData =$request->validated();
+        $validatedData = $request->validated();
 
         // Add users into the project in bulk
         return $this->projectUserService->bulkAddUsers($user, $validatedData, $projectId);

@@ -1,8 +1,10 @@
 <?php
 
-namespace Tests\Feature\v1\ProjectController;
+namespace Tests\Feature\v1\CompanyAdmin\ProjectController;
 
 use App\Models\Company;
+use App\Models\Project;
+use App\Models\ProjectUser;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -10,7 +12,7 @@ use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
-class StoreTest extends TestCase
+class DestroyTest extends TestCase
 {
     use RefreshDatabase;
     
@@ -38,6 +40,16 @@ class StoreTest extends TestCase
         $this->companyAdmin->update(['company_id' => $this->company->company_id]);
 
         Sanctum::actingAs($this->companyAdmin);
+
+        // Create dummy project
+        $this->project = Project::factory()->create();
+
+        ProjectUser::factory()->create([
+            'user_id' => $this->companyAdmin->user_id, 
+            'company_id' => $this->companyAdmin->company_id,
+            'project_id' => $this->project->project_id,
+            'project_role' => 'project_admin',
+        ]);
     }
 
     protected function tearDown(): void
@@ -46,56 +58,40 @@ class StoreTest extends TestCase
         Role::whereIn('name', ['company_admin', 'employee', 'full_time', 'day_shift'])->delete();
         $this->companyAdmin = null;
         $this->company = null;
+        $this->project = null;
 
         parent::tearDown();
     }
 
-    public function testCompanyAdminCanCreateProject(): void
+    public function testCompanyAdminCanDeleteProject(): void
     {
-        // Arrange project data 
-        $projectData = [
-            'project_name' => 'Sample Project Name',
-        ];
-        
         // Act the response
-        $response = $this->postJson(route('v1.companyAdmin.projects.store', $projectData));
+        $response = $this->deleteJson(route('v1.companyAdmin.projects.destroy', [
+            'projectId' => $this->project->project_id,
+        ]));
+
+        // Assert the response
+        $response->assertStatus(200);
 
         // Assert specific data fragments
         $response->assertJsonFragment([
-            'message' => 'Project created successfully.',
+            'message' => 'Project deleted successfully.',
         ]);
     }
 
-    public function testCompanyAdminFailsToCreateProjectIfMissingRequiredField(): void
+    public function testCompanyAdminFailsToDeleteProjectIfProjectDoesNotExist(): void
     {
-        // Arrange project data 
-        $projectData = [
-            'project_name' => '',
-        ];
-        
         // Act the response
-        $response = $this->postJson(route('v1.companyAdmin.projects.store', $projectData));
+        $response = $this->deleteJson(route('v1.companyAdmin.projects.destroy', [
+            'projectId' => 99999,
+        ]));
 
         // Assert the response
-        $response->assertStatus(422)
-                ->assertJsonValidationErrors(['project_name']);
-    }
+        $response->assertStatus(404);
 
-    public function testCompanyAdminFailsToCreateProjectIfInvalidField(): void
-    {
-        // Arrange project_name to have 256 characters
-        $longString = str_repeat('a', 256);
-
-        // Arrange project data 
-        $projectData = [
-            'project_name' => $longString,
-        ];
-        
-        // Act the response
-        $response = $this->postJson(route('v1.companyAdmin.projects.store', $projectData));
-
-        // Assert the response
-        $response->assertStatus(422)
-                ->assertJsonValidationErrors(['project_name']);
+        // Assert specific data fragments
+        $response->assertJsonFragment([
+            'message' => 'Project not found.',
+        ]);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\v1\ProjectController;
+namespace Tests\Feature\v1\CompanyAdmin\ProjectUserController;
 
 use App\Models\Company;
 use App\Models\Project;
@@ -63,10 +63,12 @@ class IndexTest extends TestCase
         parent::tearDown();
     }
 
-    public function testCompanyAdminCanRetrievePaginatedProjectData(): void
+    public function testCompanyAdminCanGetProjectUsers(): void
     {
         // Act the response
-        $response = $this->getJson(route('v1.companyAdmin.projects.index'));
+        $response = $this->getJson(route('v1.companyAdmin.projects.users.index', [
+            'projectId' => $this->project->project_id,
+        ]));
 
         // Assert the response status code and data structure
         $response->assertStatus(200)
@@ -76,9 +78,10 @@ class IndexTest extends TestCase
                     'current_page',
                     'data' => [
                         '*' => [
-                            'project_id',
-                            'project_name',
-                            'project_description',
+                            'user_id',
+                            'project_role',
+                            'username',
+                            'full_name',
                         ],
                     ],
                     'first_page_url',
@@ -103,63 +106,57 @@ class IndexTest extends TestCase
 
         // Assert specific data fragments
         $response->assertJsonFragment([
-            'message' => 'Projects retrieved successfully.',
+            'message' => 'Project users retrieved successfully.',
         ]);
     }
 
-    public function testCompanyAdminCanRetrieveEmptyPaginatedProjectData(): void
+    public function testCompanyAdminCanRetrieveEmptyPaginatedProjectUsersData(): void
     {
-        // Arrange create a sample user and assign the roles
-        $companyAdmin = User::factory()->withRoles(['company_admin', 'employee', 'full_time', 'day_shift'])->create();
+        // Arrange a new project
+        $project = Project::factory()->create();
 
-        // Arrange create a dummy company
-        $company = Company::factory()->create(['user_id' => $companyAdmin->user_id]);
-
-        // Arrange attach company_id to company admin user
-        $companyAdmin->update(['company_id' => $company->company_id]);
-
-        // Arrange authenticate user
-        Sanctum::actingAs($companyAdmin);
+        ProjectUser::factory()->create([
+            'user_id' => $this->companyAdmin->user_id, 
+            'company_id' => $this->companyAdmin->company_id,
+            'project_id' => $this->project->project_id,
+            'project_role' => 'project_admin',
+        ]);
 
         // Act the response
-        $response = $this->getJson(route('v1.companyAdmin.projects.index'));
+        $response = $this->getJson(route('v1.companyAdmin.projects.users.index', [
+            'projectId' => $project->project_id,
+        ]));
 
         // Assert the response status code and data structure
         $response->assertStatus(200)
-            ->assertJsonStructure([
-                'message',
-                'data' => [
-                    'current_page',
-                    'data' => [
-                        '*' => [
-                            'project_id',
-                            'project_name',
-                            'project_description',
-                        ],
+        ->assertJsonStructure([
+            'message',
+            'data' => [
+                'current_page',
+                'data',
+                'first_page_url',
+                'from',
+                'last_page',
+                'last_page_url',
+                'links' => [
+                    '*' => [
+                        'url',
+                        'label',
+                        'active',
                     ],
-                    'first_page_url',
-                    'from',
-                    'last_page',
-                    'last_page_url',
-                    'links' => [
-                        '*' => [
-                            'url',
-                            'label',
-                            'active',
-                        ],
-                    ],
-                    'next_page_url',
-                    'path',
-                    'per_page',
-                    'prev_page_url',
-                    'to',
-                    'total'
                 ],
-            ]);
+                'next_page_url',
+                'path',
+                'per_page',
+                'prev_page_url',
+                'to',
+                'total'
+            ],
+        ]);
 
         // Assert specific data fragments
         $response->assertJsonFragment([
-            'message' => 'No projects found for the provided criteria.',
+            'message' => 'No project users found for the provided criteria.',
         ]);
     }
 }
