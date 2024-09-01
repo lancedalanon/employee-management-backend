@@ -7,6 +7,7 @@ use App\Http\Requests\v1\DtrController\IndexRequest;
 use App\Http\Requests\v1\DtrController\StoreTimeInRequest;
 use App\Http\Requests\v1\DtrController\StoreTimeOutRequest;
 use App\Http\Requests\v1\DtrController\UpdateTimeOut;
+use App\Models\Company;
 use App\Services\v1\DtrService;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\JsonResponse;
@@ -37,22 +38,22 @@ class DtrController extends Controller
         return $this->dtrService->getDtrById($this->user, $dtrId);
     }
 
-    public function storeTimeIn(StoreTimeInRequest $request): JsonResponse
+    public function storeTimeIn(StoreTimeInRequest $request, Company $company): JsonResponse
     {
         // Get validated data
         $validatedData = $request->validated();
 
         // Handle DTR time-in image file upload
-        return $this->dtrService->createTimeIn($this->user, $validatedData);
+        return $this->dtrService->createTimeIn($this->user, $company, $validatedData);
     }
 
-    public function storeTimeOut(StoreTimeOutRequest $request): JsonResponse
+    public function storeTimeOut(StoreTimeOutRequest $request, Company $company): JsonResponse
     {
         // Get validated data
         $validatedData = $request->validated();
 
         // Handle DTR time-out image file upload
-        return $this->dtrService->createTimeOut($this->user, $validatedData);
+        return $this->dtrService->createTimeOut($this->user, $company, $validatedData);
     }
 
     public function storeBreak(): JsonResponse
@@ -67,12 +68,12 @@ class DtrController extends Controller
         return $this->dtrService->createResume($this->user);
     }    
 
-    public function updateTimeOut(UpdateTimeOut $request): JsonResponse
+    public function updateTimeOut(UpdateTimeOut $request, Company $company): JsonResponse
     {
         // Get validated data
         $validatedData = $request->validated();
 
         // Handle late DTR time-out with image file upload
-        return $this->dtrService->updateTimeOut($this->user, $validatedData);
+        return $this->dtrService->updateTimeOut($this->user, $company, $validatedData);
     } 
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services\v1;
 
+use App\Models\Company;
 use App\Models\Dtr;
 use App\Models\DtrBreak;
 use App\Models\EndOfTheDayReportImage;
@@ -78,7 +79,7 @@ class DtrService
         ], 200);
     }
 
-    public function createTimeIn(Authenticatable $user, array $validatedData): JsonResponse
+    public function createTimeIn(Authenticatable $user, Company $company, array $validatedData): JsonResponse
     {
         // Initialize file path for potential rollback
         $dtrTimeInFilePath = null;
@@ -88,7 +89,7 @@ class DtrService
 
         try {
             // Evaluate the schedule start time
-            $isWithinSchedule = $this->evaluateScheduleService->evaluateSchedule($user);
+            $isWithinSchedule = $this->evaluateScheduleService->evaluateSchedule($user, $company);
 
             // Handle schedule start time failure
             if (! $isWithinSchedule) {
@@ -129,7 +130,7 @@ class DtrService
         }
     }
 
-    public function createTimeOut(Authenticatable $user, array $validatedData): JsonResponse
+    public function createTimeOut(Authenticatable $user, Company $company, array $validatedData): JsonResponse
     {
         // Start a database transaction
         DB::beginTransaction();
@@ -172,7 +173,7 @@ class DtrService
             $dtrTimeInTime = Carbon::parse($dtrTimeIn->dtr_time_in);
 
             // Check if time-out is within the allowed late entry time
-            if ($this->evaluateScheduleService->isTimeOutLate($user, $dtrTimeInTime)) {
+            if ($this->evaluateScheduleService->isTimeOutLate($user, $dtrTimeInTime, $company)) {
                 return response()->json(['message' => 'Failed to time out. The time-out is too late. Please use the late entry clearance option.'], 409);
             }
     
@@ -293,7 +294,7 @@ class DtrService
         }
     }
 
-    public function updateTimeOut(Authenticatable $user, array $validatedData): JsonResponse 
+    public function updateTimeOut(Authenticatable $user, Company $company, array $validatedData): JsonResponse 
     {
         // Start a database transaction
         DB::beginTransaction();
@@ -346,7 +347,7 @@ class DtrService
             $dtrTimeInTime = Carbon::parse($dtrTimeIn->dtr_time_in);
 
             // Check if time-out is not the allowed late entry time
-            if (!($this->evaluateScheduleService->isTimeOutLate($user, $dtrTimeInTime))) {
+            if (!($this->evaluateScheduleService->isTimeOutLate($user, $dtrTimeInTime, $company))) {
                 return response()->json(['message' => 'Time-out is not a late entry.'], 409);
             }
 
