@@ -27,7 +27,11 @@ class Company extends Model
         'company_industry',
         'company_founded_at',
         'company_description',
-        'deactivated_at'
+        'company_full_time_start_time',
+        'company_full_time_end_time',           
+        'company_part_time_start_time',
+        'company_part_time_end_time',
+        'deactivated_at',
     ];
 
     public function user()
