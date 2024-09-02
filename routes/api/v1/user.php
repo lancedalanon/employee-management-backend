@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\v1\AuthenticationController;
+use App\Http\Controllers\v1\ProjectController;
 use App\Http\Controllers\v1\DtrController;
 use App\Http\Controllers\v1\RegistrationController;
 use App\Http\Controllers\v1\UserController;
@@ -25,6 +26,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('break', [DtrController::class, 'storeBreak'])->name('storeBreak');
         Route::post('resume', [DtrController::class, 'storeResume'])->name('storeResume');
         Route::put('time-out', [DtrController::class, 'updateTimeOut'])->name('updateTimeOut');
+    });
+
+    Route::prefix('projects')->name('projects.')->group(function () {
+        Route::get('/', [ProjectController::class, 'index'])->name('index');
+        Route::get('{projectId}', [ProjectController::class, 'show'])->name('show');
     });
 
     Route::prefix('users')->name('users.')->group(function () {
