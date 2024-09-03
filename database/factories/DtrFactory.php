@@ -28,10 +28,23 @@ class DtrFactory extends Factory
     {
         return [
             'user_id' => User::factory(), // Generate a random user ID
-            'dtr_time_in' => Carbon::parse($this->faker->dateTimeBetween('-1 week', 'now'))->toDateTimeString(),
-            'dtr_time_in_image' => $this->generateImage(),
         ];
     }
+
+    /**
+     * Specify that only time in should be created.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function withTimeIn(): self
+    {
+        return $this->state(function (array $attributes) {    
+            return [
+                'dtr_time_in' => Carbon::parse($this->faker->dateTimeBetween('-1 week', 'now'))->toDateTimeString(),
+                'dtr_time_in_image' => $this->generateImage(),
+            ];
+        });
+    }    
 
     /**
      * Specify that only time in should be created.
@@ -53,7 +66,36 @@ class DtrFactory extends Factory
                 'dtr_end_of_the_day_report' => $this->faker->paragraph,
             ];
         });
-    }    
+    }   
+
+    /**
+     * Indicate that the leave request a date from now onwards.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function withLeaveRequest(): Factory
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'dtr_absence_date' => Carbon::now()->addWeeks(2)->format('Y-m-d'),
+                'dtr_absence_reason' => $this->faker->sentence(),
+            ];
+        });
+    }
+    
+    /**
+     * Indicate that the DTR has an approved absence with a date from now onwards.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function withAbsenceApprovedAt(): Factory
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'dtr_absence_approved_at' => Carbon::now()->addDays(rand(0, 14))->format('Y-m-d H:i:s'),
+            ];
+        });
+    }
 
     /**
      * Generate a fake image URL with a specific extension.

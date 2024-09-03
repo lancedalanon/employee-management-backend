@@ -39,7 +39,7 @@ class StoreTimeOutTest extends TestCase
         Sanctum::actingAs($this->user);
 
         // Create a sample DTR record for the user with a time-in event
-        $this->dtr = Dtr::factory()->create(['user_id' => $this->user->user_id, 'dtr_time_in' => Carbon::now()]);
+        $this->dtr = Dtr::factory()->withTimeIn()->create(['user_id' => $this->user->user_id, 'dtr_time_in' => Carbon::now()]);
 
         // Set up fake storage disk
         Storage::fake('public');
@@ -205,7 +205,7 @@ class StoreTimeOutTest extends TestCase
         ];
 
         // Create a DTR record
-        $dtr = Dtr::factory()->create(['user_id' => $user->user_id]);
+        $dtr = Dtr::factory()->withTimeIn()->create(['user_id' => $user->user_id]);
 
         // Create a break record
         DtrBreak::factory()->onlyBreakTime()->create(['dtr_id' => $dtr->dtr_id]);
@@ -231,7 +231,7 @@ class StoreTimeOutTest extends TestCase
         Sanctum::actingAs($user);
 
         // Arrange DTR entry to time out 1 day late
-        Dtr::factory()->create(['user_id' => $user->user_id, 'dtr_time_in' => Carbon::now()->subDay(1)]);
+        Dtr::factory()->withTimeIn()->create(['user_id' => $user->user_id, 'dtr_time_in' => Carbon::now()->subDay(1)]);
 
         // Arrange the time to add one day for late entry
         $futureTime = Carbon::now()->addDay();

@@ -31,7 +31,7 @@ class ShowTest extends TestCase
         Sanctum::actingAs($this->user);
 
         // Create a sample DTR record for the user with a time-in event
-        $this->dtr = Dtr::factory()->withTimeOut()->count(10)->create(['user_id' => $this->user->user_id]);
+        $this->dtr = Dtr::factory()->withTimeIn()->withTimeOut()->count(10)->create(['user_id' => $this->user->user_id]);
     }
 
     protected function tearDown(): void

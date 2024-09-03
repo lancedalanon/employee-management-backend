@@ -110,7 +110,7 @@ class StoreTimeInTest extends TestCase
     {
         // Arrange
         $fakeImage = UploadedFile::fake()->image('dtr_time_in_image.jpg', 600, 600);
-        Dtr::factory()->create(['user_id' => $this->user->user_id, 'dtr_time_in' => Carbon::now()]);
+        Dtr::factory()->withTimeIn()->create(['user_id' => $this->user->user_id, 'dtr_time_in' => Carbon::now()]);
 
         // Act the response again
         $response = $this->postJson(route('v1.dtrs.storeTimeIn'), [

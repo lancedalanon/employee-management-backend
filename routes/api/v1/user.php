@@ -3,6 +3,7 @@
 use App\Http\Controllers\v1\AuthenticationController;
 use App\Http\Controllers\v1\ProjectController;
 use App\Http\Controllers\v1\DtrController;
+use App\Http\Controllers\v1\LeaveRequestController;
 use App\Http\Controllers\v1\RegistrationController;
 use App\Http\Controllers\v1\UserController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('break', [DtrController::class, 'storeBreak'])->name('storeBreak');
         Route::post('resume', [DtrController::class, 'storeResume'])->name('storeResume');
         Route::put('time-out', [DtrController::class, 'updateTimeOut'])->name('updateTimeOut');
+    });
+
+    Route::prefix('leave-requests')->name('leaveRequests.')->group(function () {
+        Route::get('/', [LeaveRequestController::class, 'index'])->name('index');
+        Route::get('{leaveRequestId}', [LeaveRequestController::class, 'show'])->name('show');
+        Route::post('/', [LeaveRequestController::class, 'store'])->name('store');
+        Route::delete('{leaveRequestId}', [LeaveRequestController::class, 'destroy'])->name('destroy');
     });
 
     Route::prefix('projects')->name('projects.')->group(function () {

@@ -71,4 +71,11 @@ return [
             ],
         ],
     ],
+
+    'leave_requests' => [
+        'daily_limit' => 2,
+        'monthly_limit' => 10,
+        'yearly_limit' => 30,
+        'evaluation_period_in_days' => 14,
+    ],
 ];

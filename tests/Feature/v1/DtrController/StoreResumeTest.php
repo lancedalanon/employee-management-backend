@@ -34,7 +34,7 @@ class StoreResumeTest extends TestCase
         Sanctum::actingAs($this->user);
 
         // Create a sample DTR record for the user with a time-in event
-        $this->dtr = Dtr::factory()->create(['user_id' => $this->user->user_id]);
+        $this->dtr = Dtr::factory()->withTimeIn()->create(['user_id' => $this->user->user_id]);
 
         // Create a sample break record for the DTR record
         $this->dtrBreak = DtrBreak::factory()->onlyBreakTime()->create(['dtr_id' => $this->dtr->dtr_id]);

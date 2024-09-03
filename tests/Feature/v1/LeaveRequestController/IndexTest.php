@@ -1,9 +1,10 @@
 <?php
 
-namespace Tests\Feature\v1\DtrController;
+namespace Tests\Feature\v1\LeaveRequestController;
 
 use App\Models\Dtr;
 use App\Models\User;
+use Database\Factories\LeaveRequestFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Sanctum\Sanctum;
@@ -15,7 +16,7 @@ class IndexTest extends TestCase
     use RefreshDatabase;
     
     protected $user;
-    protected $dtr;
+    protected $leaveRequest;
 
     protected function setUp(): void
     {
@@ -30,8 +31,8 @@ class IndexTest extends TestCase
         $this->user = User::factory()->withRoles()->create();
         Sanctum::actingAs($this->user);
 
-        // Create a sample DTR record for the user with a time-in event
-        $this->dtr = Dtr::factory()->withTimeIn()->withTimeOut()->count(10)->create(['user_id' => $this->user->user_id]);
+        // Create a sample leave request for the user
+        $this->leaveRequest = Dtr::factory()->withLeaveRequest()->create(['user_id' => $this->user->user_id]);
     }
 
     protected function tearDown(): void
@@ -39,16 +40,15 @@ class IndexTest extends TestCase
         // Clean up roles and other data if needed
         Role::whereIn('name', ['employee', 'full_time', 'day_shift'])->delete();
         $this->user = null;
-        $this->dtr = null;
+        $this->leaveRequest = null;
 
         parent::tearDown();
     }
 
-    // Main function
-    public function testAuthenticatedUserCanRetrievePaginatedDtrData(): void
+    public function testAuthenticatedUserCanRetrievePaginatedLeaveRequestData(): void
     {
         // Act the response
-        $response = $this->getJson(route('v1.dtrs.index'));
+        $response = $this->getJson(route('v1.leaveRequests.index'));
 
         // Assert the response status code and data structure
         $response->assertStatus(200)
@@ -58,11 +58,10 @@ class IndexTest extends TestCase
                     'current_page',
                     'data' => [
                         '*' => [
-                            'dtr_id', 
-                            'dtr_time_in', 
-                            'dtr_time_out',
-                            'dtr_end_of_the_day_report', 
-                            'dtr_is_overtime'
+                            'dtr_id',
+                            'dtr_absence_date',
+                            'dtr_absence_reason',
+                            'dtr_absence_approved_at',
                         ],
                     ],
                     'first_page_url',
@@ -87,27 +86,18 @@ class IndexTest extends TestCase
 
         // Assert specific data fragments
         $response->assertJsonFragment([
-            'message' => 'DTR records retrieved successfully.',
-        ]);
-
-        // Assert specific data within the pagination structure
-        $response->assertJson([
-            'data' => [
-                'current_page' => 1,
-                'per_page' => 25,
-                'total' => 10,
-            ],
+            'message' => 'Leave requests retrieved successfully.',
         ]);
     }
 
-    public function testAuthenticatedUserCanRetrieveEmptyPaginatedDtrData(): void
+    public function testAuthenticatedUserCanRetrieveEmptyPaginatedLeaveRequestData(): void
     {
-        // Arrange new user to have empty data for dtr
+        // Assert new user
         $user = User::factory()->withRoles()->create();
         Sanctum::actingAs($user);
-        
+
         // Act the response
-        $response = $this->getJson(route('v1.dtrs.index'));
+        $response = $this->getJson(route('v1.leaveRequests.index'));
 
         // Assert the response status code and data structure
         $response->assertStatus(200)
@@ -138,7 +128,7 @@ class IndexTest extends TestCase
 
         // Assert specific data fragments
         $response->assertJsonFragment([
-            'message' => 'No DTR records found for the provided criteria.',
+            'message' => 'No leave requests found for the provided criteria.',
         ]);
     }
 }
