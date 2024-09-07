@@ -14,7 +14,7 @@ return new class() extends Migration
         Schema::create('project_tasks', function (Blueprint $table) {
             $table->id('project_task_id');
             $table->string('project_task_name');
-            $table->text('project_task_description');
+            $table->text('project_task_description')->nullable();
             $table->unsignedBigInteger('project_id');
             $table->string('project_task_progress');
             $table->string('project_task_priority_level');

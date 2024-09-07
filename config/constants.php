@@ -11,6 +11,7 @@ return [
         'In progress',
         'Reviewing',
         'Completed',
+        'Backlog',
     ],
 
     'project_task_priority_level' => [

@@ -28,7 +28,7 @@ class ProjectService
         if ($search) {
             $query->where(function ($query) use ($search) {
                 $query->where('project_name', 'LIKE', "%$search%")
-                    ->where('project_description', 'LIKE', "%$search%");
+                    ->orWhere('project_description', 'LIKE', "%$search%");
             });
         }
 

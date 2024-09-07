@@ -4,6 +4,7 @@ use App\Http\Controllers\v1\AuthenticationController;
 use App\Http\Controllers\v1\ProjectController;
 use App\Http\Controllers\v1\DtrController;
 use App\Http\Controllers\v1\LeaveRequestController;
+use App\Http\Controllers\v1\ProjectTaskController;
 use App\Http\Controllers\v1\RegistrationController;
 use App\Http\Controllers\v1\UserController;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +40,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('projects')->name('projects.')->group(function () {
         Route::get('/', [ProjectController::class, 'index'])->name('index');
         Route::get('{projectId}', [ProjectController::class, 'show'])->name('show');
+
+        Route::prefix('{projectId}/tasks')->name('tasks.')->group(function () {
+            Route::get('/', [ProjectTaskController::class, 'index'])->name('index');
+            Route::get('{taskId}', [ProjectTaskController::class, 'show'])->name('show');
+            Route::post('/', [ProjectTaskController::class,'store'])->name('store');
+            Route::put('{taskId}', [ProjectTaskController::class, 'update'])->name('update');
+            Route::delete('{taskId}', [ProjectTaskController::class, 'destroy'])->name('destroy');
+        });
     });
 
     Route::prefix('users')->name('users.')->group(function () {
