@@ -138,6 +138,7 @@ class RemoveUserTest extends TestCase
             'project_id' => $this->project->project_id,
         ]);
 
+        // Arrange user data
         $formData = [
             'user_id' => $user->user_id,
         ];
