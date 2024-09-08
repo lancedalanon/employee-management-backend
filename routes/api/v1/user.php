@@ -47,6 +47,11 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/', [ProjectTaskController::class,'store'])->name('store');
             Route::put('{taskId}', [ProjectTaskController::class, 'update'])->name('update');
             Route::delete('{taskId}', [ProjectTaskController::class, 'destroy'])->name('destroy');
+
+            Route::prefix('{taskId}/users')->name('users.')->group(function () {
+                Route::post('add', [ProjectTaskController::class, 'assignUser'])->name('assignUser');
+                Route::post('remove', [ProjectTaskController::class, 'removeUser'])->name('removeUser');
+            });
         });
     });
 
