@@ -20,6 +20,20 @@ return [
         'High',
     ],
 
+    'project_task_subtask_progress' => [
+        'Not started',
+        'In progress',
+        'Reviewing',
+        'Completed',
+        'Backlog',
+    ],
+
+    'project_task_subtask_priority_level' => [
+        'Low',
+        'Medium',
+        'High',
+    ],
+
     'dtr_schedules' => [
         'early_shift' => [
             'full_time' => [

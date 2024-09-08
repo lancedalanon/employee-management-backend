@@ -5,6 +5,7 @@ use App\Http\Controllers\v1\ProjectController;
 use App\Http\Controllers\v1\DtrController;
 use App\Http\Controllers\v1\LeaveRequestController;
 use App\Http\Controllers\v1\ProjectTaskController;
+use App\Http\Controllers\v1\ProjectTaskSubtaskController;
 use App\Http\Controllers\v1\RegistrationController;
 use App\Http\Controllers\v1\UserController;
 use Illuminate\Support\Facades\Route;
@@ -51,6 +52,19 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::prefix('{taskId}/users')->name('users.')->group(function () {
                 Route::post('add', [ProjectTaskController::class, 'assignUser'])->name('assignUser');
                 Route::post('remove', [ProjectTaskController::class, 'removeUser'])->name('removeUser');
+            });
+
+            Route::prefix('{taskId}/subtasks')->name('subtasks.')->group(function () {
+                Route::get('/', [ProjectTaskSubtaskController::class, 'index'])->name('index');
+                Route::get('{subtaskId}', [ProjectTaskSubtaskController::class, 'show'])->name('show');
+                Route::post('/', [ProjectTaskSubtaskController::class, 'store'])->name('store');
+                Route::put('{subtaskId}', [ProjectTaskSubtaskController::class, 'update'])->name('update');
+                Route::delete('{subtaskId}', [ProjectTaskSubtaskController::class, 'destroy'])->name('destroy');
+
+                Route::prefix('{subtaskId}/users')->name('users.')->group(function () {
+                    Route::post('add', [ProjectTaskSubtaskController::class, 'assignUser'])->name('assignUser');
+                    Route::post('remove', [ProjectTaskSubtaskController::class, 'removeUser'])->name('removeUser');
+                });
             });
         });
     });

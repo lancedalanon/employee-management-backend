@@ -230,7 +230,7 @@ class ProjectTaskService
         }
 
         // Check if a user has not assigned to the task
-        if (!$task->user_id || $task->user_id !== $validatedData['user_id']) {
+        if (!$task->user_id || (int) $task->user_id !== (int) $validatedData['user_id']) {
             return response()->json(['message' => 'User has not been assigned.'], 409);
         }
 
