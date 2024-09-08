@@ -8,13 +8,9 @@ use App\Http\Requests\v1\ProjectTaskSubtaskController\IndexRequest;
 use App\Http\Requests\v1\ProjectTaskSubtaskController\RemoveUserRequest;
 use App\Http\Requests\v1\ProjectTaskSubtaskController\StoreRequest;
 use App\Http\Requests\v1\ProjectTaskSubtaskController\UpdateRequest;
-use App\Models\ProjectTask;
-use App\Models\ProjectTaskSubtask;
-use App\Models\ProjectUser;
 use App\Services\v1\ProjectTaskSubtaskService;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class ProjectTaskSubtaskController extends Controller
 {
