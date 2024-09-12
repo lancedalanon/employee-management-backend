@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('companies', function (Blueprint $table) {
             $table->id('company_id');
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->string('company_name')->unique();
             $table->string('company_registration_number')->unique();
             $table->string('company_tax_id')->nullable()->unique();
