@@ -4,7 +4,7 @@ namespace App\Http\Requests\v1\CompanyAdmin\AttendanceController;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ShowAttendanceRequest extends FormRequest
+class ShowRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

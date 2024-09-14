@@ -4,7 +4,7 @@ namespace App\Http\Requests\v1\CompanyAdmin\AttendanceController;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class IndexAttendanceRequest extends FormRequest
+class IndexRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -34,7 +34,7 @@ class IndexAttendanceRequest extends FormRequest
         ];
     }
 
-        /**
+    /**
      * Get the error messages for the defined validation rules.
      *
      * @return array<string, string>

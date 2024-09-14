@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\v1\CompanyAdmin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\v1\CompanyAdmin\AttendanceController\IndexAttendanceRequest;
-use App\Http\Requests\v1\CompanyAdmin\AttendanceController\ShowAttendanceRequest;
+use App\Http\Requests\v1\CompanyAdmin\AttendanceController\IndexRequest;
+use App\Http\Requests\v1\CompanyAdmin\AttendanceController\ShowRequest;
 use App\Http\Services\v1\CompanyAdmin\AttendanceService;
 
 class AttendanceController extends Controller
@@ -16,7 +16,7 @@ class AttendanceController extends Controller
         $this->attendanceService = $attendanceService;
     }
 
-    public function index(IndexAttendanceRequest $request)
+    public function index(IndexRequest $request)
     {
         // Get the validated data
         $validatedData = $request->validated();
@@ -25,7 +25,7 @@ class AttendanceController extends Controller
         return $this->attendanceService->index($validatedData);
     }
 
-    public function show(ShowAttendanceRequest $request, int $userId)
+    public function show(ShowRequest $request, int $userId)
     {
         // Get the validated data
         $validatedData = $request->validated();
