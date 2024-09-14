@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\CompanyAdmin\ProjectController\IndexRequest;
 use App\Http\Requests\v1\CompanyAdmin\ProjectController\StoreRequest;
 use App\Http\Requests\v1\CompanyAdmin\ProjectController\UpdateRequest;
-use App\Models\Project;
-use App\Models\ProjectUser;
 use App\Services\v1\CompanyAdmin\ProjectService;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\JsonResponse;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Services\v1\CompanyAdmin;
+namespace App\Services\v1\CompanyAdmin;
 
 use App\Models\User;
 use Carbon\Carbon;
@@ -125,10 +125,12 @@ class ProjectCompletionService
                 'tasks_in_progress_count' => $user->tasks_in_progress_count,
                 'tasks_reviewing_count' => $user->tasks_reviewing_count,
                 'tasks_completed_count' => $user->tasks_completed_count,
+                'tasks_backlog_count' => $user->tasks_backlog_count,
                 'subtasks_not_started_count' => $user->subtasks_not_started_count,
                 'subtasks_in_progress_count' => $user->subtasks_in_progress_count,
                 'subtasks_reviewing_count' => $user->subtasks_reviewing_count,
                 'subtasks_completed_count' => $user->subtasks_completed_count,
+                'subtasks_backlog_count' => $user->subtasks_backlog_count,
             ];
         });
 
@@ -154,10 +156,10 @@ class ProjectCompletionService
     public function show(array $validatedData, int $userId)
     {
         // Get the validated query parameters for filtering
-        $employmentType = $validatedData['employment_type'];
-        $role = $validatedData['role'];
-        $startDate = $validatedData['start_date'];
-        $endDate = $validatedData['end_date'];
+        $employmentType = $validatedData['employment_type'] ?? null;
+        $role = $validatedData['role'] ?? null;
+        $startDate = $validatedData['start_date'] ?? null;
+        $endDate = $validatedData['end_date'] ?? null;
 
         // Ensure the date range is within the current month
         $startOfMonth = Carbon::now()->startOfMonth();
@@ -244,10 +246,12 @@ class ProjectCompletionService
             'tasks_in_progress_count' => $user->tasks_in_progress_count,
             'tasks_reviewing_count' => $user->tasks_reviewing_count,
             'tasks_completed_count' => $user->tasks_completed_count,
+            'tasks_backlog_count' => $user->tasks_backlog_count,
             'subtasks_not_started_count' => $user->subtasks_not_started_count,
             'subtasks_in_progress_count' => $user->subtasks_in_progress_count,
             'subtasks_reviewing_count' => $user->subtasks_reviewing_count,
             'subtasks_completed_count' => $user->subtasks_completed_count,
+            'subtasks_backlog_count' => $user->subtasks_backlog_count,
         ];
 
         return response()->json([

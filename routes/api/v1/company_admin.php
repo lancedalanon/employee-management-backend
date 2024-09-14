@@ -1,10 +1,10 @@
 <?php
 
+use App\Http\Controllers\v1\CompanyAdmin\AttendanceController;
+use App\Http\Controllers\v1\CompanyAdmin\ProjectCompletionController;
 use App\Http\Controllers\v1\CompanyAdmin\ProjectController;
 use App\Http\Controllers\v1\CompanyAdmin\ProjectUserController;
 use App\Http\Controllers\v1\RegistrationController;
-use App\Http\Controllers\v1\CompanyAdmin\AttendanceController;
-use App\Http\Controllers\v1\CompanyAdmin\ProjectCompletionController;
 use Illuminate\Support\Facades\Route;
 
 // Authenticated routes for company admin

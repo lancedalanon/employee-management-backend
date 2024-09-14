@@ -5,6 +5,9 @@ namespace App\Services\v1;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\ValidationException;
 
 class AuthenticationService
 {
@@ -46,5 +49,58 @@ class AuthenticationService
         return response()->json([
             'message' => 'User logged out successfully.',
         ], 200);
+    }
+
+    public function sendResetLinkEmail(Request $request)
+    {
+        // Validate the request
+        $request->validate(['email' => 'required|email']);
+
+        // Attempt to send the password reset link
+        $response = Password::sendResetLink(
+            $request->only('email')
+        );
+
+        // Check if the password reset link was sent successfully
+        if ($response === Password::RESET_LINK_SENT) {
+            return response()->json([
+                'message' => 'Password reset link sent successfully.',
+            ], 200);
+        }
+
+        // If password reset link was not sent successfully, throw validation exception
+        throw ValidationException::withMessages([
+            'email' => [__($response)],
+        ]);
+    }
+
+    public function reset(Request $request)
+    {
+        // Validate the incoming request
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        // Attempt to reset the user's password
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, $password) {
+                // Update the user's password
+                $user->password = Hash::make($password);
+                $user->save();
+            }
+        );
+
+        // Check if the password was successfully reset
+        if ($status === Password::PASSWORD_RESET) {
+            return response()->json(['message' => __($status)]);
+        }
+
+        // Throw validation exception if password reset failed
+        throw ValidationException::withMessages([
+            'email' => [__($status)],
+        ]);
     }
 }

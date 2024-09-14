@@ -5,7 +5,7 @@ namespace App\Http\Controllers\v1\CompanyAdmin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\CompanyAdmin\ProjectCompletionController\IndexRequest;
 use App\Http\Requests\v1\CompanyAdmin\ProjectCompletionController\ShowRequest;
-use App\Http\Services\v1\CompanyAdmin\ProjectCompletionService;
+use App\Services\v1\CompanyAdmin\ProjectCompletionService;
 
 class ProjectCompletionController extends Controller
 {

@@ -27,7 +27,7 @@ class IndexRequest extends FormRequest
             'search' => 'nullable|string|max:255',
             'per_page' => 'int|min:5|max:50',
             'page' => 'int|min:1',
-            'employment_type' => 'required|in:full-time,part-time',
+            'employment_type' => 'required|in:full_time,part_time',
             'role' => 'required|in:intern,employee,company_admin,company_supervisor',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',

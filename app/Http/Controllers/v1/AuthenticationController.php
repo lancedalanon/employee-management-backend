@@ -31,4 +31,16 @@ class AuthenticationController extends Controller
         // Attempt to logout the authenticated user
         return $this->authenticationService->logout($request);
     }
+
+    public function sendResetLinkEmail(Request $request)
+    {
+        // Validate the request data
+        return $this->authenticationService->sendResetLinkEmail($request);
+    }
+
+    public function reset(Request $request)
+    {
+        // Validate the request data
+        return $this->authenticationService->reset($request);
+    }
 }

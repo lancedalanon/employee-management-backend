@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Services\v1\CompanyAdmin;
+namespace App\Services\v1\CompanyAdmin;
 
 use App\Models\User;
 use Carbon\Carbon;
@@ -51,9 +51,9 @@ class AttendanceService
                 $query->whereIn('name', $this->excludedRoles);
             })
             ->withCount(['dtrs as dtr_attendance_count' => function ($query) use ($startDate, $endDate) {
-                $query->whereNull('absence_date')
-                    ->whereNull('absence_reason')
-                    ->whereBetween('time_in', [$startDate, $endDate]);
+                $query->whereNull('dtr_absence_date')
+                    ->whereNull('dtr_absence_reason')
+                    ->whereBetween('dtr_time_in', [$startDate, $endDate]);
             }]);
 
         // Apply search filter if provided
@@ -88,10 +88,10 @@ class AttendanceService
     public function show(array $validatedData, int $userId)
     {
         // Get the validated query parameters for filtering
-        $employmentType = $validatedData['employment_type'];
-        $role = $validatedData['role'];
-        $startDate = $validatedData['start_date'];
-        $endDate = $validatedData['end_date'];
+        $employmentType = $validatedData['employment_type'] ?? null;
+        $role = $validatedData['role'] ?? null;
+        $startDate = $validatedData['start_date'] ?? null;
+        $endDate = $validatedData['end_date'] ?? null;
 
         // Ensure the date range is within the current month
         $startOfMonth = Carbon::now()->startOfMonth();
@@ -116,9 +116,9 @@ class AttendanceService
                 $query->whereIn('name', $this->excludedRoles);
             })
             ->withCount(['dtrs as dtr_attendance_count' => function ($query) use ($startDate, $endDate) {
-                $query->whereNull('absence_date')
-                    ->whereNull('absence_reason')
-                    ->whereBetween('time_in', [$startDate, $endDate]);
+                $query->whereNull('dtr_absence_date')
+                    ->whereNull('dtr_absence_reason')
+                    ->whereBetween('dtr_time_in', [$startDate, $endDate]);
             }])
             ->first();
 

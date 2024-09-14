@@ -11,7 +11,7 @@ class ShowRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,10 @@ class ShowRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'employment_type' => 'required|in:full_time,part_time',
+            'role' => 'required|in:intern,employee,company_admin,company_supervisor',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
         ];
     }
 }
