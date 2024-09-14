@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\v1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\v1\Admin\UserController\ChangePasswordRequest;
+use App\Http\Requests\v1\Admin\UserController\ChangeRoleRequest;
 use App\Http\Requests\v1\Admin\UserController\IndexRequest;
 use App\Http\Requests\v1\Admin\UserController\StoreRequest;
 use App\Http\Requests\v1\Admin\UserController\UpdateRequest;
@@ -59,5 +61,23 @@ class UserController extends Controller
     {
         // Delete user
         return $this->userService->deleteUser($userId);
+    }
+
+    public function changeRole(ChangeRoleRequest $request, int $userId): JsonResponse
+    {
+        // Get validated data
+        $validatedData = $request->validated();
+
+        // Change role
+        return $this->userService->changeUserRole($validatedData, $userId);
+    }
+
+    public function changePassword(ChangePasswordRequest $request, int $userId): JsonResponse
+    {
+        // Get validated data
+        $validatedData = $request->validated();
+
+        // Change password
+        return $this->userService->changeUserPassword($validatedData, $userId);
     }
 }

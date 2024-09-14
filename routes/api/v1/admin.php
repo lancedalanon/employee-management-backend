@@ -21,6 +21,11 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/', [UserController::class,'store'])->name('store');
             Route::put('{userId}', [UserController::class,'update'])->name('update');
             Route::delete('{userId}', [UserController::class,'destroy'])->name('destroy');
+
+            Route::prefix('{userId}')->group(function () {
+                Route::post('role', [UserController::class, 'changeRole'])->name('changeRole');
+                Route::post('password', [UserController::class, 'changePassword'])->name('changePassword');
+            });
         });
     });
 });

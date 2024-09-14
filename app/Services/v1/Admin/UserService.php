@@ -3,9 +3,12 @@
 namespace App\Services\v1\Admin;
 
 use App\Models\User;
+use App\Notifications\ChangePasswordNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
+use Spatie\Permission\Models\Role;
 
 class UserService
 {
@@ -113,59 +116,28 @@ class UserService
 
     public function updateUser(array $validatedData, int $userId): JsonResponse
     {
-        // Start a database transaction
-        DB::beginTransaction();
-        
-        try {
-            // Retrieve the User for the given ID and check if it exists
-            $user = User::with([
-                'company:company_id,user_id,company_name', 
-                'roles' => function ($query) {
-                    $query->whereIn('name', ['admin', 'employee', 'intern', 'company_admin', 'company_supervisor'])
-                        ->select('name');
-                }])
-                ->where('user_id', $userId)
-                ->select('user_id', 'first_name', 'middle_name', 'last_name', 'suffix', 'email', 'phone_number')
+        // Retrieve the User for the given ID and check if it exists
+        $user = User::where('user_id', $userId)
                 ->first();
-            
-            // Handle User not found
-            if (!$user) {
-                return response()->json(['message' => 'User not found.'], 404);
-            }
-            
-            // Retrieve the original roles
-            $originalRoles = $user->roles->pluck('name')->sort()->values()->toArray();
-            
-            // Update the user attributes with validated data
-            $user->fill($validatedData);
-            
-            // Update roles if provided in $validatedData
-            if (isset($validatedData['roles'])) {
-                // Sync roles with provided data
-                $user->roles()->sync($validatedData['roles']);
-            }
-            
-            // Check if any fields have changed using isDirty()
-            if (!$user->isDirty() && $originalRoles === $user->roles->pluck('name')->sort()->values()->toArray()) {
-                DB::rollBack(); // Rollback transaction
-                return response()->json(['message' => 'No changes detected.'], 400);
-            }
-            
-            // Proceed with saving changes if there are updates
-            $user->save();
-            
-            // Commit transaction
-            DB::commit();
-            
-            // Return the response as JSON with a 200 status code
-            return response()->json(['message' => 'User updated successfully.'], 200);
-            
-        } catch (\Exception $e) {
-            // Rollback transaction in case of error
-            DB::rollBack();
-            // Return error response
-            return response()->json(['message' => 'Failed to update user.'], 500);
+        
+        // Handle User not found
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
         }
+
+        // Update the user attributes with validated data
+        $user->fill($validatedData);
+
+        // Check if user attributes have changed using isDirty()
+        if (!$user->isDirty()) {
+            return response()->json(['message' => 'No changes detected.'], 400);
+        }
+
+        // Proceed with saving changes if there are updates
+        $user->save();
+
+        // Return the response as JSON with a 200 status code
+        return response()->json(['message' => 'User updated successfully.'], 200);
     }
 
     public function deleteUser(int $userId): JsonResponse
@@ -185,5 +157,90 @@ class UserService
 
         // Return the response as JSON with a 200 status code
         return response()->json(['message' => 'User deleted successfully.'], 200);
+    }
+
+    public function changeUserRole(array $validatedData, int $userId): JsonResponse
+    {
+        // Start a database transaction
+        DB::beginTransaction();
+    
+        try {
+            // Retrieve the User for the given ID and check if it exists
+            $user = User::with(['roles'])
+                        ->where('user_id', $userId)
+                        ->first();
+    
+            // Handle User not found
+            if (!$user) {
+                DB::rollBack();
+                return response()->json(['message' => 'User not found.'], 404);
+            }
+    
+            // Get the existing roles of the user
+            $originalRoles = $user->roles->pluck('name')->sort()->values()->toArray();
+    
+            // Assign new roles based on validated data
+            $rolesToAssign = [];
+            
+            if (isset($validatedData['role'])) {
+                $rolesToAssign[] = $validatedData['role'];
+            }
+            
+            if (isset($validatedData['employment_type'])) {
+                $rolesToAssign[] = $validatedData['employment_type'];
+            }
+    
+            if (isset($validatedData['shift'])) {
+                $rolesToAssign[] = $validatedData['shift'];
+            }
+    
+            // Sync roles with the user
+            $user->syncRoles($rolesToAssign);
+    
+            // Get the new roles of the user
+            $newRoles = $user->roles->pluck('name')->sort()->values()->toArray();
+    
+            // Compare the original roles with the new roles
+            if ($originalRoles === $newRoles) {
+                DB::rollBack();
+                return response()->json(['message' => 'No changes detected in user roles.'], 400);
+            }
+    
+            // Commit the transaction if changes are made
+            DB::commit();
+    
+            // Return a successful response
+            return response()->json(['message' => 'User roles updated successfully.'], 200);
+    
+        } catch (\Exception $e) {
+            // Rollback on exception
+            DB::rollBack();
+            // Return a server error response
+            return response()->json(['message' => 'An error occurred while updating user roles.'], 500);
+        }
+    }    
+
+    public function changeUserPassword(array $validatedData, int $userId): JsonResponse
+    {
+        // Retrieve the User for the given ID and check if it exists
+        $user = User::where('user_id', $userId)->first();
+    
+        // Handle User not found
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+    
+        // Hash the new password
+        $hashedPassword = Hash::make($validatedData['password']);
+    
+        // Update the user password
+        $user->update(['password' => $hashedPassword]);
+    
+        // Send a notification to the user with the new password
+        Notification::route('mail', $user->email)
+            ->notify(new ChangePasswordNotification($validatedData['password']));
+    
+        // Return a successful response
+        return response()->json(['message' => 'Password updated successfully and notification sent.'], 200);
     }
 }

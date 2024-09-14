@@ -36,35 +36,20 @@ class UpdateRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('users', 'username')->ignore($userId)
+                'unique:users,username,'.$userId.',user_id',
             ],
             'phone_number' => [
                 'required',
                 'string',
                 'max:13',
-                Rule::unique('users', 'phone_number')->ignore($userId)
+                'unique:users,phone_number,'.$userId.',user_id',
             ],
-            'password' => 'required|string|min:8|max:255|confirmed',
-            'role' => 'nullable|string|in:intern,employee,admin,company_admin,company_supervisor',
-            'company_id' => 'nullable|exists:companies,company_id',
             'email' => [
                 'required',
                 'string',
                 'email',
                 'max:255',
-                Rule::unique('users', 'email')->ignore($userId)
-            ],
-            'employment_type' => [
-                'nullable', 
-                'string', 
-                'in:full_time,part_time', 
-                'required_if:role,intern,employee,company_admin,company_supervisor'
-            ],
-            'shift' => [
-                'nullable', 
-                'string', 
-                'in:day_shift,afternoon_shift,evening_shift,early_shift,late_shift,night_shift', 
-                'required_if:role,intern,employee,company_admin,company_supervisor'
+                'unique:users,email,'.$userId.',user_id',
             ],
         ];
     }
