@@ -25,17 +25,18 @@ class UpdateRequest extends FormRequest
         // Retrieve the companyId from the route parameters
         $companyId = $this->route('companyId');
 
+
         return [
-            'company_name' => 'required|string|max:255|unique:companies,company_name,' . $companyId,
-            'company_registration_number' => 'required|string|max:50|unique:companies,company_registration_number,' . $companyId,
-            'company_tax_id' => 'nullable|string|max:50|unique:companies,company_tax_id,' . $companyId,
+            'company_name' => 'required|string|max:255|unique:companies,company_name,'.$companyId.',company_id',
+            'company_registration_number' => 'nullable|string|max:50|unique:companies,company_registration_number,'.$companyId.',company_id',
+            'company_tax_id' => 'nullable|string|max:50|unique:companies,company_tax_id,'.$companyId.',company_id',
             'company_address' => 'nullable|string|max:255',
             'company_city' => 'nullable|string|max:100',
             'company_state' => 'nullable|string|max:100',
             'company_postal_code' => 'nullable|string|max:20',
             'company_country' => 'nullable|string|max:100',
-            'company_phone_number' => 'nullable|string|max:20|unique:companies,company_phone_number,' . $companyId,
-            'company_email' => 'nullable|email|max:255|unique:companies,company_email,' . $companyId,
+            'company_phone_number' => 'nullable|string|max:20|unique:companies,company_phone_number,'.$companyId.',company_id',
+            'company_email' => 'nullable|email|max:255|unique:companies,company_email,'.$companyId.',company_id',
             'company_website' => 'nullable|url|max:255',
             'company_industry' => 'nullable|string|max:100',
             'company_founded_at' => 'nullable|date',

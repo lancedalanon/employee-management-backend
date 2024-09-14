@@ -22,16 +22,16 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'company_name' => 'required|string|unique|max:255',
-            'company_registration_number' => 'nullable|string|unique|max:50',
-            'company_tax_id' => 'nullable|string|unique|max:50',
+            'company_name' => 'required|string|unique:companies,company_name|max:255',
+            'company_registration_number' => 'nullable|string|unique:companies,company_registration_number|max:50',
+            'company_tax_id' => 'nullable|string|unique:companies,company_tax_id|max:50',
             'company_address' => 'nullable|string|max:255',
             'company_city' => 'nullable|string|max:100',
             'company_state' => 'nullable|string|max:100',
             'company_postal_code' => 'nullable|string|max:20',
             'company_country' => 'nullable|string|max:100',
-            'company_phone_number' => 'nullable|unique|string|max:20',
-            'company_email' => 'nullable|email|unique|max:255',
+            'company_phone_number' => 'nullable|string|unique:companies,company_phone_number|max:20',
+            'company_email' => 'nullable|email|unique:companies,company_email|max:255',
             'company_website' => 'nullable|url|max:255',
             'company_industry' => 'nullable|string|max:100',
             'company_founded_at' => 'nullable|date',

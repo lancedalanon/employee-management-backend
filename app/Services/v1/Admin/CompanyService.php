@@ -3,6 +3,7 @@
 namespace App\Services\v1\Admin;
 
 use App\Models\Company;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 
 class CompanyService
@@ -17,7 +18,7 @@ class CompanyService
         $page = $validatedData['page'];
 
         // Build the query
-        $query = Company::select('company_id', 'company_name', 'company_phone_number', 'company_email')
+        $query = Company::select('company_id', 'company_name', 'company_registration_number', 'company_tax_id', 'company_phone_number', 'company_email')
                     ->whereNull('deactivated_at');
 
         // Apply search filter if provided
@@ -36,12 +37,12 @@ class CompanyService
         $query->orderBy($sort, $order);
 
         // Paginate the results
-        $projects = $query->paginate($perPage, ['*'], 'page', $page);
+        $companies = $query->paginate($perPage, ['*'], 'page', $page);
 
         // Construct the response data
         $responseData = [
-            'message' => $projects->isEmpty() ? 'No companies found for the provided criteria.' : 'Companies retrieved successfully.',
-            'data' => $projects,
+            'message' => $companies->isEmpty() ? 'No companies found for the provided criteria.' : 'Companies retrieved successfully.',
+            'data' => $companies,
         ];
 
         // Return the response as JSON with a 200 status code
@@ -51,7 +52,9 @@ class CompanyService
     public function getCompanyById(int $companyId): JsonResponse
     {
         // Retrieve the Company for the given ID and check if it exists
-        $company = Company::where('company_id', $companyId)
+        $company = Company::select('company_id', 'company_name', 'company_registration_number', 'company_tax_id', 'company_phone_number', 'company_email')
+            ->where('company_id', $companyId)
+            ->whereNull('deactivated_at')
             ->first();
 
         // Handle Company not found
@@ -81,7 +84,8 @@ class CompanyService
     {
         // Retrieve the Company for the given ID and check if it exists
         $company = Company::where('company_id', $companyId)
-            ->first();
+                    ->whereNull('deactivated_at')
+                    ->first();
 
         // Handle case where company is not found
         if (!$company) {
@@ -107,17 +111,18 @@ class CompanyService
     {
         // Retrieve the Company for the given ID and check if it exists
         $company = Company::where('company_id', $companyId)
-            ->first();
+                    ->whereNull('deactivated_at')
+                    ->first();
 
-        // Handle case where company is not found
+        // Handle case where company is not found or has been deactivated
         if (!$company) {
-            return response()->json(['message' => 'Company not found.'], 404);
+            return response()->json(['message' => 'Company not found or has been deactivated.'], 404);
         }
 
-        // Delete the company
-        $company->delete();
+        // Deactivate the company
+        $company->update(['deactivated_at' => Carbon::now()]);
 
         // Return the response as JSON with a 200 status code
-        return response()->json(['message' => 'Company deleted successfully.'], 200);
+        return response()->json(['message' => 'Company deactivated successfully.'], 200);
     }
 }

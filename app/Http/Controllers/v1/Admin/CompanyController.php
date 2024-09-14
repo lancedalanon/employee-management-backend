@@ -6,9 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\Admin\CompanyController\IndexRequest;
 use App\Http\Requests\v1\Admin\CompanyController\StoreRequest;
 use App\Http\Requests\v1\Admin\CompanyController\UpdateRequest;
-use App\Models\Company;
 use App\Services\v1\Admin\CompanyService;
-use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 class CompanyController extends Controller
@@ -18,7 +16,7 @@ class CompanyController extends Controller
 
     public function __construct(CompanyService $companyService, Authenticatable $user)
     {
-        $this->companyService =  $companyService;
+        $this->companyService = $companyService;
         $this->user = $user;
     }
 

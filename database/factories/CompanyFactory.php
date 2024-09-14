@@ -26,7 +26,7 @@ class CompanyFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(), 
+            'user_id' => User::factory(),
             'company_name' => $this->faker->company(),
             'company_registration_number' => $this->faker->unique()->numerify('##########'),
             'company_tax_id' => $this->faker->unique()->numerify('###-##-####'),
