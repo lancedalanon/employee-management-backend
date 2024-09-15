@@ -12,8 +12,8 @@ class AttendanceService
 
     public function __construct()
     {
-        $this->excludedRoles = ['admin', 'super', 'intern'];
-        $this->roles = ['intern', 'employee', 'company_admin', 'company_supervisor'];
+        $this->excludedRoles = ['admin'];
+        $this->roles = ['intern', 'employee', 'company_admin'];
     }
 
     public function index(array $validatedData)

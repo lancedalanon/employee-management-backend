@@ -12,7 +12,7 @@ class ProjectCompletionService
 
     public function __construct()
     {
-        $this->excludedRoles = ['admin', 'super', 'intern', 'company_admin', 'company_supervisor'];
+        $this->excludedRoles = ['admin', 'company_admin'];
         $this->roles = ['intern', 'employee'];
     }
 
