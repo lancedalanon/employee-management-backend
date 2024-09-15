@@ -7,21 +7,20 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Arr;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
+     /**
      * Seed the application's database.
      */
     public function run(): void
     {
         // Create roles
-        $superRole = Role::create(['name' => 'super']);
         $adminRole = Role::create(['name' => 'admin']);
         $employeeRole = Role::create(['name' => 'employee']);
         $internRole = Role::create(['name' => 'intern']);
         $companyAdminRole = Role::create(['name' => 'company_admin']);
-        $companySupervisor = Role::create(['name' => 'company_supervisor']);
         $fullTimeRole = Role::create(['name' => 'full_time']);
         $partTimeRole = Role::create(['name' => 'part_time']);
         $dayShiftRole = Role::create(['name' => 'day_shift']);
@@ -29,6 +28,11 @@ class DatabaseSeeder extends Seeder
         $eveningShiftRole = Role::create(['name' => 'evening_shift']);
         $earlyShiftRole = Role::create(['name' => 'early_shift']);
         $nightShiftRole = Role::create(['name' => 'night_shift']);
+
+        // Define arrays for roles and shifts
+        $employmentTypeRoles = [$fullTimeRole, $partTimeRole];
+        $shiftRoles = [$dayShiftRole, $afternoonShiftRole, $eveningShiftRole, $earlyShiftRole, $nightShiftRole];
+        $employeeRoles = [$employeeRole, $internRole];
 
         // Create admin user
         $admin = User::create([
@@ -77,7 +81,19 @@ class DatabaseSeeder extends Seeder
         // Attach company_id to company admin user
         $companyAdmin->update(['company_id' => $company->company_id]);
 
-        // Create dummy users
-        User::factory()->count(10)->create(['company_id' => $company->company_id]);
+        // Create dummy users and assign roles
+        User::factory()->count(10)->create(['company_id' => $company->company_id])->each(function ($user) use ($employmentTypeRoles, $shiftRoles, $employeeRoles) {
+            // Randomly assign either 'full_time' or 'part_time'
+            $employmentTypeRoles = Arr::random($employmentTypeRoles);
+            $user->assignRole($employmentTypeRoles);
+
+            // Randomly assign one of the shift roles
+            $shiftRole = Arr::random($shiftRoles);
+            $user->assignRole($shiftRole);
+
+            // Randomly assign one of the employee roles
+            $employeeRole = Arr::random($employeeRoles);
+            $user->assignRole($employeeRole);
+        });
     }
 }
