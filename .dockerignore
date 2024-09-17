@@ -1,0 +1,26 @@
+# Ignore node_modules
+node_modules
+
+# Ignore .env files
+.env
+.env.local
+
+# Ignore storage and cache directories
+storage/*
+!storage/app/public
+!storage/framework/sessions
+!storage/framework/views
+!storage/framework/cache
+
+# Ignore logs
+storage/logs
+
+# Ignore IDE/editor folders
+.idea
+.vscode
+
+# Ignore temporary files
+tmp
+
+# Ignore build artifacts
+public/storage
