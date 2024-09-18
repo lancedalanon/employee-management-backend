@@ -10,36 +10,8 @@ services:
       - ./:/var/www/html
     networks:
       - laravel
-    depends_on:
-      - db
-
-  db:
-    image: mysql:8.0
-    container_name: mysql
-    restart: unless-stopped
-    volumes:
-      - mysql_data:/var/lib/mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword 
-      MYSQL_DATABASE: employee_management 
-      MYSQL_USER: user                    
-      MYSQL_PASSWORD: password           
-    networks:
-      - laravel
     ports:
-      - "3306:3306" 
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin
-    restart: unless-stopped
-    environment:
-      PMA_HOST: db
-      MYSQL_ROOT_PASSWORD: rootpassword
-    ports:
-      - "8080:80"
-    networks:
-      - laravel
+      - "9000:9000"
 
   nginx:
     image: nginx:alpine
@@ -52,12 +24,7 @@ services:
       - "80:80"
     networks:
       - laravel
-    depends_on:
-      - app
-
-volumes:
-  mysql_data:
 
 networks:
-  laravel: 
+  laravel:
     driver: bridge
