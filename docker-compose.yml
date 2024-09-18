@@ -12,6 +12,7 @@ services:
       - laravel
     ports:
       - "9000:9000"
+    entrypoint: ["sh", "-c", "cron && php-fpm"]
 
   nginx:
     image: nginx:alpine

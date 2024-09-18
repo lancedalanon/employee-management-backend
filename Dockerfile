@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libpq-dev \
     nginx \
+    cron \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
@@ -36,14 +37,16 @@ RUN chown -R www-data:www-data /var/www/html
 # Copy the default Nginx configuration file
 COPY ./default.conf /etc/nginx/conf.d/default.conf
 
-# Expose port 80
-EXPOSE 80
-
-# Run Composer to install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
+# Copy the cron job file
+COPY ./cronjobs /etc/cron.d/laravel-cron
+RUN chmod 0644 /etc/cron.d/laravel-cron
+RUN crontab /etc/cron.d/laravel-cron
 
 # Create the storage link
 RUN php artisan storage:link
 
-# Start the Nginx and PHP services
-CMD ["sh", "-c", "service nginx start && php-fpm"]
+# Expose port 80
+EXPOSE 80
+
+# Start Nginx and PHP services
+CMD ["sh", "-c", "service nginx start && php-fpm && cron -f"]

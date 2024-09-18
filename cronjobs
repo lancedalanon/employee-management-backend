@@ -1,0 +1,1 @@
+*/14 * * * * cd /var/www/html && php artisan server:keep-awake >> /var/log/cron/cron.log 2>&1
