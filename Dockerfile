@@ -28,11 +28,21 @@ RUN docker-php-ext-install pdo_pgsql mbstring zip exif pcntl opcache
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+# Install global Composer package
+RUN composer global require hirak/prestissimo
+
 # Copy existing application directory contents
 COPY . /var/www/html
 
 # Give permissions to the application
 RUN chown -R www-data:www-data /var/www/html
+
+# Install project dependencies
+RUN composer install --no-dev
+
+# Cache Laravel configuration and routes
+RUN php artisan config:cache && \
+    php artisan route:cache
 
 # Copy the default Nginx configuration file
 COPY ./default.conf /etc/nginx/conf.d/default.conf
