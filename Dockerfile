@@ -1,13 +1,10 @@
 FROM php:8.2-fpm
 
-# Install dependencies for building PHP extensions
+# Install dependencies for building PHP extensions and Nginx
 RUN apt-get update && apt-get install -y \
+    nginx \
     libpq-dev \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Nginx
-RUN apt-get update && apt-get install -y nginx \
+    libonig-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
