@@ -1,8 +1,11 @@
 FROM php:8.2-fpm
 
-# Install Nginx and necessary PHP extensions
+# Install Nginx and necessary PHP extensions for PostgreSQL
 RUN apt-get update && apt-get install -y nginx \
-    && docker-php-ext-install pdo pdo_pgsql mbstring
+    && apt-get install -y libpq-dev \
+    && docker-php-ext-install pdo pdo_pgsql mbstring \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY . .
 
