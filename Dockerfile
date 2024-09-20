@@ -1,15 +1,4 @@
-FROM php:8.2-fpm
-
-# Install dependencies for building PHP extensions and Nginx
-RUN apt-get update && apt-get install -y \
-    nginx \
-    libpq-dev \
-    libonig-dev \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install necessary PHP extensions
-RUN docker-php-ext-install pdo pdo_pgsql mbstring
+FROM richarvey/nginx-php-fpm:3.1.6
 
 COPY . .
 
