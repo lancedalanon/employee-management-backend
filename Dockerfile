@@ -17,10 +17,11 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
-    nginx
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo_pgsql mbstring zip exif pcntl opcache
+RUN docker-php-ext-install pdo_pgsql pdo_mysql mbstring zip exif pcntl opcache
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -31,23 +32,8 @@ COPY . /var/www/html
 # Give permissions to the application
 RUN chown -R www-data:www-data /var/www/html
 
-# Install project dependencies
-RUN composer install --no-dev
-
-# Cache Laravel configuration and routes
-RUN php artisan config:cache && \
-    php artisan route:cache
-
 # Copy the default Nginx configuration file
-COPY ./default.conf /etc/nginx/conf.d/default.conf
-
-# Copy the cron job file
-COPY ./cronjobs /etc/cron.d/laravel-cron
-RUN chmod 0644 /etc/cron.d/laravel-cron
-RUN crontab /etc/cron.d/laravel-cron
-
-# Create the storage link
-RUN php artisan storage:link
+COPY ./nginx.conf /etc/nginx/conf.d/nginx.conf
 
 # Expose port 80
 EXPOSE 80
@@ -58,5 +44,5 @@ RUN composer install --no-dev --optimize-autoloader
 # Create the storage link
 RUN php artisan storage:link
 
-# Start the Nginx and PHP services
-CMD service nginx start && php-fpm
+# Start the PHP-FPM service
+CMD ["php-fpm"]
