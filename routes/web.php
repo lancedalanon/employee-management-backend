@@ -3,5 +3,6 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return response()->json(['status' => 'alive'], 200);
+    return response('Employee Management System API', 200)
+        ->header('Content-Type', 'text/plain');
 });
