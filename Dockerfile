@@ -1,11 +1,6 @@
 FROM richarvey/nginx-php-fpm:3.1.6
 
-# Copy composer files first for better caching
-COPY composer.json composer.lock /var/www/html/
-RUN composer install --no-dev --optimize-autoloader
-
-# Copy the rest of the application code
-COPY . /var/www/html
+COPY . .
 
 # Image config
 ENV SKIP_COMPOSER 1
@@ -21,8 +16,5 @@ ENV LOG_CHANNEL stderr
 
 # Allow composer to run as root
 ENV COMPOSER_ALLOW_SUPERUSER 1
-
-# Health check
-HEALTHCHECK CMD curl --fail http://localhost/ || exit 1
 
 CMD ["/start.sh"]
