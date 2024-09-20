@@ -7,3 +7,6 @@ php artisan config:cache
 
 echo "Caching routes..."
 php artisan route:cache
+
+echo "Caching routes..."
+php artisan storage:link
