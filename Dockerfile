@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     git \
     nginx \
     libpq-dev \
+    libcurl4-openssl-dev \ 
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
         gd \
