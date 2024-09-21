@@ -1,49 +1,20 @@
-# Use the official PHP image with the required version
-FROM php:8.2-fpm
+FROM richarvey/nginx-php-fpm:latest
 
-# Set working directory
-WORKDIR /var/www
-
-# Install system dependencies and PHP extensions
-RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libzip-dev \
-    unzip \
-    git \
-    nginx \
-    libpq-dev \         
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd zip pdo pdo_mysql pdo_pgsql
-
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Copy the Laravel application files
 COPY . .
 
-# Install Laravel application dependencies
-RUN composer install --optimize-autoloader --no-dev
+# Image config
+ENV SKIP_COMPOSER 1
+ENV WEBROOT /var/www/html/public
+ENV PHP_ERRORS_STDERR 1
+ENV RUN_SCRIPTS 1
+ENV REAL_IP_HEADER 1
 
-# Set proper permissions for the application directory
-RUN chown -R www-data:www-data /var/www && \
-    chmod -R 775 /var/www/storage && \
-    chmod -R 775 /var/www/bootstrap/cache && \
-    find /var/www/storage -type f -exec chmod 664 {} \; && \
-    find /var/www/storage -type d -exec chmod 775 {} \; && \
-    find /var/www/bootstrap/cache -type f -exec chmod 664 {} \; && \
-    find /var/www/bootstrap/cache -type d -exec chmod 775 {} \;
+# Laravel config
+ENV APP_ENV production
+ENV APP_DEBUG false
+ENV LOG_CHANNEL stderr
 
-# Run Artisan commands
-RUN php artisan optimize:clear && \
-    php artisan storage:link
+# Allow composer to run as root
+ENV COMPOSER_ALLOW_SUPERUSER 1
 
-# Copy Nginx configuration file from the main directory
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
-
-# Expose the port the app runs on
-EXPOSE 80
-
-# Start the PHP-FPM and Nginx services
-CMD service nginx start && php-fpm
+CMD ["/start.sh"]
