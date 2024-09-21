@@ -26,9 +26,9 @@ COPY . .
 # Install Laravel application dependencies
 RUN composer install --optimize-autoloader --no-dev
 
-# Set proper permissions for the storage directory
-RUN chown -R www-data:www-data storage && \
-    chmod -R 775 storage
+# Set proper permissions for the application directory
+RUN chown -R www-data:www-data /var/www && \
+    chmod -R 775 /var/www/storage
 
 # Run Artisan commands
 RUN php artisan optimize:clear && \
