@@ -1,63 +1,43 @@
-# Stage 1: Build the PHP application
-FROM php:8.2-fpm-alpine AS build
+# Use the official PHP image with the required version
+FROM php:8.2-fpm
 
-WORKDIR /var/www/html
+# Set working directory
+WORKDIR /var/www
 
-# Install system dependencies
-RUN apk --no-cache add \
-    curl \
-    git \
+# Install system dependencies and PHP extensions
+RUN apt-get update && apt-get install -y \
     libpng-dev \
-    libjpeg-turbo-dev \
-    libwebp-dev \
-    libpq-dev \
-    libxml2-dev \
-    bash \
-    shadow \
-    oniguruma-dev \
-    autoconf \
-    build-base \
-    postgresql-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
     libzip-dev \
-    supervisor
-
-# Install PHP extensions for Laravel & PostgreSQL
-RUN docker-php-ext-install pdo pdo_pgsql pgsql mbstring zip gd pcntl xml
+    unzip \
+    git \
+    nginx \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd zip pdo pdo_mysql pdo_pgsql
 
 # Install Composer
-COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy application files
-COPY . /var/www/html
+# Copy the Laravel application files
+COPY . .
 
-# Install Laravel dependencies using Composer
-RUN composer install --no-dev --optimize-autoloader
+# Install Laravel application dependencies
+RUN composer install --optimize-autoloader --no-dev
 
-# Stage 2: Final Nginx + PHP-FPM with supervisord
-FROM nginx:alpine AS production
+# Set proper permissions for the storage directory
+RUN chown -R www-data:www-data storage && \
+    chmod -R 775 storage
 
-WORKDIR /var/www/html
+# Run Artisan commands
+RUN php artisan optimize:clear && \
+    php artisan storage:link
 
-# Install supervisor
-RUN apk add --no-cache supervisor
+# Copy Nginx configuration file from the main directory
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
-# Create the www-data user and group if they do not exist
-RUN if ! getent group www-data; then addgroup -S www-data; fi && \
-    if ! getent passwd www-data; then adduser -S www-data -G www-data; fi
-
-# Copy built PHP application from the previous stage
-COPY --from=build /var/www/html /var/www/html
-
-# Copy custom configuration files from the root directory
-COPY ./nginx.conf /etc/nginx/nginx.conf             
-COPY ./www.conf /usr/local/etc/php-fpm.d/www.conf   
-COPY ./supervisord.conf /etc/supervisord.conf       
-
-# Set correct permissions for the application files
-RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
-
-# Expose port 80
+# Expose the port the app runs on
 EXPOSE 80
 
-# Start supervisord to manage both services
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+# Start the PHP-FPM and Nginx services
+CMD service nginx start && php-fpm
