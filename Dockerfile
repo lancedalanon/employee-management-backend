@@ -13,9 +13,29 @@ RUN apt-get update && apt-get install -y \
     unzip \
     git \
     nginx \
-    libpq-dev \         
+    libpq-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd zip pdo pdo_mysql pdo_pgsql
+    && docker-php-ext-install \
+        gd \
+        zip \
+        pdo \
+        pdo_mysql \
+        pdo_pgsql \
+        mysqli \
+        opcache \
+        bcmath \
+        ctype \
+        curl \
+        dom \
+        fileinfo \
+        filter \
+        hash \
+        mbstring \
+        openssl \
+        pcre \
+        session \
+        tokenizer \
+        xml
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -23,12 +43,17 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy the Laravel application files
 COPY . .
 
-# Install Laravel application dependencies
-RUN composer install --optimize-autoloader --no-dev
-
 # Set proper permissions for the application directory
 RUN chown -R www-data:www-data /var/www && \
-    chmod -R 775 /var/www/storage
+    chmod -R 775 /var/www/storage && \
+    chmod -R 775 /var/www/bootstrap/cache && \
+    find /var/www/storage -type f -exec chmod 664 {} \; && \
+    find /var/www/storage -type d -exec chmod 775 {} \; && \
+    find /var/www/bootstrap/cache -type f -exec chmod 664 {} \; && \
+    find /var/www/bootstrap/cache -type d -exec chmod 775 {} \;
+
+# Install Laravel application dependencies
+RUN composer install --optimize-autoloader --no-dev
 
 # Run Artisan commands
 RUN php artisan optimize:clear && \
