@@ -14,7 +14,8 @@ RUN apt-get update && apt-get install -y \
     git \
     nginx \
     libpq-dev \
-    libcurl4-openssl-dev \ 
+    libcurl4-openssl-dev \
+    pkg-config \  
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
         gd \
@@ -25,18 +26,18 @@ RUN apt-get update && apt-get install -y \
         mysqli \
         opcache \
         bcmath \
-        ctype \
-        curl \
-        dom \
-        fileinfo \
-        filter \
-        hash \
-        mbstring \
-        openssl \
-        pcre \
-        session \
-        tokenizer \
-        xml
+        ctype \          
+        curl \           
+        dom \            
+        fileinfo \       
+        filter \         
+        hash \           
+        mbstring \       
+        openssl \        
+        pcre \           
+        session \        
+        tokenizer \      
+        xml              
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
