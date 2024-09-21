@@ -38,9 +38,12 @@ FROM nginx:alpine AS production
 
 WORKDIR /var/www/html
 
-# Install supervisor and create www-data user
-RUN apk add --no-cache supervisor && \
-    addgroup -S www-data && adduser -S www-data -G www-data
+# Install supervisor
+RUN apk add --no-cache supervisor
+
+# Create the www-data user and group if they do not exist
+RUN if ! getent group www-data; then addgroup -S www-data; fi && \
+    if ! getent passwd www-data; then adduser -S www-data -G www-data; fi
 
 # Copy built PHP application from the previous stage
 COPY --from=build /var/www/html /var/www/html
