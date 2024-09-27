@@ -9,6 +9,7 @@
         "laravel/framework": "^11.9",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
+        "league/flysystem-aws-s3-v3": "^3.28",
         "phpmailer/phpmailer": "^6.9",
         "spatie/laravel-csp": "^2.10",
         "spatie/laravel-permission": "^6.7",

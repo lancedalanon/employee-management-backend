@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\v1\CompanyAdmin\AttendanceController;
+use App\Http\Controllers\v1\CompanyAdmin\CompanyController;
 use App\Http\Controllers\v1\CompanyAdmin\ProjectCompletionController;
 use App\Http\Controllers\v1\CompanyAdmin\ProjectController;
 use App\Http\Controllers\v1\CompanyAdmin\ProjectUserController;
@@ -40,6 +41,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('project-completions')->name('projectCompletions.')->group(function () {
             Route::get('/', [ProjectCompletionController::class, 'index'])->name('index');
             Route::get('{userId}', [ProjectCompletionController::class, 'show'])->name('show');
+        });
+
+        // Company routes
+        Route::prefix('companies')->name('companies.')->group(function () {
+            Route::get('/', [CompanyController::class, 'show'])->name('show');
+            Route::put('/information', [CompanyController::class, 'updateCompanyInformation'])->name('updateCompanyInformation');
+            Route::put('/schedule', [CompanyController::class, 'updateCompanySchedule'])->name('updateCompanySchedule');
+            Route::put('/deactivate', [CompanyController::class, 'deactivateCompany'])->name('deactivateCompany');
         });
     });
 });

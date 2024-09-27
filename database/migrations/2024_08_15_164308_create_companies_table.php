@@ -28,10 +28,10 @@ return new class extends Migration
             $table->string('company_industry')->nullable();
             $table->date('company_founded_at')->nullable();
             $table->text('company_description')->nullable();
-            $table->timestamp('company_full_time_start_time')->nullable();
-            $table->timestamp('company_full_time_end_time')->nullable();            
-            $table->timestamp('company_part_time_start_time')->nullable();
-            $table->timestamp('company_part_time_end_time')->nullable();
+            $table->time('company_full_time_start_time')->nullable();
+            $table->time('company_full_time_end_time')->nullable();            
+            $table->time('company_part_time_start_time')->nullable();
+            $table->time('company_part_time_end_time')->nullable();
             $table->timestamp('deactivated_at')->nullable();
             $table->timestamps();
 
