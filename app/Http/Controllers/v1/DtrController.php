@@ -38,22 +38,22 @@ class DtrController extends Controller
         return $this->dtrService->getDtrById($this->user, $dtrId);
     }
 
-    public function storeTimeIn(StoreTimeInRequest $request, Company $company): JsonResponse
+    public function storeTimeIn(StoreTimeInRequest $request): JsonResponse
     {
         // Get validated data
         $validatedData = $request->validated();
 
         // Handle DTR time-in image file upload
-        return $this->dtrService->createTimeIn($this->user, $company, $validatedData);
+        return $this->dtrService->createTimeIn($this->user, $validatedData);
     }
 
-    public function storeTimeOut(StoreTimeOutRequest $request, Company $company): JsonResponse
+    public function storeTimeOut(StoreTimeOutRequest $request): JsonResponse
     {
         // Get validated data
         $validatedData = $request->validated();
 
         // Handle DTR time-out image file upload
-        return $this->dtrService->createTimeOut($this->user, $company, $validatedData);
+        return $this->dtrService->createTimeOut($this->user, $validatedData);
     }
 
     public function storeBreak(): JsonResponse

@@ -12,7 +12,7 @@ class EvaluateScheduleService
     protected ?string $employmentType = null;
     protected ?string $shiftType = null;
 
-    public function evaluateSchedule(Authenticatable $user, Company $company)
+    public function evaluateSchedule(Authenticatable $user)
     {
         // Check and set employment type and shift type
         $this->checkEmploymentType($user);
@@ -24,8 +24,8 @@ class EvaluateScheduleService
         }
     
         // Load the DTR settings based on the company's configuration or default schedules
-        $companyDtrSchedulesExist = ($company->company_full_time_start_time && $company->company_full_time_end_time)
-                                    && ($company->company_part_time_start_time && $company->company_part_time_end_time);
+        $companyDtrSchedulesExist = ($user->company->company_full_time_start_time && $user->company->company_full_time_end_time)
+                                    || ($user->company->company_part_time_start_time && $user->company->company_part_time_end_time);
         
         if (!$companyDtrSchedulesExist) {
             // Use the default schedule from the config
@@ -45,11 +45,11 @@ class EvaluateScheduleService
         } else {
             // Use custom shift schedules from company settings based on employment type
             if ($this->employmentType === 'full_time') {
-                $startTime = Carbon::parse($company->company_full_time_start_time);
-                $endTime = Carbon::parse($company->company_full_time_end_time);
+                $startTime = Carbon::parse($user->company->company_full_time_start_time);
+                $endTime = Carbon::parse($user->company->company_full_time_end_time);
             } else {
-                $startTime = Carbon::parse($company->company_part_time_start_time);
-                $endTime = Carbon::parse($company->company_part_time_end_time);
+                $startTime = Carbon::parse($user->company->company_part_time_start_time);
+                $endTime = Carbon::parse($user->company->company_part_time_end_time);
             }
 
             // Check if start and end times are valid
@@ -79,7 +79,7 @@ class EvaluateScheduleService
         return $nowString >= $startTimeWithGraceString && $nowString <= $endTimeWithGraceString;
     }    
 
-    public function isTimeOutLate(Authenticatable $user, Carbon $timeIn, Company $company): bool
+    public function isTimeOutLate(Authenticatable $user, Carbon $timeIn): bool
     {
         // Check and set employment type and shift type
         $this->checkEmploymentType($user);
@@ -91,8 +91,8 @@ class EvaluateScheduleService
         }
 
         // Load the DTR settings based on the company's configuration or default schedules
-        $companyDtrSchedulesExist = ($company->company_full_time_start_time && $company->company_full_time_end_time)
-                                    && ($company->company_part_time_start_time && $company->company_part_time_end_time);
+        $companyDtrSchedulesExist = ($user->company->company_full_time_start_time && $user->company->company_full_time_end_time)
+                                    || ($user->company->company_part_time_start_time && $user->company->company_part_time_end_time);
         
         if (!$companyDtrSchedulesExist) {
             // Use the default schedule from the config
@@ -112,11 +112,11 @@ class EvaluateScheduleService
         } else {
             // Use custom shift schedules from company settings based on employment type
             if ($this->employmentType === 'full_time') {
-                $startTime = Carbon::parse($company->company_full_time_start_time);
-                $endTime = Carbon::parse($company->company_full_time_end_time);
+                $startTime = Carbon::parse($user->company->company_full_time_start_time);
+                $endTime = Carbon::parse($user->company->company_full_time_end_time);
             } else {
-                $startTime = Carbon::parse($company->company_part_time_start_time);
-                $endTime = Carbon::parse($company->company_part_time_end_time);
+                $startTime = Carbon::parse($user->company->company_part_time_start_time);
+                $endTime = Carbon::parse($user->company->company_part_time_end_time);
             }
 
             // Check if start and end times are valid
