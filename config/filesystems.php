@@ -24,7 +24,7 @@ return [
     | may even configure multiple disks for the same driver. Examples for
     | most supported storage drivers are configured here for reference.
     |
-    | Supported Drivers: "local", "ftp", "sftp", "s3", "supabase"
+    | Supported Drivers: "local", "ftp", "sftp", "s3"
     |
     */
 
@@ -54,16 +54,6 @@ return [
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => false,
-        ],
-
-        'supabase' => [
-            'driver' => 's3',
-            'key'    => env('SUPABASE_ACCESS_KEY_ID'),
-            'secret' => env('SUPABASE_SECRET_ACCESS_KEY'),
-            'region' => env('SUPABASE_REGION'), 
-            'bucket' => env('SUPABASE_BUCKET_NAME'),
-            'endpoint' => env('SUPABASE_ENDPOINT'),
-            'use_path_style_endpoint' => true,  
         ],
 
     ],

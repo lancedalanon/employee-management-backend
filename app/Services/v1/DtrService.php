@@ -61,7 +61,10 @@ class DtrService
     public function getDtrById(Authenticatable $user, int $dtrId): JsonResponse
     {
         // Retrieve the DTR record for the given ID and check if it exists
-        $dtr = Dtr::select('dtr_id', 'dtr_time_in', 'dtr_time_out', 'dtr_end_of_the_day_report', 'dtr_is_overtime')
+        $dtr = Dtr::select('dtr_id', 'dtr_time_in', 'dtr_time_out', 
+                            'dtr_end_of_the_day_report', 'dtr_is_overtime',
+                            'dtr_time_in_image', 'dtr_time_out_image', 'dtr_reason_of_late_entry',
+                            'dtr_end_of_the_day_report', 'dtr_is_overtime')
                 ->where('user_id', $user->user_id)
                 ->where('dtr_id', $dtrId)
                 ->whereNull(['dtr_absence_date', 'dtr_absence_reason'])
@@ -70,6 +73,15 @@ class DtrService
         // Handle DTR record not found
         if (!$dtr) {
             return response()->json(['message' => 'DTR record not found.'], 404);
+        }
+
+        // Generate URLs for images if they exist
+        if ($dtr->dtr_time_in_image) {
+            $responseData['dtr_time_in_image_url'] = Storage::url($dtr->dtr_time_in_image);
+        }
+
+        if ($dtr->dtr_time_out_image) {
+            $responseData['dtr_time_out_image_url'] = Storage::url($dtr->dtr_time_out_image);
         }
 
         // Return the response as JSON with a 200 status code
@@ -108,14 +120,20 @@ class DtrService
                 return response()->json(['message' => 'Time in failed. You currently have an open time in session.'], 400);
             }
 
-            // Handle time in image file upload
-            $dtrTimeInFilePath = $imageFile->store('dtr_time_in_images');
+            // Create unique file name for the image file
+            $fileName = 'dtr_time_in_images/' . uniqid() . '.' . $imageFile->getClientOriginalExtension();
+
+            // Store the image file using Storage::put (works across different storage disks like S3, local)
+            $dtrTimeInFilePath = Storage::put($fileName, file_get_contents($imageFile));
+
+            // Generate the URL to the stored image file
+            $imageUrl = Storage::url($fileName);
 
             // Create a new DTR record with the time in and the uploaded image path
             Dtr::create([
                 'user_id' => $user->user_id,
                 'dtr_time_in' => Carbon::now(),
-                'dtr_time_in_image' => $dtrTimeInFilePath,
+                'dtr_time_in_image' => $imageUrl,
             ]);
 
             return response()->json(['message' => 'Timed in successfully.'], 201);
@@ -145,7 +163,7 @@ class DtrService
     
         // Handle end-of-the-day report
         $dtrEndOfTheDayReport = $validatedData['dtr_end_of_the_day_report'];
-    
+
         try {
             // Retrieve the most recent DTR record with a time-in and eager load breaks
             $dtrTimeIn = Dtr::with(['breaks' => function ($query) {
@@ -176,20 +194,28 @@ class DtrService
             if ($this->evaluateScheduleService->isTimeOutLate($user, $dtrTimeInTime)) {
                 return response()->json(['message' => 'Failed to time out. The time-out is too late. Please use the late entry clearance option.'], 409);
             }
-    
-            // Handle DTR time-out image file upload
-            $dtrTimeOutFilePath = $dtrTimeOutImage->store('dtr_time_out_images');
-    
+
+            // Create a unique file name for the time-out image
+            $dtrTimeOutFileName = 'dtr_time_out_images/' . uniqid() . '.' . $dtrTimeOutImage->getClientOriginalExtension();
+
+            // Store the image file using Storage::put (works across different storage disks like S3, local)
+            $dtrTimeOutFilePath = Storage::put($dtrTimeOutFileName, file_get_contents($dtrTimeOutImage));
+
+            // Generate the URL to the stored image file
+            $dtrTimeOutFileNameUrl = Storage::url($dtrTimeOutFileName);
+
             // Handle end-of-the-day report images
             foreach ($endOfTheDayReportImages as $file) {
-                $path = $file->store('end_of_the_day_report_images');
-                $endOfTheDayReportImagePaths[] = $path;
+                $endOfTheDayReportFileName = 'end_of_the_day_report_images/' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $path = Storage::put($endOfTheDayReportFileName, file_get_contents($file));
+                $endOfTheDayReportImagesUrl = Storage::url($endOfTheDayReportFileName);
+                $endOfTheDayReportImagePaths[] = $endOfTheDayReportImagesUrl;
             }
     
             // Update the DTR record with time-out details
             $dtrTimeIn->update([
                 'dtr_time_out' => Carbon::now(),
-                'dtr_time_out_image' => $dtrTimeOutFilePath,
+                'dtr_time_out_image' => $dtrTimeOutFileNameUrl,
                 'dtr_end_of_the_day_report' => $dtrEndOfTheDayReport,
             ]);
     
@@ -312,15 +338,6 @@ class DtrService
         $dtrReasonOfLateEntry = $validatedData['dtr_reason_of_late_entry'];
 
         try {
-            // Handle DTR time out image file upload
-            $dtrTimeOutFilePath = $dtrTimeOutImage->store('dtr_time_out_images');
-
-            // Handle end of the day report images
-            foreach ($endOfTheDayReportImages as $file) {
-                $path = $file->store('end_of_the_day_report_images');
-                $endOfTheDayReportImagePaths[] = $path;
-            }
-
             // Retrieve the most recent DTR record with a time-in and eager load breaks
             $dtrTimeIn = Dtr::with(['breaks' => function ($query) {
                             $query->whereNull('dtr_break_resume_time');
@@ -351,15 +368,32 @@ class DtrService
                 return response()->json(['message' => 'Time-out is not a late entry.'], 409);
             }
 
-            // Update the DTR record with time out details
+            // Create a unique file name for the time-out image
+            $dtrTimeOutFileName = 'dtr_time_out_images/' . uniqid() . '.' . $dtrTimeOutImage->getClientOriginalExtension();
+
+            // Store the image file using Storage::put (works across different storage disks like S3, local)
+            $dtrTimeOutFilePath = Storage::put($dtrTimeOutFileName, file_get_contents($dtrTimeOutImage));
+
+            // Generate the URL to the stored image file
+            $dtrTimeOutFileNameUrl = Storage::url($dtrTimeOutFileName);
+
+            // Handle end-of-the-day report images
+            foreach ($endOfTheDayReportImages as $file) {
+                $endOfTheDayReportFileName = 'end_of_the_day_report_images/' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $path = Storage::put($endOfTheDayReportFileName, file_get_contents($file));
+                $endOfTheDayReportImagesUrl = Storage::url($endOfTheDayReportFileName);
+                $endOfTheDayReportImagePaths[] = $endOfTheDayReportImagesUrl;
+            }
+    
+            // Update the DTR record with time-out details
             $dtrTimeIn->update([
                 'dtr_time_out' => Carbon::now(),
-                'dtr_time_out_image' => $dtrTimeOutFilePath,
+                'dtr_time_out_image' => $dtrTimeOutFileNameUrl,
                 'dtr_end_of_the_day_report' => $dtrEndOfTheDayReport,
                 'dtr_reason_of_late_entry' => $dtrReasonOfLateEntry,
             ]);
-
-            // Store end of the day report images
+    
+            // Store end-of-the-day report images
             foreach ($endOfTheDayReportImagePaths as $path) {
                 EndOfTheDayReportImage::create([
                     'dtr_id' => $dtrTimeIn->dtr_id,

@@ -16,8 +16,8 @@ return new class() extends Migration
             $table->unsignedBigInteger('user_id');
             $table->timestamp('dtr_time_in')->nullable();
             $table->timestamp('dtr_time_out')->nullable();
-            $table->binary('dtr_time_in_image')->nullable();
-            $table->binary('dtr_time_out_image')->nullable();
+            $table->string('dtr_time_in_image')->nullable();
+            $table->string('dtr_time_out_image')->nullable();
             $table->string('dtr_reason_of_late_entry')->nullable();
             $table->text('dtr_end_of_the_day_report')->nullable();
             $table->boolean('dtr_is_overtime')->default(0);

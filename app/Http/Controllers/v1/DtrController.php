@@ -68,12 +68,12 @@ class DtrController extends Controller
         return $this->dtrService->createResume($this->user);
     }    
 
-    public function updateTimeOut(UpdateTimeOut $request, Company $company): JsonResponse
+    public function updateTimeOut(UpdateTimeOut $request): JsonResponse
     {
         // Get validated data
         $validatedData = $request->validated();
 
         // Handle late DTR time-out with image file upload
-        return $this->dtrService->updateTimeOut($this->user, $company, $validatedData);
+        return $this->dtrService->updateTimeOut($this->user, $validatedData);
     } 
 }
