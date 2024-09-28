@@ -9,7 +9,7 @@ class EndOfTheDayReportImage extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'end_of_day_report_image_id';
+    protected $primaryKey = 'end_of_the_day_report_image_id';
 
     protected $fillable = [
         'dtr_id',
