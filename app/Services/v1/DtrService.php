@@ -144,7 +144,7 @@ class DtrService
             }
 
             // Return an error response
-            return response()->json(['message' => 'Failed to time in.'], 500);
+            return response()->json(['message' => 'Failed to time in.', 'error' => $e], 500);
         }
     }
 
@@ -245,7 +245,7 @@ class DtrService
                 Storage::delete($path);
             }
     
-            return response()->json(['message' => 'Failed to time out.'], 500);
+            return response()->json(['message' => 'Failed to time out.', 'error' => $e], 500);
         }
     }    
 
@@ -419,7 +419,7 @@ class DtrService
                 Storage::delete($path);
             }
 
-            return response()->json(['message' => 'Failed to time out.'], 500);
+            return response()->json(['message' => 'Failed to time out.', 'error' => $e], 500);
         }
     }
 }
