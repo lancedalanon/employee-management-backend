@@ -25,7 +25,7 @@ class EvaluateScheduleService
     
         // Load the DTR settings based on the company's configuration or default schedules
         $companyDtrSchedulesExist = ($user->company->company_full_time_start_time && $user->company->company_full_time_end_time)
-                                    || ($user->company->company_part_time_start_time && $user->company->company_part_time_end_time);
+                            || ($user->company->company_part_time_start_time && $user->company->company_part_time_end_time);
         
         if (!$companyDtrSchedulesExist) {
             // Use the default schedule from the config

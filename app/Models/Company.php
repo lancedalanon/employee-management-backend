@@ -34,9 +34,9 @@ class Company extends Model
         'deactivated_at',
     ];
 
-    public function user()
+    public function users()
     {
-        return $this->belongsTo(User::class, 'user_id', 'user_id');
+        return $this->hasMany(User::class, 'company_id', 'user_id');
     }
 
     public function invites()

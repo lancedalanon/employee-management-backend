@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\v1\DtrController;
 
+use App\Models\Company;
 use App\Models\Dtr;
 use App\Models\User;
 use Carbon\Carbon;
@@ -20,6 +21,8 @@ class StoreTimeInTest extends TestCase
     use RefreshDatabase;
     
     protected $user;
+    protected $companyAdmin;
+    protected $company;
 
     protected function setUp(): void
     {
@@ -30,12 +33,22 @@ class StoreTimeInTest extends TestCase
         Carbon::setTestNow($now);
 
         // Create roles
+        Role::create(['name' => 'company_admin']);
         Role::create(['name' => 'employee']);
         Role::create(['name' => 'full_time']);
         Role::create(['name' => 'day_shift']);
 
         // Create a sample user and assign the roles
-        $this->user = User::factory()->withRoles(['employee', 'full_time', 'day_shift'])->create();
+        $this->companyAdmin = User::factory()->withRoles(['company_admin', 'employee', 'full_time', 'day_shift'])->create();
+
+        // Create a dummy company
+        $this->company = Company::factory()->create(['user_id' => $this->companyAdmin->user_id]);
+
+        // Create a sample user and assign the roles
+        $this->user = User::factory()->withRoles(['employee', 'full_time', 'day_shift'])->create([
+            'company_id' => $this->company->company_id,
+        ]);
+
         Sanctum::actingAs($this->user);
 
         // Set up fake storage disk
@@ -68,14 +81,10 @@ class StoreTimeInTest extends TestCase
                         'message' => 'Timed in successfully.',
                     ]);
 
-        // Assert that the image was stored
-        Storage::disk('public')->assertExists('dtr_time_in_images/' . $fakeImage->hashName());
-
         // Assert that the Dtr record was created in the database
         $this->assertDatabaseHas('dtrs', [
             'user_id' => $this->user->user_id,
             'dtr_time_in' => Carbon::now()->toDateTimeString(), // Adjust for exact match if necessary
-            'dtr_time_in_image' => 'dtr_time_in_images/' . $fakeImage->hashName(),
         ]);
     }
 

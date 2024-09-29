@@ -41,6 +41,10 @@ class CompanyFactory extends Factory
             'company_industry' => $this->faker->word(),
             'company_founded_at' => $this->faker->date(),
             'company_description' => $this->faker->paragraph(),
+            'company_full_time_start_time' => null,
+            'company_part_time_end_time' => null,
+            'company_full_time_start_time' => null,
+            'company_part_time_end_time' => null,
             'deactivated_at' => null,
         ];
     }

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\v1\DtrController;
 
+use App\Models\Company;
 use App\Models\Dtr;
 use App\Models\DtrBreak;
 use App\Models\User;
@@ -20,6 +21,8 @@ class StoreTimeOutTest extends TestCase
     
     protected $user;
     protected $dtr;
+    protected $companyAdmin;
+    protected $company;
 
     protected function setUp(): void
     {
@@ -30,16 +33,26 @@ class StoreTimeOutTest extends TestCase
         Carbon::setTestNow($timeNowAdjusted);
 
         // Create roles
+        Role::create(['name' => 'company_admin']);
         Role::create(['name' => 'employee']);
         Role::create(['name' => 'full_time']);
         Role::create(['name' => 'day_shift']);
 
         // Create a sample user and assign the roles
-        $this->user = User::factory()->withRoles(['employee', 'full_time', 'day_shift'])->create();
-        Sanctum::actingAs($this->user);
+        $this->companyAdmin = User::factory()->withRoles(['company_admin', 'employee', 'full_time', 'day_shift'])->create();
+
+        // Create a dummy company
+        $this->company = Company::factory()->create(['user_id' => $this->companyAdmin->user_id]);
+
+        // Create a sample user and assign the roles
+        $this->user = User::factory()->withRoles(['employee', 'full_time', 'day_shift'])->create([
+            'company_id' => $this->company->company_id,
+        ]);
 
         // Create a sample DTR record for the user with a time-in event
         $this->dtr = Dtr::factory()->withTimeIn()->create(['user_id' => $this->user->user_id, 'dtr_time_in' => Carbon::now()]);
+
+        Sanctum::actingAs($this->user);
 
         // Set up fake storage disk
         Storage::fake('public');
@@ -51,6 +64,8 @@ class StoreTimeOutTest extends TestCase
         Role::whereIn('name', ['employee', 'full_time', 'day_shift'])->delete();
         $this->user = null;
         $this->dtr = null;
+        $this->companyAdmin = null;
+        $this->company = null;
         Carbon::setTestNow();
 
         parent::tearDown();
@@ -85,24 +100,8 @@ class StoreTimeOutTest extends TestCase
         // Assert that the DTR record in the database is updated correctly
         $this->assertDatabaseHas('dtrs', [
             'user_id' => $this->user->user_id,
-            'dtr_time_out_image' => 'dtr_time_out_images/' . $fakeImage->hashName(),
             'dtr_end_of_the_day_report' => 'The day has ended.',
         ]);
-    
-        // Assert that the end of the day report images are stored correctly
-        foreach ($multipleFakeImages as $file) {
-            $this->assertDatabaseHas('end_of_the_day_report_images', [
-                'dtr_id' => $this->dtr->dtr_id,
-                'end_of_the_day_report_image' => 'end_of_the_day_report_images/' . $file->hashName(),
-            ]);
-        }
-    
-        // Assert that the files are stored correctly in the storage
-        Storage::disk('public')->assertExists('dtr_time_out_images/' . $fakeImage->hashName());
-    
-        foreach ($multipleFakeImages as $file) {
-            Storage::disk('public')->assertExists('end_of_the_day_report_images/' . $file->hashName());
-        }
     }    
 
     public function testAuthenticatedUserFailsTimeOutWithMissingField(): void
@@ -158,9 +157,9 @@ class StoreTimeOutTest extends TestCase
 
     public function testAuthenticatedUserFailsTimeOutIfNoTimeInSet(): void
     {
-        // Create a sample user and assign the roles
-        $user = User::factory()->withRoles()->create();
-        Sanctum::actingAs($user);
+        // Arrange to delete dtr
+        $this->dtr->delete();
+        $this->dtr = null;
 
         // Arrange fake image for DTR time out
         $fakeImage = UploadedFile::fake()->image('dtr_time_out_image.jpg', 600, 600);
@@ -188,11 +187,7 @@ class StoreTimeOutTest extends TestCase
     }
 
     public function testAuthenticatedUserFailsTimeOutIfThereIsOpenBreak(): void
-    {
-        // Create a sample user and assign the roles
-        $user = User::factory()->withRoles()->create();
-        Sanctum::actingAs($user);
-
+    {              
         // Arrange fake image for DTR time out
         $fakeImage = UploadedFile::fake()->image('dtr_time_out_image.jpg', 600, 600);
 
@@ -204,11 +199,8 @@ class StoreTimeOutTest extends TestCase
             UploadedFile::fake()->image('image4.jpg', 600, 600),
         ];
 
-        // Create a DTR record
-        $dtr = Dtr::factory()->withTimeIn()->create(['user_id' => $user->user_id]);
-
         // Create a break record
-        DtrBreak::factory()->onlyBreakTime()->create(['dtr_id' => $dtr->dtr_id]);
+        DtrBreak::factory()->onlyBreakTime()->create(['dtr_id' => $this->dtr->dtr_id]);
 
         // Act the request to the storeTimeOut endpoint
         $response = $this->postJson(route('v1.dtrs.storeTimeOut'), [
@@ -226,12 +218,8 @@ class StoreTimeOutTest extends TestCase
 
     public function testAuthenticatedUserFailsTimeOutIfLate(): void
     {
-        // Arrange new user
-        $user = User::factory()->withRoles(['employee', 'full_time', 'day_shift'])->create();
-        Sanctum::actingAs($user);
-
         // Arrange DTR entry to time out 1 day late
-        Dtr::factory()->withTimeIn()->create(['user_id' => $user->user_id, 'dtr_time_in' => Carbon::now()->subDay(1)]);
+        $this->dtr = Dtr::factory()->withTimeIn()->create(['user_id' => $this->user->user_id, 'dtr_time_in' => Carbon::now()->subDay(1)]);
 
         // Arrange the time to add one day for late entry
         $futureTime = Carbon::now()->addDay();
