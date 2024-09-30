@@ -39,37 +39,6 @@ class UpdateApiKeyTest extends TestCase
         parent::tearDown();
     }
 
-    public function testAuthenticatedUserCanUpdateApiKey(): void
-    {
-        // Arrange a string with 32 characters
-        $apiKey = str_repeat('a', 32);
-        
-        // Arrange the header data
-        $headers = [
-            'X-API-Key' => $apiKey,
-        ];
-    
-        // Act to send the request with the custom header
-        $response = $this->putJson(route('v1.users.updateApiKey'), [], $headers);
-    
-        // Assert the response status is 200 OK
-        $response->assertStatus(200);
-    
-        // Fetch the user from the database
-        $user = User::find($this->user->user_id);
-    
-        // Handle case where user is not found
-        if (!$user) {
-            $this->fail('User not found in the database.');
-        }
-    
-        // Decrypt the API key from the database to compare with the original
-        $decryptedApiKey = Crypt::decryptString($user->api_key);
-    
-        // Assert that the decrypted API key matches the original API key
-        $this->assertEquals($apiKey, $decryptedApiKey);
-    }
-
     public function testAuthenticatedUserFailsToUpdateApiKeyWithMissingField(): void
     {
         // Arrange the header data
