@@ -55,7 +55,7 @@ jobs:
           mkdir -p database
           touch database/database.sqlite
 
-      # Run Laravel migrations (optional but recommended)
+      # Run migrations (optional but recommended)
       - name: Run migrations
         env:
           DB_CONNECTION: sqlite
@@ -72,7 +72,7 @@ jobs:
       # Optionally upload test results for visibility (optional)
       - name: Upload test results (optional)
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3 # Updated to the latest version
         with:
           name: test-results
-          path: storage/test-results # Path where test results are saved
+          path: storage/test-results # Adjust this to the actual path where test results are saved
