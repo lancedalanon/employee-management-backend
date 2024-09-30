@@ -44,7 +44,7 @@ jobs:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
         run: |
-          php artisan test --env=testing --verbose --debug
+          php artisan test --env=testing --debug
 
       - name: Copy Laravel Logs
         run: cp storage/logs/laravel.log ./laravel.log || true
