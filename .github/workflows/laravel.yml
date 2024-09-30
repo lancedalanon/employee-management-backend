@@ -1,0 +1,78 @@
+name: Laravel CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Set up PHP
+      - name: Set up PHP with required extensions
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, sqlite3, dom, fileinfo # Include necessary PHP extensions
+          coverage: none # Disable code coverage if not needed
+
+      # Check out code
+      - uses: actions/checkout@v4
+
+      # Cache Composer dependencies to speed up future builds
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            composer-
+
+      # Install dependencies
+      - name: Install Composer dependencies
+        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      # Set up environment file
+      - name: Copy .env
+        run: cp .env.example .env
+
+      # Generate Laravel application key
+      - name: Generate application key
+        run: php artisan key:generate
+
+      # Set directory permissions
+      - name: Set directory permissions
+        run: chmod -R 777 storage bootstrap/cache
+
+      # Create SQLite database
+      - name: Create SQLite database
+        run: |
+          mkdir -p database
+          touch database/database.sqlite
+
+      # Run Laravel migrations (optional but recommended)
+      - name: Run migrations
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite
+        run: php artisan migrate --force
+
+      # Run PHPUnit or Pest tests
+      - name: Run tests
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite
+        run: php artisan test --no-interaction --env=testing
+
+      # Optionally upload test results for visibility (optional)
+      - name: Upload test results (optional)
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: storage/test-results # Path where test results are saved
