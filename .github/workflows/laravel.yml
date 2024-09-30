@@ -67,9 +67,9 @@ jobs:
         env:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
-        run: php artisan test --no-interaction --env=testing
+        run: php artisan test --env=testing
 
-      # Optionally upload test results for visibility (optional)
+      # Optionally upload test results for visibility (update path if necessary)
       - name: Upload test results (optional)
         if: always()
         uses: actions/upload-artifact@v3 # Updated to the latest version
