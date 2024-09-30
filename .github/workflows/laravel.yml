@@ -47,4 +47,9 @@ jobs:
           php artisan test --env=testing --debug
 
       - name: Copy Laravel Logs
-        run: cp storage/logs/laravel.log ./laravel.log || true
+        run: |
+          if [ -f storage/logs/laravel.log ]; then
+            cp storage/logs/laravel.log ./laravel.log
+          else
+            echo "Laravel log file does not exist."
+          fi
