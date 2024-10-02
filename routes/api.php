@@ -18,7 +18,6 @@ Route::get('/ping', function () {
 })->name('ping');
 
 Route::prefix('v1')->name('v1.')->namespace('Api\V1')->group(function () {
-    require __DIR__ . '/api/v1/admin.php';
     require __DIR__ . '/api/v1/company_admin.php';
     require __DIR__ . '/api/v1/user.php';
 });
