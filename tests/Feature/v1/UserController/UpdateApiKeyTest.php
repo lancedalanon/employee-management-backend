@@ -49,8 +49,6 @@ class UpdateApiKeyTest extends TestCase
         // Act to send the request with the custom form
         $response = $this->putJson(route('v1.users.updateApiKey'), $formData);
 
-        dd($response);
-
         // Assert the response status is 200
         $response->assertStatus(200)
                 ->assertJson(['message' => 'API key updated successfully.']);
