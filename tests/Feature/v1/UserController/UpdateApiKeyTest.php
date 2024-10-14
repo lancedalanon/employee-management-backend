@@ -39,6 +39,21 @@ class UpdateApiKeyTest extends TestCase
         parent::tearDown();
     }
 
+    public function testAuthenticatedUserCanUpdateApiKey(): void
+    {
+        // Arrange the header data
+        $headers = [
+            'X-API-Key' => 'INSERT_ANY_API_KEY_EXAMPLE_HERE_THAT_IS_32_CHARACTERS_OR_MORE',
+        ];
+    
+        // Act to send the request with the custom header
+        $response = $this->withHeaders($headers)->putJson(route('v1.users.updateApiKey'));
+    
+        // Assert the response status is 200
+        $response->assertStatus(200)
+                ->assertJson(['message' => 'API key updated successfully.']);
+    }
+
     public function testAuthenticatedUserFailsToUpdateApiKeyWithMissingField(): void
     {
         // Arrange the header data
