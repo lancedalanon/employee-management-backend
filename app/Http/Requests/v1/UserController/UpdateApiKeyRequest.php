@@ -26,7 +26,7 @@ class UpdateApiKeyRequest extends FormRequest
         ];
     }
 
-        /**
+    /**
      * Get custom error messages for validation.
      *
      * @return array
