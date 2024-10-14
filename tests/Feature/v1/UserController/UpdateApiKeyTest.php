@@ -41,13 +41,13 @@ class UpdateApiKeyTest extends TestCase
 
     public function testAuthenticatedUserCanUpdateApiKey(): void
     {
-        // Arrange the header data
-        $headers = [
-            'X-API-Key' => 'INSERT_ANY_API_KEY_EXAMPLE_HERE_THAT_IS_32_CHARACTERS_OR_MORE',
+        // Arrange the form data
+        $formData = [
+            'api_key' => 'INSERT_ANY_API_KEY_EXAMPLE_HERE_THAT_IS_32_CHARACTERS_OR_MORE',
         ];
     
-        // Act to send the request with the custom header
-        $response = $this->withHeaders($headers)->putJson(route('v1.users.updateApiKey'));
+        // Act to send the request with the custom form
+        $response = $this->putJson(route('v1.users.updateApiKey'), $formData);
     
         // Assert the response status is 200
         $response->assertStatus(200)
@@ -56,17 +56,17 @@ class UpdateApiKeyTest extends TestCase
 
     public function testAuthenticatedUserFailsToUpdateApiKeyWithMissingField(): void
     {
-        // Arrange the header data
-        $headers = [
-            'X-API-Key' => '',
+        // Arrange the form data
+        $formData = [
+            'api_key' => '',
         ];
     
-        // Act to send the request with the custom header
-        $response = $this->putJson(route('v1.users.updateApiKey'), [], $headers);
+        // Act to send the request with the custom form
+        $response = $this->putJson(route('v1.users.updateApiKey'), $formData);
     
-        // Assert the response status is 400
-        $response->assertStatus(400)
-                ->assertJson(['message' => 'API key is required.']);
+        // Assert the response status is 422
+        $response->assertStatus(422)
+                ->assertJsonValidationErrors(['api_key']);
     }
 
     public function testAuthenticatedUserFailsToUpdateApiKeyWithInvalidField(): void
@@ -74,16 +74,16 @@ class UpdateApiKeyTest extends TestCase
         // Arrange a string with 501 characters
         $apiKey = str_repeat('a', 501);
 
-        // Arrange the header data
-        $headers = [
-            'X-API-Key' => $apiKey,
+        // Arrange the form data
+        $formData = [
+            'api_key' => $apiKey,
         ];
-    
-        // Act to send the request with the custom header
-        $response = $this->putJson(route('v1.users.updateApiKey'), [], $headers);
+
+        // Act to send the request with the custom form
+        $response = $this->putJson(route('v1.users.updateApiKey'), $formData);
     
         // Assert the response status is 422
         $response->assertStatus(422)
-                ->assertJson(['message' => 'Invalid API key format.']);
+                ->assertJsonValidationErrors(['api_key']);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\v1\UserController\UpdateApiKeyRequest;
 use App\Http\Requests\v1\UserController\UpdateContactInformationRequest;
 use App\Http\Requests\v1\UserController\UpdatePasswordRequest;
 use App\Http\Requests\v1\UserController\UpdatePersonalInformationRequest;
@@ -146,20 +147,9 @@ class UserController extends Controller
         return response()->json($responseData, 200);
     }
 
-    public function updateApiKey(Request $request): JsonResponse
+    public function updateApiKey(UpdateApiKeyRequest $request): JsonResponse
     {
-        // Retrieve the API key from the X-API-Key header
-        $apiKey = $request->header('X-API-Key');
-
-        // Validate the presence of the API key
-        if (!$apiKey) {
-            return response()->json(['message' => 'API key is required.'], 400);
-        }
-
-        // Validate the API key validity
-        if (strlen($apiKey) < 32 || strlen($apiKey) > 500) {
-            return response()->json(['message' => 'Invalid API key format.'], 422);
-        }
+        $validatedData = $request->validated();
 
         // Retrieve the current user
         $user = User::where('user_id', $this->user->user_id)->first();
@@ -170,7 +160,7 @@ class UserController extends Controller
         }
 
         // Encrypt the API key before storing it
-        $encryptedApiKey = Crypt::encryptString($apiKey);
+        $encryptedApiKey = Crypt::encryptString($validatedData['api_key']);
 
         // Update the user's API key
         $user->api_key = $encryptedApiKey;
