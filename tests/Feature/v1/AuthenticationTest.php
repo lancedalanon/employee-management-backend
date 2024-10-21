@@ -106,8 +106,9 @@ class AuthenticationTest extends TestCase
                  ->assertJsonStructure([
                      'message',
                      'data' => [
-                         'token',
-                         'username',
+                        'user_id',
+                        'token',
+                        'roles',
                      ],
                  ]);
 
@@ -143,8 +144,9 @@ class AuthenticationTest extends TestCase
                  ->assertJsonStructure([
                      'message',
                      'data' => [
-                         'token',
-                         'username',
+                        'user_id',
+                        'token',
+                        'roles',
                      ],
                  ]);
 
@@ -180,8 +182,9 @@ class AuthenticationTest extends TestCase
                  ->assertJsonStructure([
                      'message',
                      'data' => [
-                         'token',
-                         'username',
+                        'user_id',
+                        'token',
+                        'roles',
                      ],
                  ]);
 

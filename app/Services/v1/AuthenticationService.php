@@ -23,8 +23,9 @@ class AuthenticationService
 
             // Prepare the success response data
             $success = [
+                'user_id' => $user->id,
                 'token' => $token,
-                'username' => $user->username,
+                'roles' => $user->getRoleNames(), 
             ];
 
             // Return a success response with HTTP status code 200
