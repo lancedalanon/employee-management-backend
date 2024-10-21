@@ -23,7 +23,7 @@ class AuthenticationService
 
             // Prepare the success response data
             $success = [
-                'user_id' => $user->id,
+                'user_id' => $user->user_id,
                 'token' => $token,
                 'roles' => $user->getRoleNames(), 
             ];

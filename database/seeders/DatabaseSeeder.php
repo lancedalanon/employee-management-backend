@@ -81,6 +81,27 @@ class DatabaseSeeder extends Seeder
         // Attach company_id to company admin user
         $companyAdmin->update(['company_id' => $company->company_id]);
 
+        // Create a sample company admin user and assign the roles
+        $companyUser = User::create([
+            'first_name' => 'Lance',
+            'last_name' => 'Dalanon',
+            'place_of_birth' => 'Santa Rosa, Laguna',
+            'date_of_birth' => '2002-05-18',
+            'gender' => 'Male',
+            'username' => 'user',
+            'email' => 'lanceorville5@gmail.com',
+            'recovery_email' => 'lanceorville01@gmail.com',
+            'emergency_contact_name' => 'Contact Person Name',
+            'emergency_contact_number' => '0921-888-8888',
+            'phone_number' => '0921-887-88887',
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'),
+        ]);
+
+        $companyUser->assignRole($employeeRole);
+        $companyUser->assignRole($fullTimeRole);
+        $companyUser->assignRole($dayShiftRole);
+
         // Create dummy users and assign roles
         User::factory()->count(10)->create(['company_id' => $company->company_id])->each(function ($user) use ($employmentTypeRoles, $shiftRoles, $employeeRoles) {
             // Randomly assign either 'full_time' or 'part_time'
