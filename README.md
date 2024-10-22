@@ -10,12 +10,25 @@ This is an API-only backend built with **Laravel 11** for managing employees. It
 - **API-Only**: Built as a RESTful API for easy integration with frontend clients.
 
 ## Table of Contents
-1. [Installation](#installation)
-2. [Docker Setup for Local Development](#docker-setup-for-local-development)
-3. [Hosting on Render](#hosting-on-render)
-4. [GitHub Actions CI/CD](#github-actions-cicd)
-5. [License](#license)
-6. [Contact](#contact)
+1. [Prerequisites](#prerequisites)
+2. [Installation](#installation)
+3. [Docker Setup for Local Development](#docker-setup-for-local-development)
+4. [Hosting on Render](#hosting-on-render)
+5. [GitHub Actions CI/CD](#github-actions-cicd)
+6. [License](#license)
+7. [Contact](#contact)
+
+## Prerequisites
+
+Before you begin, ensure you have met the following requirements:
+
+- **PHP 8.2** or higher
+- **Laravel 11**
+- **Composer** (for managing PHP dependencies)
+- **MySQL** or **PostgreSQL** (for database)
+- Optional: **Docker** (if you prefer containerized development)
+
+If you choose to use Docker, follow the Docker setup instructions. Otherwise, ensure you manually install all the required dependencies listed above.
 
 ## Installation
 
@@ -23,8 +36,8 @@ To install and run the project locally, follow these steps:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/lancedalanon/employee-management-system.git
-   cd employee-management-system
+   git clone https://github.com/lancedalanon/employee-management-backend.git
+   cd employee-management-backend
    ```
 
 2. **Install PHP dependencies**:
@@ -204,7 +217,7 @@ jobs:
       # Run tests
       - name: Run tests
         run: php artisan test --env=testing --debug
-
+```
 ## License
 
 This project is licensed under the **MIT License** - see the LICENSE file for details.
