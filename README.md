@@ -23,7 +23,7 @@ To install and run the project locally, follow these steps:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/employee-management-system.git
+   git clone https://github.com/lancedalanon/employee-management-system.git
    cd employee-management-system
    ```
 
@@ -135,13 +135,10 @@ You can host this Laravel project on **Render**, a popular platform-as-a-service
 
 ## GitHub Actions CI/CD
 
-This project includes a **`.yml`** file for GitHub Actions, which automates Continuous Integration and Deployment (CI/CD) workflows. Every time you push code to the repository, the following steps are executed:
-
-1. **Install Dependencies**: Composer installs Laravel and its dependencies.
-2. **Run Unit and Feature Tests**: PHPUnit tests are run to ensure the functionality of the system. This includes both unit and feature testing of the API.
-3. **Deployment to Render**: After successful testing, the application can be deployed to Render (if configured).
+This project includes a **GitHub Actions** workflow for Continuous Integration (CI) to automate testing whenever changes are pushed to the repository. The workflow is configured to run tests on the **main** branch and during pull requests.
 
 ### Example GitHub Actions Workflow (`.github/workflows/laravel.yml`)
+
 ```yaml
 name: Laravel CI
 
@@ -154,26 +151,59 @@ on:
       - main
 
 jobs:
-  test:
+  laravel-tests:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      # Checkout code
+      - uses: actions/checkout@v4
 
+      # Set up PHP
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
+          extensions: mbstring, sqlite3, dom, fileinfo
 
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-interaction --no-scripts --no-progress
+      # Cache Composer dependencies for faster builds
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-
 
+      # Install Composer dependencies
+      - name: Install Composer dependencies
+        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      # Set environment variables for testing
+      - name: Set environment variables
+        run: |
+          echo "APP_ENV=testing" >> $GITHUB_ENV
+          echo "DB_CONNECTION=sqlite" >> $GITHUB_ENV
+          echo "JWT_SECRET=your_jwt_secret" >> $GITHUB_ENV
+
+      # Copy .env.example and prepare the environment
+      - name: Copy .env
+        run: cp .env.example .env
+
+      # Generate APP_KEY (required for Crypt and other encrypted functions)
+      - name: Generate application key
+        run: php artisan key:generate
+
+      # Create SQLite database
+      - name: Prepare SQLite database
+        run: |
+          touch database/database.sqlite
+
+      # Run migrations for testing
       - name: Run migrations
-        run: php artisan migrate --env=testing
+        run: php artisan migrate --force
 
-      - name: Run Tests
-        run: php artisan test --env=testing
-```
+      # Run tests
+      - name: Run tests
+        run: php artisan test --env=testing --debug
 
 ## License
 
