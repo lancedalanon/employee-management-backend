@@ -89,30 +89,32 @@ class RegisterCompanyAdminTest extends TestCase
         // Arrange user data
         $userData = [
             // User information
-            'first_name' => 'User',
-            'last_name' => 'Last Name',
-            'place_of_birth' => 'Santa Rosa, Laguna',
+            'first_name' => 'USER',
+            'middle_name' => null,
+            'last_name' => 'LAST NAME',
+            'suffix' => null,
+            'place_of_birth' => 'SANTA ROSA, LAGUNA',
             'date_of_birth' => '2002-05-18',
             'gender' => 'Male',
-            'username' => 'user',
+            'username' => 'USER',
             'phone_number' => '0922-282-2828',
             'password' => 'password',
             'email' => 'user@example.com',
             'password_confirmation' => 'password',
 
             // Company information
-            'company_name' => 'The Tech Company',
+            'company_name' => 'THE TECH COMPANY',
             'company_registration_number' => '12312x12xx1',
             'company_tax_id' => 'x123x23x423x',
-            'company_address' => 'Blk. 13 Lot 24 Rosing Homes 1',
-            'company_city' => 'Santa Rosa',
-            'company_state' => 'Laguna',
+            'company_address' => 'BLK. 13 LOT 24 ROSING HOMES 1',
+            'company_city' => 'SANTA ROSA',
+            'company_state' => 'LAGUNA',
             'company_postal_code' => '4026',
-            'company_country' => 'Philippines',
+            'company_country' => 'PHILIPPINES',
             'company_phone_number' => '0921-272-2828',
             'company_email' => 'thetechcompany@example.com',
-            'company_website' => 'http://www.example.com',
-            'company_industry' => 'Information Technology',
+            'company_website' => 'https://www.example.com',
+            'company_industry' => 'INFORMATION TECHNOLOGY',
             'company_founded_at' => '2024-08-19',
             'company_description' => 'The company was founded with the intention of being the next leader in the world.',
         ];
@@ -121,7 +123,18 @@ class RegisterCompanyAdminTest extends TestCase
         $response = $this->postJson(route('v1.register.company-admin'), $userData);
 
         // Assert that the response is successful
-        $response->assertStatus(201);
+        $response->assertStatus(201)
+                ->assertJsonFragment([
+                    'message' => 'Company Admin registered and logged in successfully.',
+                ])
+                ->assertJsonStructure([
+                    'message',
+                    'data' => [
+                        'user_id',
+                        'token',
+                        'roles' => [],
+                    ],
+                ]);
 
         // Assert that the user was inserted into the database
         $this->assertDatabaseHas('users', [
@@ -145,7 +158,9 @@ class RegisterCompanyAdminTest extends TestCase
         $userData = [
             // User information
             'first_name' => '',
+            'middle_name' => null,
             'last_name' => '',
+            'suffix' => null,
             'place_of_birth' => '',
             'date_of_birth' => '',
             'gender' => '',

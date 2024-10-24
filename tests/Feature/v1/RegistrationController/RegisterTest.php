@@ -89,7 +89,9 @@ class RegisterTest extends TestCase
         // Arrange user data
         $userData = [
             'first_name' => 'User',
+            'middle_name' => null,
             'last_name' => 'Last Name',
+            'suffix' => null,
             'place_of_birth' => 'Santa Rosa, Laguna',
             'date_of_birth' => '2002-05-18',
             'gender' => 'Male',
@@ -107,7 +109,18 @@ class RegisterTest extends TestCase
         $response = $this->postJson(route('v1.register'), $userData);
 
         // Assert that the response is successful
-        $response->assertStatus(201);
+        $response->assertStatus(201)
+                ->assertJsonFragment([
+                    'message' => 'Registration successful and user logged in.',
+                ])
+                ->assertJsonStructure([
+                    'message',
+                    'data' => [
+                        'user_id',
+                        'token',
+                        'roles' => [],
+                    ],
+                ]);
 
         // Verify that the user was created in the database
         $this->assertDatabaseHas('users', [
@@ -122,7 +135,9 @@ class RegisterTest extends TestCase
         // Arrange user data
         $userData = [
             'first_name' => 'User',
+            'middle_name' => null,
             'last_name' => 'Last Name',
+            'suffix' => null,
             'place_of_birth' => 'Santa Rosa, Laguna',
             'date_of_birth' => '2002-05-18',
             'gender' => 'Male',
@@ -151,7 +166,9 @@ class RegisterTest extends TestCase
         // Arrange user data missing all fields
         $userData = [
             'first_name' => '',
+            'middle_name' => null,
             'last_name' => '',
+            'suffix' => null,
             'place_of_birth' => '',
             'date_of_birth' => '',
             'gender' => '',

@@ -1,0 +1,207 @@
+# Render and GitHub Actions Integration for Laravel CI and Deployment
+
+# This file combines your CI pipeline and Render's deployment process.
+# It ensures that the tests are run first, and if they fail, the deployment stops.
+
+name: Laravel CI and Deploy to Render
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # Laravel CI job
+  laravel-tests:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout code
+      - uses: actions/checkout@v4
+
+      # Set up PHP
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, sqlite3, dom, fileinfo
+
+      # Cache Composer dependencies for faster builds
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-
+
+      # Install Composer dependencies
+      - name: Install Composer dependencies
+        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      # Set environment variables for testing
+      - name: Set environment variables
+        run: |
+          echo "APP_ENV=testing" >> $GITHUB_ENV
+          echo "DB_CONNECTION=sqlite" >> $GITHUB_ENV
+          echo "JWT_SECRET=your_jwt_secret" >> $GITHUB_ENV
+
+      # Copy .env.example and prepare the environment
+      - name: Copy .env
+        run: cp .env.example .env
+
+      # Generate APP_KEY (required for Crypt and other encrypted functions)
+      - name: Generate application key
+        run: php artisan key:generate
+
+      # Create SQLite database
+      - name: Prepare SQLite database
+        run: |
+          touch database/database.sqlite
+
+      # Run migrations for testing
+      - name: Run migrations
+        run: php artisan migrate --force
+
+      # Run tests
+      - name: Run tests
+        run: php artisan test --env=testing --debug
+
+  # Render deployment job (only runs if tests pass)
+  deploy:
+    needs: laravel-tests  # Only run if tests pass
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Render
+        run: |
+          cat <<EOF > .render.yaml
+          version: "1"
+          services:
+            - type: web
+              name: employee-management-backend
+              runtime: docker
+              repo: https://github.com/lancedalanon/employee-management-backend
+              plan: free
+              envVars:
+                - key: APP_ENV
+                  sync: false
+                - key: AWS_ENDPOINT
+                  sync: false
+                - key: AWS_URL
+                  sync: false
+                - key: AWS_USE_PATH_STYLE_ENDPOINT
+                  sync: false
+                - key: AWS_BUCKET
+                  sync: false
+                - key: AWS_DEFAULT_REGION
+                  sync: false
+                - key: AWS_SECRET_ACCESS_KEY
+                  sync: false
+                - key: AWS_ACCESS_KEY_ID
+                  sync: false
+                - key: FILESYSTEM_DISK
+                  sync: false
+                - key: APP_URL
+                  sync: false
+                - key: AUTH_PASSWORD_RESET_TOKEN_TABLE
+                  sync: false
+                - key: JWT_SECRET
+                  sync: false
+                - key: VITE_APP_NAME
+                  sync: false
+                - key: MAIL_FROM_NAME
+                  sync: false
+                - key: MAIL_FROM_ADDRESS
+                  sync: false
+                - key: MAIL_ENCRYPTION
+                  sync: false
+                - key: MAIL_PASSWORD
+                  sync: false
+                - key: MAIL_USERNAME
+                  sync: false
+                - key: MAIL_PORT
+                  sync: false
+                - key: MAIL_HOST
+                  sync: false
+                - key: MAIL_MAILER
+                  sync: false
+                - key: REDIS_PORT
+                  sync: false
+                - key: REDIS_PASSWORD
+                  sync: false
+                - key: REDIS_HOST
+                  sync: false
+                - key: REDIS_CLIENT
+                  sync: false
+                - key: MEMCACHED_HOST
+                  sync: false
+                - key: CACHE_PREFIX
+                  sync: false
+                - key: CACHE_STORE
+                  sync: false
+                - key: QUEUE_CONNECTION
+                  sync: false
+                - key: BROADCAST_CONNECTION
+                  sync: false
+                - key: SESSION_SECURE_COOKIE
+                  sync: false
+                - key: SESSION_DOMAIN
+                  sync: false
+                - key: SESSION_PATH
+                  sync: false
+                - key: SESSION_ENCRYPT
+                  sync: false
+                - key: SESSION_LIFETIME
+                  sync: false
+                - key: SESSION_DRIVER
+                  sync: false
+                - key: DB_PASSWORD
+                  sync: false
+                - key: DB_USERNAME
+                  sync: false
+                - key: DB_DATABASE
+                  sync: false
+                - key: DB_PORT
+                  sync: false
+                - key: DB_HOST
+                  sync: false
+                - key: DB_CONNECTION
+                  sync: false
+                - key: LOG_LEVEL
+                  sync: false
+                - key: LOG_DEPRECATIONS_CHANNEL
+                  sync: false
+                - key: LOG_STACK
+                  sync: false
+                - key: LOG_CHANNEL
+                  sync: false
+                - key: BCRYPT_ROUNDS
+                  sync: false
+                - key: APP_MAINTENANCE_STORE
+                  sync: false
+                - key: APP_MAINTENANCE_DRIVER
+                  sync: false
+                - key: APP_FAKER_LOCALE
+                  sync: false
+                - key: APP_FALLBACK_LOCALE
+                  sync: false
+                - key: APP_LOCALE
+                  sync: false
+                - key: APP_TIMEZONE
+                  sync: false
+                - key: APP_DEBUG
+                  sync: false
+                - key: APP_KEY
+                  sync: false
+                - key: APP_NAME
+                  sync: false
+              region: oregon
+              dockerContext: .
+              dockerfilePath: ./Dockerfile
+          EOF
+
+          curl -X POST https://api.render.com/deploy/${{ secrets.RENDER_SERVICE_ID }} --data-binary @.render.yaml --header 'Authorization: Bearer ${{ secrets.RENDER_API_KEY }}'
