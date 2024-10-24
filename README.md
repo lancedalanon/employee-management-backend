@@ -1,66 +1,230 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Employee Management System (API-Only Backend)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This is an API-only backend built with **Laravel 11** for managing employees. It includes features such as **Daily Time Record (DTR)**, **Kanban Board**, **Leave Requests**, and a **Company Dashboard**, among others.
 
-## About Laravel
+## Features
+- **Daily Time Record (DTR)**: Track employee attendance and time entries.
+- **Kanban Board**: Manage tasks and projects effectively.
+- **Leave Requests**: Handle and manage employee leave requests seamlessly.
+- **Company Dashboard**: View insights and key company metrics in real-time.
+- **API-Only**: Built as a RESTful API for easy integration with frontend clients.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Table of Contents
+1. [Prerequisites](#prerequisites)
+2. [Installation](#installation)
+3. [Docker Setup for Local Development](#docker-setup-for-local-development)
+4. [Hosting on Render](#hosting-on-render)
+5. [GitHub Actions CI/CD](#github-actions-cicd)
+6. [License](#license)
+7. [Contact](#contact)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Prerequisites
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Before you begin, ensure you have met the following requirements:
 
-## Learning Laravel
+- **PHP 8.2** or higher
+- **Laravel 11**
+- **Composer** (for managing PHP dependencies)
+- **MySQL** or **PostgreSQL** (for database)
+- Optional: **Docker** (if you prefer containerized development)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+If you choose to use Docker, follow the Docker setup instructions. Otherwise, ensure you manually install all the required dependencies listed above.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Installation
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+To install and run the project locally, follow these steps:
 
-## Laravel Sponsors
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/lancedalanon/employee-management-backend.git
+   cd employee-management-backend
+   ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+2. **Install PHP dependencies**:
+   ```bash
+   composer install
+   ```
 
-### Premium Partners
+3. **Set up environment variables**:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+4. **Update the `.env` file** with your database configuration. Ensure the following fields are set:
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=your_database_name
+   DB_USERNAME=your_username
+   DB_PASSWORD=your_password
+   ```
 
-## Contributing
+5. **Run migrations** (you can also seed with `php artisan migrate:fresh --seed`):
+   ```bash
+   php artisan migrate
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+6. **Generate JWT secret**:
+   ```bash
+   php artisan jwt:secret
+   ```
 
-## Code of Conduct
+7. **Add JWT secret to `.env` file**:
+   ```env
+   JWT_SECRET=your_generated_secret_key
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+8. **Run the application locally**:
+   ```bash
+   php artisan serve
+   ```
 
-## Security Vulnerabilities
+### Requirements
+- **PHP 8.2** or higher
+- **Laravel 11**
+- **Composer**
+- **MySQL or PostgreSQL** (for database)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Docker Setup for Local Development
 
+You can set up the project using Docker for local development with the following configuration.
+
+### Dockerfile
+```dockerfile
+# Use the official PHP image
+FROM php:8.2-fpm
+
+# Set working directory
+WORKDIR /var/www
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    git \
+    curl
+
+# Install PHP extensions
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Copy existing application directory contents
+COPY . /var/www
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www
+
+# Expose port 9000 and start PHP-FPM server
+EXPOSE 9000
+CMD ["php-fpm"]
+```
+
+### Running the Project in Docker
+1. **Build the Docker image**:
+   ```bash
+   docker build -t employee-management-backend .
+   ```
+
+2. **Run the Docker container**:
+   ```bash
+   docker run -p 8000:9000 employee-management-backend
+   ```
+
+This setup will allow you to develop and run the application locally using Docker.
+
+## Hosting on Render
+
+You can host this Laravel project on **Render**, a popular platform-as-a-service (PaaS) for web applications. Follow Render's Laravel web service setup instructions for deployment.
+
+## GitHub Actions CI/CD
+
+This project includes a **GitHub Actions** workflow for Continuous Integration (CI) to automate testing whenever changes are pushed to the repository. The workflow is configured to run tests on the **main** branch and during pull requests.
+
+### Example GitHub Actions Workflow (`.github/workflows/laravel.yml`)
+
+```yaml
+name: Laravel CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code
+      - uses: actions/checkout@v4
+
+      # Set up PHP
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, sqlite3, dom, fileinfo
+
+      # Cache Composer dependencies for faster builds
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-
+
+      # Install Composer dependencies
+      - name: Install Composer dependencies
+        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      # Set environment variables for testing
+      - name: Set environment variables
+        run: |
+          echo "APP_ENV=testing" >> $GITHUB_ENV
+          echo "DB_CONNECTION=sqlite" >> $GITHUB_ENV
+          echo "JWT_SECRET=your_jwt_secret" >> $GITHUB_ENV
+
+      # Copy .env.example and prepare the environment
+      - name: Copy .env
+        run: cp .env.example .env
+
+      # Generate APP_KEY (required for Crypt and other encrypted functions)
+      - name: Generate application key
+        run: php artisan key:generate
+
+      # Create SQLite database
+      - name: Prepare SQLite database
+        run: |
+          touch database/database.sqlite
+
+      # Run migrations for testing
+      - name: Run migrations
+        run: php artisan migrate --force
+
+      # Run tests
+      - name: Run tests
+        run: php artisan test --env=testing --debug
+```
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is licensed under the **MIT License** - see the LICENSE file for details.
+
+## Contact
+
+For any questions or feedback, feel free to reach out:
+
+- **Email**: lanceorville5@gmail.com
+- **GitHub**: [lancedalanon](https://github.com/lancedalanon)
