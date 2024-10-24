@@ -202,6 +202,4 @@ jobs:
               region: oregon
               dockerContext: .
               dockerfilePath: ./Dockerfile
-          EOF
-
-          curl -X POST https://api.render.com/deploy/${{ secrets.RENDER_SERVICE_ID }} --data-binary @.render.yaml --header 'Authorization: Bearer ${{ secrets.RENDER_API_KEY }}'
+            version: "1"
