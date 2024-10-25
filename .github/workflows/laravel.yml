@@ -62,3 +62,11 @@ jobs:
       # Run tests
       - name: Run tests
         run: php artisan test --env=testing --debug
+
+      - name: Deploy
+        # Only run this step if the branch is main
+        if: github.ref == 'refs/heads/main'
+        env:
+          deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          curl "$deploy_url"
