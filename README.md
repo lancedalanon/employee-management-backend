@@ -1,5 +1,11 @@
 # Employee Management System (API-Only Backend)
 
+[![Laravel](https://img.shields.io/badge/Laravel-%23EA542E.svg?style=flat&logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-%23777BB4.svg?style=flat&logo=php&logoColor=white)](https://www.php.net)
+[![Docker](https://img.shields.io/badge/Docker-%232496ED.svg?style=flat&logo=docker&logoColor=white)](https://www.docker.com)
+[![NGINX](https://img.shields.io/badge/NGINX-%23009639.svg?style=flat&logo=nginx&logoColor=white)](https://www.nginx.com)
+[![Render](https://img.shields.io/badge/Render-%23000000.svg?style=flat&logo=render&logoColor=white)](https://render.com)
+
 This is an API-only backend built with **Laravel 11** for managing employees. It includes features such as **Daily Time Record (DTR)**, **Kanban Board**, **Leave Requests**, and a **Company Dashboard**, among others.
 
 ## Features
