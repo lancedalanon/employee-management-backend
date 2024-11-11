@@ -96,6 +96,7 @@ class DatabaseSeeder extends Seeder
             'phone_number' => '0921-887-88887',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
+            'company_id' => $company->company_id,
         ]);
 
         $companyUser->assignRole($employeeRole);

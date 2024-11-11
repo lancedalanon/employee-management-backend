@@ -100,13 +100,7 @@ class DtrService
         $imageFile = $validatedData['dtr_time_in_image'];
 
         try {
-            // Evaluate the schedule start time
-            $isWithinSchedule = $this->evaluateScheduleService->evaluateSchedule($user);
-
-            // Handle schedule start time failure
-            if (! $isWithinSchedule) {
-                return response()->json(['message' => 'Outside of schedule.'], 409);
-            }
+            // TODO: update EvaluateScheduleService to handle validation
 
             // Check if there is an open time in session
             $openTimeIn = Dtr::where('user_id', $user->user_id)
@@ -186,14 +180,8 @@ class DtrService
             if ($dtrTimeIn->breaks->isNotEmpty()) {
                 return response()->json(['message' => 'Failed to time out. You have an open break session.'], 400);
             }
-            
-            // Convert `dtr_time_in` to a Carbon instance
-            $dtrTimeInTime = Carbon::parse($dtrTimeIn->dtr_time_in);
 
-            // Check if time-out is within the allowed late entry time
-            if ($this->evaluateScheduleService->isTimeOutLate($user, $dtrTimeInTime)) {
-                return response()->json(['message' => 'Failed to time out. The time-out is too late. Please use the late entry clearance option.'], 409);
-            }
+            // TODO: update EvaluateScheduleService to handle validation
 
             // Create a unique file name for the time-out image
             $dtrTimeOutFileName = 'dtr_time_out_images/' . uniqid() . '.' . $dtrTimeOutImage->getClientOriginalExtension();
@@ -360,13 +348,7 @@ class DtrService
                 return response()->json(['message' => 'Failed to time out. You have an open break session.'], 400);
             }
 
-            // Convert `dtr_time_in` to a Carbon instance
-            $dtrTimeInTime = Carbon::parse($dtrTimeIn->dtr_time_in);
-
-            // Check if time-out is not the allowed late entry time
-            if (!($this->evaluateScheduleService->isTimeOutLate($user, $dtrTimeInTime))) {
-                return response()->json(['message' => 'Time-out is not a late entry.'], 409);
-            }
+            // TODO: Add validation for time
 
             // Create a unique file name for the time-out image
             $dtrTimeOutFileName = 'dtr_time_out_images/' . uniqid() . '.' . $dtrTimeOutImage->getClientOriginalExtension();
