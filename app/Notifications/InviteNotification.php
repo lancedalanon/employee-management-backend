@@ -39,7 +39,7 @@ class InviteNotification extends Notification
         return (new MailMessage)
             ->subject('You are invited to join our company')
             ->line('You have been invited to join our company.')
-            ->action('Register', url('/register?token=' . $this->token))
+            ->action('Register', url('https://project-ems-frontend.netlify.app/auth/register/user?token=' . $this->token))
             ->line('Thank you for using our application!');
     }
 
